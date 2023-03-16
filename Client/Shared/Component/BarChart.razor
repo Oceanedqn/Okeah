@@ -1,0 +1,84 @@
+﻿<MudItem xs="12" Class="d-flex justify-center">
+    <MudPaper Elevation="0" Class="invisible-background ordonnee-label" Width="30px">
+        @foreach (int value in OrderedList)
+        {
+            <MudPaper Elevation="0" Class="invisible-background" Height="@(DisplayStep(50).ToString() + "px")" >@value</MudPaper>
+        }
+    </MudPaper>
+    <MudPaper Height="@(_height.ToString() + "px")" Width="@(_width.ToString() + "px")" Elevation="0" Class="border-charts d-flex align-end">
+        @foreach (DataChart value in DataChartList)
+        {
+            <MudPaper Height="100%" Width="@(_calculWidthRow.ToString().Replace(",",".") + "px")" Class="d-flex align-end pa-0" Elevation="0">
+                <MudGrid>
+                    <MudItem xs="12" Class="py-0">
+                        <MudPaper Style="margin:auto" Width="@(_widthBatonColor.ToString().Replace(",",".") + "px")" Elevation="0" Class="d-flex justify-center">
+                            <MudText Class="@ReturnColor(value.NormalizedValue, false)" Typo="Typo.body2"><br>@value.RealValue<br /></MudText>
+                        </MudPaper>
+                    </MudItem>
+                    <MudItem xs="12" Class="pt-0">
+                        <MudPaper Height="@((value.NormalizedValue * _height / 100).ToString().Replace(",",".") + "px")" Width="@(_widthBatonColor.ToString().Replace(",",".") + "px")" Style="margin:auto; border-radius:5px" Class="@ReturnColor(value.NormalizedValue, true)" />
+                    </MudItem>
+                </MudGrid>
+            </MudPaper>
+        }
+    </MudPaper>
+</MudItem>
+<MudItem xs="12" Class="d-flex justify-center py-0">
+    <MudPaper Width="@(_width.ToString() + "px")" Elevation="0" Class="d-flex invisible-background px-0">
+        @foreach (string value in Axis)
+        {
+            <MudPaper Width="@(_calculWidthRow.ToString().Replace(",",".") + "px")" Elevation="0" Class="invisible-background d-flex justify-center">
+                    <MudText Typo="Typo.body2">@value</MudText>
+            </MudPaper>
+        }
+    </MudPaper>
+</MudItem>
+
+
+<style>
+    .ordonnee-label {
+        margin-left: -28px;
+        padding-right: 4px;
+        margin-bottom: 10px;
+    }
+
+    .border-charts {
+        border-left: solid black 1px;
+        border-bottom: solid black 1px;
+        border-radius: 0px !important;
+    }
+
+
+    .background-custom-one {
+        background-color: #304a7d;
+    }
+
+    .background-custom-two {
+        background-color: #3f9ebe;
+    }
+
+    .background-custom-three {
+        background-color: #91b041;
+    }
+
+    .background-custom-four {
+        background-color: #ffcf1b;
+    }
+
+
+    .color-custom-one {
+        color: #304a7d;
+    }
+
+    .color-custom-two {
+        color: #3f9ebe;
+    }
+
+    .color-custom-three {
+        color: #91b041;
+    }
+
+    .color-custom-four {
+        color: #ffcf1b;
+    }
+</style>
