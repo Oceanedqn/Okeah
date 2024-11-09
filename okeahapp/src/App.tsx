@@ -4,7 +4,7 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import { ThemeProvider } from "styled-components";
 import { vintageTheme, futuristTheme, plexiglasOrangeTheme } from "./theme/theme";
-import GlobalStyles from "./styles/GlobalStyles";
+import GlobalStyles, { ContainerStyle } from "./styles/GlobalStyles";
 import Authentication from "./pages/Authentication";
 import PrivateRoute from "./components/PrivateRouteComponent";
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
@@ -68,24 +68,26 @@ const App: React.FC = () => {
       <GlobalStyles />
       <Router>
         {isAuthenticated && <NavbarComponent onLogout={handleLogout} />}
-        <Routes>
-          <Route path="/login" element={<Authentication onLogin={() => setIsAuthenticated(true)} />} />
-          <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
-          <Route path="/" element={<Navigate to="/login" />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/enigmato/home" element={<PrivateRoute><EnigmatoHome /></PrivateRoute>} />
-          <Route path="/enigmato/parties" element={<PrivateRoute><EnigmatoParties /></PrivateRoute>} />
-          <Route path="/enigmato/parties/:id_party/profil" element={<PrivateRoute><EnigmatoProfil /></PrivateRoute>} />
-          <Route path="/enigmato/parties/:id_party/game/info" element={<PrivateRoute><EnigmatoGameInfo /></PrivateRoute>} />
-          <Route path="/enigmato/parties/:id_party/game" element={<PrivateRoute><EnigmatoGame /></PrivateRoute>} />
-        </Routes>
-        <VisualSettingsComponent
-          currentTheme={currentTheme}
-          setTheme={setCurrentTheme}
-          currentLanguage={currentLanguage}
-          setLanguage={setCurrentLanguage}
-        />
+        <ContainerStyle>
+          <Routes>
+            <Route path="/login" element={<Authentication onLogin={() => setIsAuthenticated(true)} />} />
+            <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
+            <Route path="/" element={<Navigate to="/login" />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/enigmato/home" element={<PrivateRoute><EnigmatoHome /></PrivateRoute>} />
+            <Route path="/enigmato/parties" element={<PrivateRoute><EnigmatoParties /></PrivateRoute>} />
+            <Route path="/enigmato/parties/:id_party/profil" element={<PrivateRoute><EnigmatoProfil /></PrivateRoute>} />
+            <Route path="/enigmato/parties/:id_party/game/info" element={<PrivateRoute><EnigmatoGameInfo /></PrivateRoute>} />
+            <Route path="/enigmato/parties/:id_party/game" element={<PrivateRoute><EnigmatoGame /></PrivateRoute>} />
+          </Routes>
+          <VisualSettingsComponent
+            currentTheme={currentTheme}
+            setTheme={setCurrentTheme}
+            currentLanguage={currentLanguage}
+            setLanguage={setCurrentLanguage}
+          />
+        </ContainerStyle>
       </Router>
     </ThemeProvider>
   );

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { login_async } from '../../services/authentication/loginService';
 import { CenteredElement, InputStyle, LabelStyle } from '../../styles/AuthenticationStyles';
-import { ButtonStyle, TitleH1Style } from '../../styles/GlobalStyles';
+import { ButtonStyle, Title1Style } from '../../styles/GlobalStyles';
 import { useTranslation } from 'react-i18next';
 
 const LoginComponent: React.FC<{ onLogin: () => void; handleToggle: () => void; isLogin: boolean }> = ({ onLogin, handleToggle, isLogin }) => {
@@ -33,7 +33,7 @@ const LoginComponent: React.FC<{ onLogin: () => void; handleToggle: () => void; 
 
     return (
         <CenteredElement>
-            <TitleH1Style>{t('login')}</TitleH1Style>
+            <Title1Style>{t('login')}</Title1Style>
             {isLogin && (
                 <form onSubmit={handleLogin}>
                     <div>

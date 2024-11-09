@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CenteredElement, CustomRadioStyle, InputStyle, LabelStyle, RadioInputStyle, RadioLabelStyle } from '../../styles/AuthenticationStyles';
-import { ButtonStyle, TitleH1Style } from '../../styles/GlobalStyles';
+import { ButtonStyle, Title1Style } from '../../styles/GlobalStyles';
 import { useTranslation } from 'react-i18next';
 import { register_async } from '../../services/authentication/registerService';
 
@@ -32,7 +32,7 @@ const RegisterComponent: React.FC<{ onRegister: () => void; handleToggle: () => 
 
     return (
         <CenteredElement>
-            <TitleH1Style>{t('register')}</TitleH1Style>
+            <Title1Style>{t('register')}</Title1Style>
             {!isLogin && (
                 <form onSubmit={handleRegister}>
                     <div>

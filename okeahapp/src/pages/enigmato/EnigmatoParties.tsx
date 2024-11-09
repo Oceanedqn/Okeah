@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ButtonStyle } from '../../styles/GlobalStyles';
-import { Container1, ModalContent, ModalOverlay, PartieItem, PartiesContainer, Title1 } from '../../styles/EnigmatoStyles';
+import { ButtonStyle, ContainerUnderTitleStyle } from '../../styles/GlobalStyles';
+import { EnigmatoContainerStyle, ModalContent, ModalOverlay, EnigmatoItemStyle } from '../../styles/EnigmatoStyles';
 import { getOngoingParties } from '../../services/enigmato/enigmatoPartiesService';
 import { EnigmatoParty } from '../../interfaces/IEnigmato';
+import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
+import { useTranslation } from 'react-i18next';
 
 const EnigmatoParties: React.FC = () => {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const [parties, setParties] = useState<EnigmatoParty[]>([]);
     const [selectedPartie, setSelectedPartie] = useState<EnigmatoParty | null>(null);
     const [password, setPassword] = useState('');
@@ -28,7 +31,7 @@ const EnigmatoParties: React.FC = () => {
         };
 
         fetchParties();
-    }, []);
+    }, [t]);
 
     // Gère le clic sur le bouton retour
     const handleBack = () => {
@@ -54,7 +57,7 @@ const EnigmatoParties: React.FC = () => {
     };
 
     if (loading) {
-        return <div>Chargement des parties...</div>;
+        return <div>{t('loading')}</div>;
     }
 
     if (error) {
@@ -62,39 +65,42 @@ const EnigmatoParties: React.FC = () => {
     }
 
     return (
-        <Container1>
-            <ButtonStyle onClick={handleBack}>Retour</ButtonStyle>
-            <Title1>Liste des parties</Title1>
-    
-            {parties.length === 0 ? (
-                <div>Il n'y a pas encore de partie en cours, merci de patienter.</div>
-            ) : (
-                <PartiesContainer>
-                    {parties.map((partie) => (
-                        <PartieItem key={partie.id_party}>
-                            <span>{partie.name}</span>
-                            <ButtonStyle onClick={() => handleJoin(partie)}>Rejoindre</ButtonStyle>
-                        </PartieItem>
-                    ))}
-                </PartiesContainer>
-            )}
-    
-            {/* Modal pour le mot de passe */}
-            {isModalOpen && (
-                <ModalOverlay>
-                    <ModalContent>
-                        <h3>Entrer le mot de passe pour {selectedPartie?.name}</h3>
-                        <input
-                            type="password"
-                            placeholder="Mot de passe"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
-                        <ButtonStyle onClick={handleSubmitPassword}>Valider</ButtonStyle>
-                    </ModalContent>
-                </ModalOverlay>
-            )}
-        </Container1>
+        <>
+            <HeaderTitleComponent title='partiesList' onBackClick={handleBack}/>
+            <ContainerUnderTitleStyle>
+                {parties.length === 0 ? (
+                    <div>{t('noParties')}</div>
+                ) : (
+                    <EnigmatoContainerStyle>
+                        {parties.map((partie) => (
+                            <EnigmatoItemStyle key={partie.id_party}>
+                                <span>{partie.name}</span>
+                                <ButtonStyle onClick={() => handleJoin(partie)}>{t('join')}</ButtonStyle>
+                            </EnigmatoItemStyle>
+                        ))}
+                    </EnigmatoContainerStyle>
+                )}
+
+                {/* Modal pour le mot de passe */}
+                {isModalOpen && (
+                    <ModalOverlay>
+                        <ModalContent>
+                            <h3>{t('enterPasswordFor')} {selectedPartie?.name}</h3>
+                            <input
+                                type="password"
+                                placeholder={t('password')}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                            <ButtonStyle onClick={handleSubmitPassword}>{t('validate')}</ButtonStyle>
+                        </ModalContent>
+                    </ModalOverlay>
+                )}
+            </ContainerUnderTitleStyle>
+
+        </>
+
+
     );
 };
 
