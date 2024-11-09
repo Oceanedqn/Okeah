@@ -12,14 +12,14 @@ const EnigmatoHome: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchOngoingGames = async () => {
+    const fetchPartiesByUser = async () => {
       try {
         setLoading(true);
 
         // Appel du service pour récupérer les parties en cours
         const games = await getOngoingPartiesByUser(); 
         if (games.length === 0) {
-          setError('Il n\'y a aucune partie en cours.');
+          handleJoinGame();
         } else {
           setOngoingGames(games);  // Sinon, mettre à jour l'état avec les parties récupérées
         }
@@ -30,8 +30,8 @@ const EnigmatoHome: React.FC = () => {
       }
     };
 
-    fetchOngoingGames();
-  }, []); // Le token est récupéré directement dans useEffect, donc pas besoin de le mettre dans les dépendances.
+    fetchPartiesByUser();
+  }, [navigate]); // Le token est récupéré directement dans useEffect, donc pas besoin de le mettre dans les dépendances.
 
   // Fonction pour naviguer vers la page EnigmatoParties
   const handleJoinGame = () => {
