@@ -1,6 +1,6 @@
 import axios from "axios";
+import { API_URL } from "../../constants/constants"
 
-const API_URL = 'http://localhost:8000/users'; // Adjust to match your API base URL
 
 interface RegisterResponse {
     name: string;

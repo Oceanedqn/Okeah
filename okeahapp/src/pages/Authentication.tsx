@@ -11,10 +11,15 @@ const Authentication: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
     setIsLogin(prev => !prev); // Toggle between login and register
   };
 
+  // Fonction pour gérer l'inscription réussie
+  const handleRegisterSuccess = () => {
+    setIsLogin(true); // Basculer vers l'interface de connexion après inscription
+  };
+
   return (
     <ContainerStyle>
       <LoginComponent onLogin={onLogin} handleToggle={handleToggle} isLogin={isLogin} />
-      <RegisterComponent onRegister={() => { }} handleToggle={handleToggle} isLogin={isLogin} />
+      <RegisterComponent onRegister={handleRegisterSuccess} handleToggle={handleToggle} isLogin={isLogin} />
     </ContainerStyle>
   );
 };

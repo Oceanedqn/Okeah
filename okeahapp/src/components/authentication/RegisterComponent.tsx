@@ -1,3 +1,5 @@
+// RegisterComponent.tsx
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CenteredElement, CustomRadioStyle, InputStyle, LabelStyle, RadioInputStyle, RadioLabelStyle } from '../../styles/AuthenticationStyles';
@@ -22,27 +24,16 @@ const RegisterComponent: React.FC<{ onRegister: () => void; handleToggle: () => 
         try {
             const registerData = { name, firstname, mail: email, password, gender };
             await register_async(registerData);
-            navigate('/login'); // Redirect to home after registration
+            onRegister(); // Basculer vers le formulaire de connexion après une inscription réussie
         } catch (err: any) {
-            if (err.response && err.response.data && err.response.data.detail) {
-                setError(err.response.data.detail);
-            } else {
-                setError('An unexpected error occurred.');
-            }
+            setError(err.response?.data?.detail || 'An unexpected error occurred.');
         }
     };
 
     return (
         <CenteredElement>
             <TitleH1Style>{t('register')}</TitleH1Style>
-            {isLogin ? (
-                <p>
-                    Vous avez déjà un compte ?{' '}
-                    <span onClick={handleToggle} style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}>
-                        Connectez-vous
-                    </span>
-                </p>
-            ) : (
+            {!isLogin && (
                 <form onSubmit={handleRegister}>
                     <div>
                         <LabelStyle htmlFor="name">{t('name')}</LabelStyle>
@@ -84,36 +75,17 @@ const RegisterComponent: React.FC<{ onRegister: () => void; handleToggle: () => 
                             required
                         />
                     </div>
-                    <div>
-                        <LabelStyle>{t('gender')}</LabelStyle>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                            <RadioLabelStyle style={{ marginRight: '20px' }}>
-                                <RadioInputStyle
-                                    type="radio"
-                                    name="gender"
-                                    value="true"
-                                    checked={gender === true}
-                                    onChange={() => setGender(true)}
-                                />
-                                <CustomRadioStyle />
-                                {t('female')}
-                            </RadioLabelStyle>
-                            <RadioLabelStyle>
-                                <RadioInputStyle
-                                    type="radio"
-                                    name="gender"
-                                    value="false"
-                                    checked={gender === false}
-                                    onChange={() => setGender(false)}
-                                />
-                                <CustomRadioStyle />
-                                {t('male')}
-                            </RadioLabelStyle>
-                        </div>
-                    </div>
                     <ButtonStyle type="submit" style={{ float: 'right' }}>{t('registerAction')}</ButtonStyle>
                     {error && <p style={{ color: 'red' }}>{error}</p>}
                 </form>
+            )}
+            {isLogin && (
+                <p>
+                    Vous avez déjà un compte ?{' '}
+                    <span onClick={handleToggle} style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}>
+                        Connectez-vous
+                    </span>
+                </p>
             )}
         </CenteredElement>
     );

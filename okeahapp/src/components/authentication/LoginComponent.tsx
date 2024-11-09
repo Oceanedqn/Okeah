@@ -34,7 +34,7 @@ const LoginComponent: React.FC<{ onLogin: () => void; handleToggle: () => void; 
     return (
         <CenteredElement>
             <TitleH1Style>{t('login')}</TitleH1Style>
-            {isLogin ? (
+            {isLogin && (
                 <form onSubmit={handleLogin}>
                     <div>
                         <LabelStyle htmlFor="email">{t('mail')}</LabelStyle>
@@ -59,7 +59,8 @@ const LoginComponent: React.FC<{ onLogin: () => void; handleToggle: () => void; 
                     <ButtonStyle type="submit" style={{ float: 'right' }}>{t('loginAction')}</ButtonStyle>
                     {error && <p style={{ color: 'red' }}>{error}</p>}
                 </form>
-            ) : (
+            )}
+            {!isLogin && (
                 <p>
                     Vous n'avez pas de compte ?{' '}
                     <span onClick={handleToggle} style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}>
