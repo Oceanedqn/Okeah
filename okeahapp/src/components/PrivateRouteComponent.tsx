@@ -7,9 +7,9 @@ import { PrivateRouteProps } from '../types';
 
 
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
-  // Récupération du token depuis les cookies
-  const token = Cookies.get('token'); // Get the token from cookies
-  const isAuthenticated = !!token; // Check if token exists
+  // Récupération du access_token depuis les cookies
+  const access_token = Cookies.get('access_token'); // Get the access_token from cookies
+  const isAuthenticated = !!access_token; // Check if access_token exists
 
   return isAuthenticated ? (
     <>{children}</> // If authenticated, render the children

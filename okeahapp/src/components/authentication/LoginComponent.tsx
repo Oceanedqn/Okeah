@@ -20,7 +20,7 @@ const LoginComponent: React.FC<{ onLogin: () => void; handleToggle: () => void; 
 
         try {
             const { access_token } = await login_async(email, password);
-            Cookies.set('token', access_token, { expires: 1 });
+            Cookies.set('access_token', access_token, { expires: 1 });
             navigate('/home');
         } catch (err: any) {
             if (err.response && err.response.data && err.response.data.detail) {

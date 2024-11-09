@@ -29,13 +29,3 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Schéma de sécurité OAuth2 avec le token
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-# Appliquez le schéma de sécurité global à Swagger
-app.openapi_schema = app.openapi()
-app.openapi_schema["components"]["securitySchemes"] = {
-    "BearerAuth": {"type": "http", "scheme": "bearer"}
-}
-
-app.openapi_schema["security"] = [{"BearerAuth": []}]
