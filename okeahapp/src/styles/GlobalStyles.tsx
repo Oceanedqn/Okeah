@@ -38,7 +38,7 @@ export const TitleH3Style = styled.h3`
 // ################# COMPOSANTS DE BASE #################
 // Composant Select
 export const SelectStyle = styled.select`
-  padding: 10px;
+  padding: 5px;
   font-size: 16px;
   border: none;
   text-align: center;
@@ -58,7 +58,7 @@ export const SelectStyle = styled.select`
 
 // Composant Button
 export const ButtonStyle = styled.button`
-  padding: 10px;
+  padding: 5px;
   font-size: 16px;
   border: none;
   border-radius: 16px;

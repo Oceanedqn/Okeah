@@ -3,8 +3,6 @@
     "logout": "Logout",
     "loginAction": "Login",
     "logoutAction": "Logout",
-    "french": "French",
-    "english": "English",
     "mail": "Email",
     "password": "Password",
     "register": "Register",
@@ -13,5 +11,13 @@
     "firstname": "Firstname",
     "gender": "Gender",
     "female": "Female",
-    "male": "Male"
+    "male": "Male",
+
+    "french": "French",
+    "english": "English",
+
+    "home": "Home",
+    "about": "About",
+    "contact": "Contact",
+    "hub": "Hub"
   }

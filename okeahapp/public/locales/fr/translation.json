@@ -3,8 +3,6 @@
     "logout": "Déconnexion",
     "loginAction": "Se connecter",
     "logoutAction": "Se déconnecter",
-    "french": "Français",
-    "english": "Anglais",
     "mail": "Email",
     "password": "Mot de passe",
     "register": "Inscription",
@@ -13,5 +11,13 @@
     "firstname": "Prénom",
     "gender": "Genre",
     "female": "Femme",
-    "male": "Homme"
+    "male": "Homme",
+
+    "french": "Français",
+    "english": "Anglais",
+
+    "home": "Accueil",
+    "about": "À propos",
+    "contact": "Contact",
+    "hub": "Applications"
   }
