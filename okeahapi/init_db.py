@@ -1,10 +1,7 @@
 # init_db.py
-import asyncio
-from database import engine
+from database import async_engine
 from models import Base
 
-async def init_db():
-    async with engine.begin() as conn:
+async def init_db_async():
+    async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-
-asyncio.run(init_db())

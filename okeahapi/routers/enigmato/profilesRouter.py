@@ -1,9 +1,11 @@
 from fastapi import APIRouter, HTTPException, Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 from typing import List
-from models import EnigmatoProfil
+from models import EnigmatoProfil, User
+from routers.authRouter import get_current_user_async
 from schemas import EnigmatoProfil as EnigmatoProfilSchema
-from database import get_db
+from database import get_db_async
 
 router = APIRouter(
     prefix="/enigmato/profiles",
@@ -11,41 +13,45 @@ router = APIRouter(
 )
 
 @router.post("/", response_model=EnigmatoProfilSchema)
-def create_profile(profile: EnigmatoProfilSchema, db: Session = Depends(get_db)):
-    db_profile = EnigmatoProfil(**profile.dict())
+async def create_profile_async(profile: EnigmatoProfilSchema, db: AsyncSession = Depends(get_db_async)):
+    db_profile = EnigmatoProfil(**profile.model_dump())
     db.add(db_profile)
-    db.commit()
-    db.refresh(db_profile)
+    await db.commit()
+    await db.refresh(db_profile)
     return db_profile
 
 @router.get("/", response_model=List[EnigmatoProfilSchema])
-def read_profiles(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    profiles = db.query(EnigmatoProfil).offset(skip).limit(limit).all()
+async def read_profiles_async(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
+    result = await db.execute(select(EnigmatoProfil).offset(skip).limit(limit))
+    profiles = result.scalars().all()
     return profiles
 
 @router.get("/{profile_id}", response_model=EnigmatoProfilSchema)
-def read_profile(profile_id: int, db: Session = Depends(get_db)):
-    profile = db.query(EnigmatoProfil).filter(EnigmatoProfil.id_profil == profile_id).first()
+async def read_profile_async(profile_id: int, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
+    result = await db.execute(select(EnigmatoProfil).filter(EnigmatoProfil.id_profil == profile_id))
+    profile = result.scalar_one_or_none()
     if profile is None:
         raise HTTPException(status_code=404, detail="Profile not found")
     return profile
 
 @router.put("/{profile_id}", response_model=EnigmatoProfilSchema)
-def update_profile(profile_id: int, profile: EnigmatoProfilSchema, db: Session = Depends(get_db)):
-    db_profile = db.query(EnigmatoProfil).filter(EnigmatoProfil.id_profil == profile_id).first()
+async def update_profile_async(profile_id: int, profile: EnigmatoProfilSchema, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
+    result = await db.execute(select(EnigmatoProfil).filter(EnigmatoProfil.id_profil == profile_id))
+    db_profile = result.scalar_one_or_none()
     if db_profile is None:
         raise HTTPException(status_code=404, detail="Profile not found")
     for key, value in profile.dict().items():
         setattr(db_profile, key, value)
-    db.commit()
-    db.refresh(db_profile)
+    await db.commit()
+    await db.refresh(db_profile)
     return db_profile
 
 @router.delete("/{profile_id}", response_model=EnigmatoProfilSchema)
-def delete_profile(profile_id: int, db: Session = Depends(get_db)):
-    db_profile = db.query(EnigmatoProfil).filter(EnigmatoProfil.id_profil == profile_id).first()
+async def delete_profile_async(profile_id: int, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
+    result = await db.execute(select(EnigmatoProfil).filter(EnigmatoProfil.id_profil == profile_id))
+    db_profile = result.scalar_one_or_none()
     if db_profile is None:
         raise HTTPException(status_code=404, detail="Profile not found")
-    db.delete(db_profile)
-    db.commit()
+    await db.delete(db_profile)
+    await db.commit()
     return db_profile

@@ -1,9 +1,11 @@
 from fastapi import APIRouter, HTTPException, Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 from typing import List
-from models import EnigmatoParty
+from models import EnigmatoParty, User
+from routers.authRouter import get_current_user_async
 from schemas import EnigmatoParty as EnigmatoPartySchema
-from database import get_db
+from database import get_db_async
 
 router = APIRouter(
     prefix="/enigmato/parties",
@@ -11,41 +13,45 @@ router = APIRouter(
 )
 
 @router.post("/", response_model=EnigmatoPartySchema)
-def create_party(party: EnigmatoPartySchema, db: Session = Depends(get_db)):
+async def create_party_async(party: EnigmatoPartySchema, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
     db_party = EnigmatoParty(**party.dict())
     db.add(db_party)
-    db.commit()
-    db.refresh(db_party)
+    await db.commit()
+    await db.refresh(db_party)
     return db_party
 
 @router.get("/", response_model=List[EnigmatoPartySchema])
-def read_parties(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    parties = db.query(EnigmatoParty).offset(skip).limit(limit).all()
+async def read_parties_async(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
+    result = await db.execute(select(EnigmatoParty).offset(skip).limit(limit))
+    parties = result.scalars().all()
     return parties
 
 @router.get("/{party_id}", response_model=EnigmatoPartySchema)
-def read_party(party_id: int, db: Session = Depends(get_db)):
-    party = db.query(EnigmatoParty).filter(EnigmatoParty.id_party == party_id).first()
+async def read_party_async(party_id: int, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
+    result = await db.execute(select(EnigmatoParty).filter(EnigmatoParty.id_party == party_id))
+    party = result.scalar_one_or_none()
     if party is None:
         raise HTTPException(status_code=404, detail="Party not found")
     return party
 
 @router.put("/{party_id}", response_model=EnigmatoPartySchema)
-def update_party(party_id: int, party: EnigmatoPartySchema, db: Session = Depends(get_db)):
-    db_party = db.query(EnigmatoParty).filter(EnigmatoParty.id_party == party_id).first()
+async def update_party_async(party_id: int, party: EnigmatoPartySchema, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
+    result = await db.execute(select(EnigmatoParty).filter(EnigmatoParty.id_party == party_id))
+    db_party = result.scalar_one_or_none()
     if db_party is None:
         raise HTTPException(status_code=404, detail="Party not found")
     for key, value in party.dict().items():
         setattr(db_party, key, value)
-    db.commit()
-    db.refresh(db_party)
+    await db.commit()
+    await db.refresh(db_party)
     return db_party
 
 @router.delete("/{party_id}", response_model=EnigmatoPartySchema)
-def delete_party(party_id: int, db: Session = Depends(get_db)):
-    db_party = db.query(EnigmatoParty).filter(EnigmatoParty.id_party == party_id).first()
+async def delete_party_async(party_id: int, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
+    result = await db.execute(select(EnigmatoParty).filter(EnigmatoParty.id_party == party_id))
+    db_party = result.scalar_one_or_none()
     if db_party is None:
         raise HTTPException(status_code=404, detail="Party not found")
-    db.delete(db_party)
-    db.commit()
+    await db.delete(db_party)
+    await db.commit()
     return db_party

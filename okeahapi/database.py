@@ -20,6 +20,6 @@ async_session = sessionmaker(
 Base = declarative_base()
 
 # Dépendance de la base de données pour FastAPI
-async def get_db():
+async def get_db_async():
     async with async_session() as session:
         yield session

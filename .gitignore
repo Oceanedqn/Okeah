@@ -64,6 +64,9 @@ coverage/
 .prettierignore
 .prettierrc
 
+# Fichiers générés par les compilations Python
+*.cpython-3*
+
 # Fichiers de logs
 logs/
 *.log

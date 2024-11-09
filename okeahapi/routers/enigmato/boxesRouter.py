@@ -1,9 +1,10 @@
 from fastapi import APIRouter, HTTPException, Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 from typing import List
 from models import EnigmatoBox
 from schemas import EnigmatoBox as EnigmatoBoxSchema
-from database import get_db
+from database import get_db_async
 
 router = APIRouter(
     prefix="/enigmato/boxes",
@@ -11,41 +12,45 @@ router = APIRouter(
 )
 
 @router.post("/", response_model=EnigmatoBoxSchema)
-def create_box(box: EnigmatoBoxSchema, db: Session = Depends(get_db)):
+async def create_box_async(box: EnigmatoBoxSchema, db: AsyncSession = Depends(get_db_async)):
     db_box = EnigmatoBox(**box.dict())
     db.add(db_box)
-    db.commit()
-    db.refresh(db_box)
+    await db.commit()
+    await db.refresh(db_box)
     return db_box
 
 @router.get("/", response_model=List[EnigmatoBoxSchema])
-def read_boxes(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    boxes = db.query(EnigmatoBox).offset(skip).limit(limit).all()
+async def read_boxes_async(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db_async)):
+    result = await db.execute(select(EnigmatoBox).offset(skip).limit(limit))
+    boxes = result.scalars().all()
     return boxes
 
 @router.get("/{box_id}", response_model=EnigmatoBoxSchema)
-def read_box(box_id: int, db: Session = Depends(get_db)):
-    box = db.query(EnigmatoBox).filter(EnigmatoBox.id_box == box_id).first()
+async def read_box_async(box_id: int, db: AsyncSession = Depends(get_db_async)):
+    result = await db.execute(select(EnigmatoBox).filter(EnigmatoBox.id_box == box_id))
+    box = result.scalar_one_or_none()
     if box is None:
         raise HTTPException(status_code=404, detail="Box not found")
     return box
 
 @router.put("/{box_id}", response_model=EnigmatoBoxSchema)
-def update_box(box_id: int, box: EnigmatoBoxSchema, db: Session = Depends(get_db)):
-    db_box = db.query(EnigmatoBox).filter(EnigmatoBox.id_box == box_id).first()
+async def update_box_async(box_id: int, box: EnigmatoBoxSchema, db: AsyncSession = Depends(get_db_async)):
+    result = await db.execute(select(EnigmatoBox).filter(EnigmatoBox.id_box == box_id))
+    db_box = result.scalar_one_or_none()
     if db_box is None:
         raise HTTPException(status_code=404, detail="Box not found")
     for key, value in box.dict().items():
         setattr(db_box, key, value)
-    db.commit()
-    db.refresh(db_box)
+    await db.commit()
+    await db.refresh(db_box)
     return db_box
 
 @router.delete("/{box_id}", response_model=EnigmatoBoxSchema)
-def delete_box(box_id: int, db: Session = Depends(get_db)):
-    db_box = db.query(EnigmatoBox).filter(EnigmatoBox.id_box == box_id).first()
+async def delete_box_async(box_id: int, db: AsyncSession = Depends(get_db_async)):
+    result = await db.execute(select(EnigmatoBox).filter(EnigmatoBox.id_box == box_id))
+    db_box = result.scalar_one_or_none()
     if db_box is None:
         raise HTTPException(status_code=404, detail="Box not found")
-    db.delete(db_box)
-    db.commit()
+    await db.delete(db_box)
+    await db.commit()
     return db_box

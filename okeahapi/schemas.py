@@ -3,12 +3,27 @@ from typing import Optional
 from datetime import date, datetime
 
 # Modèle pour l'utilisateur
-class User(BaseModel):
+class UserBase(BaseModel):
     id_user: int
     name: str
     firstname: str
     mail: str
     password: str
+    gender: bool = False
+
+class User(BaseModel):
+    id_user: int
+    name: str
+    firstname: str
+    mail: str
+    gender: bool = False
+
+class UserCreate(BaseModel):
+    name: str
+    firstname: str
+    mail: str
+    password: str
+    gender: bool = False
 
 # Modèle pour une partie de jeu Enigmato
 class EnigmatoParty(BaseModel):
