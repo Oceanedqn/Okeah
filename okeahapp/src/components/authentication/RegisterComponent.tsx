@@ -81,11 +81,12 @@ const RegisterComponent: React.FC<{ onRegister: () => void; handleToggle: () => 
             )}
             {isLogin && (
                 <p>
-                    Vous avez déjà un compte ?{' '}
+                    Vous n'avez pas de compte ?{' '}
                     <span onClick={handleToggle} style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}>
-                        Connectez-vous
+                        Inscrivez-vous
                     </span>
                 </p>
+
             )}
         </CenteredElement>
     );

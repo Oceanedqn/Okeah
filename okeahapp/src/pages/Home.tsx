@@ -36,11 +36,11 @@ const Home: React.FC = () => {
         <StyledLink to="/enigmato/home" color="primary_dark">
           <h3>Enigmato</h3>
         </StyledLink>
-        <StyledLink to="/other-page" color="primary">
-          <h3>Autre Page</h3>
+        <StyledLink to="/home" color="primary">
+          <h3>Tasty check (soon)</h3>
         </StyledLink>
-        <StyledLink to="/another-page" color="primary_light">
-          <h3>Une autre page</h3>
+        <StyledLink to="/home" color="primary_light">
+          <h3>Neatnest (soon)</h3>
         </StyledLink>
       </LinksContainer>
     </Container>
