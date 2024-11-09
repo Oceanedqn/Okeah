@@ -14,13 +14,13 @@ const LoginComponent: React.FC<{ onLogin: () => void; handleToggle: () => void; 
     const { t } = useTranslation();
 
     const handleLogin = async (event: React.FormEvent) => {
-        onLogin();
         event.preventDefault();
         setError(null);
 
         try {
             const { access_token } = await login_async(email, password);
             Cookies.set('access_token', access_token, { expires: 1 });
+            onLogin();
             navigate('/home');
         } catch (err: any) {
             if (err.response && err.response.data && err.response.data.detail) {

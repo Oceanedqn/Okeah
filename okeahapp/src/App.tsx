@@ -15,16 +15,25 @@ import EnigmatoParties from "./pages/enigmato/EnigmatoParties";
 import EnigmatoProfil from "./pages/enigmato/EnigmatoProfil";
 import EnigmatoGameInfo from "./pages/enigmato/EnigmatoGameInfo";
 import EnigmatoGame from "./pages/enigmato/EnigmatoGame";
-import Cookies from 'js-cookie'; // Import Cookies to manage access_token
+import Cookies from 'js-cookie';
 
 const App: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(!!Cookies.get('access_token')); // Track authentication state
-
+  const [isAuthenticated, setIsAuthenticated] = useState(!!Cookies.get('access_token'));
   const [currentTheme, setCurrentTheme] = useState(() => {
     const savedTheme = localStorage.getItem("currentTheme");
     return savedTheme ? JSON.parse(savedTheme) : "light";
   });
 
+  // Utilisation de l'intervalle pour vérifier le cookie toutes les secondes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsAuthenticated(!!Cookies.get('access_token'));
+    }, 1000); // Vérifie toutes les secondes
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Sauvegarder le thème actuel dans le localStorage
   useEffect(() => {
     localStorage.setItem("currentTheme", JSON.stringify(currentTheme));
   }, [currentTheme]);
@@ -37,30 +46,10 @@ const App: React.FC = () => {
 
   const [currentLanguage, setCurrentLanguage] = useState('fr');
 
-  useEffect(() => {
-    localStorage.setItem("currentTheme", JSON.stringify(currentTheme));
-  }, [currentTheme]);
-
-  // Watch for changes in the access_token cookie
-  useEffect(() => {
-    const checkAuthentication = () => {
-      setIsAuthenticated(!!Cookies.get('access_token'));
-    };
-
-    // Check authentication on mount
-    checkAuthentication();
-
-    // Re-run checkAuthentication whenever cookies change
-    window.addEventListener("cookiechange", checkAuthentication); // Note: Not supported in all browsers; fallback approach shown below
-
-    return () => {
-      window.removeEventListener("cookiechange", checkAuthentication);
-    };
-  }, []);
-
+  // Fonction de déconnexion
   const handleLogout = () => {
-    Cookies.remove('access_token'); // Remove token on logout
-    setIsAuthenticated(false);       // Update authentication state
+    Cookies.remove('access_token');
+    setIsAuthenticated(false);
   };
 
   return (
