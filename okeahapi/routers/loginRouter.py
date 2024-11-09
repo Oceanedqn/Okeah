@@ -40,7 +40,6 @@ async def login_async(request: LoginRequest, response: Response, db: AsyncSessio
 
 @router.post("/logout/")
 async def logout(response: Response, access_token: str = Cookie(None)):
-    print("Received access_token during logout:", access_token)  # Log the token received
 
     # Check if access_token is None or invalid
     if access_token is None:

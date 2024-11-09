@@ -1,14 +1,39 @@
 import styled from 'styled-components';
 
+
+export const EnigmatoContainerStyle = styled.div`
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+    max-width: 30vw;
+    width: 100%;
+    margin: 0 auto;
+`;
+
+export const EnigmatoSectionStyle = styled.div`
+
+`;
+
+
+export const EnigmatoItemStyle = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+`;
+
+
+
+
 // ######### ENIGMATO HOME #########
 
-export const GameExplanation = styled.p`
-    max-width: 600px;
-    margin-top: 20px;
-    font-size: 1.2rem;
-    color: #555;
-    line-height: 1.6;
-`;
+
 
 export const OngoingGamesContainer = styled.div`
     margin-top: 20px;
@@ -32,27 +57,7 @@ export const OngoingGameItem = styled.div`
 
 
 
-export const EnigmatoContainerStyle = styled.div`
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    margin-top: 20px;
-    max-width: 500px;
-    width: 100%;
-    margin: 0 auto;
-`;
 
-export const EnigmatoItemStyle = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    padding: 10px;
-    background-color: #f0f0f0;
-    border-radius: 10px;
-`;
 
 export const ModalOverlay = styled.div`
     position: fixed;
