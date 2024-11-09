@@ -62,9 +62,9 @@ const LoginComponent: React.FC<{ onLogin: () => void; handleToggle: () => void; 
             )}
             {!isLogin && (
                 <p>
-                    Vous n'avez pas de compte ?{' '}
+                    Vous avez déjà un compte ?{' '}
                     <span onClick={handleToggle} style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}>
-                        Inscrivez-vous
+                        Connectez-vous
                     </span>
                 </p>
             )}
