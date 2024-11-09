@@ -27,10 +27,18 @@ class UserCreate(BaseModel):
 # Modèle pour une partie de jeu Enigmato
 class EnigmatoParty(BaseModel):
     id_party: int
-    date_creation: date
     name: str
     password: str
+    date_start: date
+    date_creation: date
+    game_mode: int
+    number_of_box: int
+    include_weekends: bool
     id_user: int
+
+class EnigmatoPartyCreate(BaseModel):
+    name: str
+    password: str
     date_start: date
     game_mode: int
     number_of_box: int

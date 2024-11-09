@@ -16,6 +16,7 @@ import EnigmatoProfil from "./pages/enigmato/EnigmatoProfil";
 import EnigmatoGameInfo from "./pages/enigmato/EnigmatoGameInfo";
 import EnigmatoGame from "./pages/enigmato/EnigmatoGame";
 import Cookies from 'js-cookie';
+import EnigmatoCreateParty from "./pages/enigmato/EnigmatoCreateParty";
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(!!Cookies.get('access_token'));
@@ -65,6 +66,7 @@ const App: React.FC = () => {
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/enigmato/home" element={<PrivateRoute><EnigmatoHome /></PrivateRoute>} />
+            <Route path="/enigmato/create" element={<PrivateRoute><EnigmatoCreateParty /></PrivateRoute>} />
             <Route path="/enigmato/parties" element={<PrivateRoute><EnigmatoParties /></PrivateRoute>} />
             <Route path="/enigmato/parties/:id_party/profil" element={<PrivateRoute><EnigmatoProfil /></PrivateRoute>} />
             <Route path="/enigmato/parties/:id_party/game/info" element={<PrivateRoute><EnigmatoGameInfo /></PrivateRoute>} />

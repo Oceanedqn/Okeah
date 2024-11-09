@@ -5,7 +5,7 @@ from sqlalchemy.future import select
 from typing import List
 from models import EnigmatoParty, EnigmatoPartyUser, User
 from routers.authRouter import get_current_user_async
-from schemas import EnigmatoParty as EnigmatoPartySchema, User as UserSchema
+from schemas import EnigmatoParty as EnigmatoPartySchema, EnigmatoPartyCreate, User as UserSchema
 from database import get_db_async
 from utils.authUtils import hash_password
 
@@ -17,17 +17,19 @@ router = APIRouter(
 
 
 @router.post("/", response_model=EnigmatoPartySchema)
-async def create_party_async(party: EnigmatoPartySchema, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
-    # Hacher le mot de passe avant de l'enregistrer
+async def create_party_async(party: EnigmatoPartyCreate, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
     hashed_password = hash_password(party.password)
-    
-    # Créer l'objet de la partie avec le mot de passe haché
-    db_party = EnigmatoParty(
+    db_party = EnigmatoPartySchema(
         name=party.name,
         date_creation=date.today(),
-        password=hashed_password,  # Stocker le mot de passe haché
-        id_user=current_user.id_user
+        password=hashed_password,
+        id_user=current_user.id_user,
+        date_start=party.date_start,
+        game_mode=party.game_mode,
+        number_of_box=party.number_of_box,
+        include_weekends=party.include_weekends
     )
+
     db.add(db_party)
     await db.commit()
     await db.refresh(db_party)

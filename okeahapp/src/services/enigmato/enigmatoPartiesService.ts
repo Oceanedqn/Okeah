@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { API_ENIGMATO_PARTIES_URL } from '../../constants/constants';
-import { EnigmatoParty } from '../../interfaces/IEnigmato';
+import { EnigmatoParty, EnigmatoPartyCreateRequest } from '../../interfaces/IEnigmato';
 import { checkCookie } from '../../utils/utils';
 import { handleError } from '../authentication/loginService';
 import { useNavigate } from 'react-router-dom';
@@ -71,6 +71,25 @@ export const fetchParticipants = async (id_party: number, navigate: ReturnType<t
     return response.data;
   } catch (error) {
     handleError(error, navigate);
+  }
+};
+
+
+export const createParty = async (party: EnigmatoPartyCreateRequest) => {
+  const accessToken = checkCookie();
+
+  try {
+    const response = await axios.post(API_ENIGMATO_PARTIES_URL, party, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      withCredentials: true,
+
+    });
+
+    return response.data;
+  } catch (error) {
+    throw new Error('Impossible de créer la partie');
   }
 };
 
