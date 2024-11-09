@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ButtonStyle, TitleH3Style } from '../../styles/GlobalStyles';
-import { Container, Title, AutoCompleteContainer } from '../../styles/EnigmatoStyles';
+import { ButtonStyle } from '../../styles/GlobalStyles';
+import { AutoCompleteContainer } from '../../styles/EnigmatoStyles';
 
 // Données simulées pour les participants
 const exampleParticipants = [
@@ -124,63 +124,64 @@ const EnigmatoGame: React.FC = () => {
     }, []);
 
     return (
-        <Container>
-            <ButtonStyle onClick={handleBack}>Retour</ButtonStyle>
-            <Title>Information de la partie</Title>
+        <></>
+        // <Container>
+        //     <ButtonStyle onClick={handleBack}>Retour</ButtonStyle>
+        //     <Title>Information de la partie</Title>
 
-            <Container>
-                <h2>{exampleBox.name}</h2>
-                <img src={exampleBox.imageUrl} alt={exampleBox.name} style={{ width: '100%', height: 'auto' }} />
+        //     <Container>
+        //         <h2>{exampleBox.name}</h2>
+        //         <img src={exampleBox.imageUrl} alt={exampleBox.name} style={{ width: '100%', height: 'auto' }} />
 
-                {!hintRequested && (
-                    <AutoCompleteContainer ref={dropdownRef}>
-                        <input
-                            type="text"
-                            value={inputValue}
-                            onClick={toggleDropdown}
-                            onChange={handleInputChange}
-                            placeholder="Sélectionner un participant"
-                        />
-                        {isDropdownOpen && filteredParticipants.length > 0 && (
-                            <ul style={{ listStyleType: 'none', padding: 0, maxHeight: '150px', overflowY: 'auto' }}>
-                                {filteredParticipants.map(participant => (
-                                    <li key={participant.id} onClick={() => handleOptionClick(participant.name)} style={{ cursor: 'pointer' }}>
-                                        {participant.name}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </AutoCompleteContainer>
-                )}
+        //         {!hintRequested && (
+        //             <AutoCompleteContainer ref={dropdownRef}>
+        //                 <input
+        //                     type="text"
+        //                     value={inputValue}
+        //                     onClick={toggleDropdown}
+        //                     onChange={handleInputChange}
+        //                     placeholder="Sélectionner un participant"
+        //                 />
+        //                 {isDropdownOpen && filteredParticipants.length > 0 && (
+        //                     <ul style={{ listStyleType: 'none', padding: 0, maxHeight: '150px', overflowY: 'auto' }}>
+        //                         {filteredParticipants.map(participant => (
+        //                             <li key={participant.id} onClick={() => handleOptionClick(participant.name)} style={{ cursor: 'pointer' }}>
+        //                                 {participant.name}
+        //                             </li>
+        //                         ))}
+        //                     </ul>
+        //                 )}
+        //             </AutoCompleteContainer>
+        //         )}
 
-                {!hintRequested && (
-                    <div>
-                        <ButtonStyle onClick={handleNeedHint}>Besoin d'indice</ButtonStyle>
-                        <TitleH3Style>Attention : l'indice fait perdre la moitié des points.</TitleH3Style>
-                    </div>
-                )}
+        //         {!hintRequested && (
+        //             <div>
+        //                 <ButtonStyle onClick={handleNeedHint}>Besoin d'indice</ButtonStyle>
+        //                 <TitleH3Style>Attention : l'indice fait perdre la moitié des points.</TitleH3Style>
+        //             </div>
+        //         )}
 
-                {hintRequested && (
-                    <div>
-                        <h3>Participants proposés :</h3>
-                        {randomParticipants.length > 0 ? (
-                            randomParticipants.map(participant => (
-                                <div key={participant.id} style={{ margin: '5px 0' }}>
-                                    <span style={{ color: participant.name === selectedParticipant ? 'blue' : 'black' }}>
-                                        {participant.name}
-                                    </span>
-                                </div>
-                            ))
-                        ) : (
-                            <p>Aucun participant proposé.</p>
-                        )}
-                        <TitleH3Style>Utilisateur d'indice : {showHintUser?.name}</TitleH3Style>
-                    </div>
-                )}
+        //         {hintRequested && (
+        //             <div>
+        //                 <h3>Participants proposés :</h3>
+        //                 {randomParticipants.length > 0 ? (
+        //                     randomParticipants.map(participant => (
+        //                         <div key={participant.id} style={{ margin: '5px 0' }}>
+        //                             <span style={{ color: participant.name === selectedParticipant ? 'blue' : 'black' }}>
+        //                                 {participant.name}
+        //                             </span>
+        //                         </div>
+        //                     ))
+        //                 ) : (
+        //                     <p>Aucun participant proposé.</p>
+        //                 )}
+        //                 <TitleH3Style>Utilisateur d'indice : {showHintUser?.name}</TitleH3Style>
+        //             </div>
+        //         )}
 
-                <ButtonStyle onClick={handleValidateChoice}>Valider mon choix</ButtonStyle>
-            </Container>
-        </Container>
+        //         <ButtonStyle onClick={handleValidateChoice}>Valider mon choix</ButtonStyle>
+        //     </Container>
+        // </Container>
     );
 };
 

@@ -1,9 +1,8 @@
 // pages/EnigmatoProfil.tsx
 import React, { useState } from 'react';
 import { useNavigate, useParams  } from 'react-router-dom';
-import styled from 'styled-components';
 import { ButtonStyle } from '../../styles/GlobalStyles';
-import { Container, Container2, EditButton, Header, ParticipantItem, ParticipantsContainer, ParticipantsTitle, PreviewContainer, ProfileContainer, Title } from '../../styles/EnigmatoStyles';
+import { Container2, EditButton, Header, ParticipantItem, ParticipantsContainer, ParticipantsTitle, PreviewContainer, ProfileContainer } from '../../styles/EnigmatoStyles';
 
 interface Participant {
     id: number;
@@ -44,46 +43,47 @@ const EnigmatoProfil: React.FC<{  }> = ({  }) => {
     };
 
     return (
-        <Container2>
-            <Header>
-                <ButtonStyle onClick={handleBack}>Retour</ButtonStyle>
-                <Title>test {id_party}</Title>
-            </Header>
+        <></>
+        // <Container2>
+        //     <Header>
+        //         <ButtonStyle onClick={handleBack}>Retour</ButtonStyle>
+        //         <Title>test {id_party}</Title>
+        //     </Header>
 
-            <ProfileContainer>
-                {!isProfileSet ? (
-                    <>
-                        <p>Merci de compléter le profil de jeu :</p>
-                        <input type="file" onChange={(e) => handlePhotoChange(e, setPhoto1)} />
-                        <input type="file" onChange={(e) => handlePhotoChange(e, setPhoto2)} />
+        //     <ProfileContainer>
+        //         {!isProfileSet ? (
+        //             <>
+        //                 <p>Merci de compléter le profil de jeu :</p>
+        //                 <input type="file" onChange={(e) => handlePhotoChange(e, setPhoto1)} />
+        //                 <input type="file" onChange={(e) => handlePhotoChange(e, setPhoto2)} />
                         
-                        <PreviewContainer>
-                            {photo1 && <img src={URL.createObjectURL(photo1)} alt="Photo 1 Preview" />}
-                            {photo2 && <img src={URL.createObjectURL(photo2)} alt="Photo 2 Preview" />}
-                        </PreviewContainer>
+        //                 <PreviewContainer>
+        //                     {photo1 && <img src={URL.createObjectURL(photo1)} alt="Photo 1 Preview" />}
+        //                     {photo2 && <img src={URL.createObjectURL(photo2)} alt="Photo 2 Preview" />}
+        //                 </PreviewContainer>
 
-                        <ButtonStyle onClick={handleSubmitProfile}>Valider</ButtonStyle>
-                    </>
-                ) : (
-                    <>
-                        <PreviewContainer>
-                            {photo1 && <img src={URL.createObjectURL(photo1)} alt="Photo 1" />}
-                            {photo2 && <img src={URL.createObjectURL(photo2)} alt="Photo 2" />}
-                        </PreviewContainer>
-                        <EditButton onClick={handleEditProfile}>Modifier</EditButton>
-                    </>
-                )}
-            </ProfileContainer>
+        //                 <ButtonStyle onClick={handleSubmitProfile}>Valider</ButtonStyle>
+        //             </>
+        //         ) : (
+        //             <>
+        //                 <PreviewContainer>
+        //                     {photo1 && <img src={URL.createObjectURL(photo1)} alt="Photo 1" />}
+        //                     {photo2 && <img src={URL.createObjectURL(photo2)} alt="Photo 2" />}
+        //                 </PreviewContainer>
+        //                 <EditButton onClick={handleEditProfile}>Modifier</EditButton>
+        //             </>
+        //         )}
+        //     </ProfileContainer>
 
-            <ParticipantsContainer>
-                <ParticipantsTitle>Liste des participants</ParticipantsTitle>
-                <ul>
-                    {participantsData.map((participant) => (
-                        <ParticipantItem key={participant.id}>{participant.name}</ParticipantItem>
-                    ))}
-                </ul>
-            </ParticipantsContainer>
-        </Container2>
+        //     <ParticipantsContainer>
+        //         <ParticipantsTitle>Liste des participants</ParticipantsTitle>
+        //         <ul>
+        //             {participantsData.map((participant) => (
+        //                 <ParticipantItem key={participant.id}>{participant.name}</ParticipantItem>
+        //             ))}
+        //         </ul>
+        //     </ParticipantsContainer>
+        // </Container2>
     );
 };
 

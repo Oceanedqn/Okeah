@@ -21,3 +21,8 @@ export interface ThemeSwitcherProps {
   export interface PrivateRouteProps {
     children: React.ReactNode; // Use children prop to receive the component to render
   }
+
+  export interface HeaderWithBackButtonProps {
+    title: string;
+    onBackClick: () => void;
+}

@@ -19,5 +19,26 @@
     "home": "Home",
     "about": "About",
     "contact": "Contact",
-    "hub": "Hub"
+    "hub": "Hub",
+
+    "loading": "Loading parties...",
+    "error": {
+        "fetchingParties": "Unable to fetch ongoing parties."
+    },
+
+    "welcomeenigmato": "Welcome to Guess Who?",
+    "ongoing_games": "Ongoing games",
+    "no_ongoing_games": "Currently, there are no ongoing games. Please join a game.",
+    "join_game": "Join a game",
+    "game_explanation": "Game explanation",
+    "game_description": "The goal of this game is to guess the identity of a person. Every day, a new photo of someone from their younger years will be displayed, and you will need to figure out who it is. A hint will be available to help you, but be careful, using it will cost you half of the points you could earn.",
+    "view": "Play",
+
+    "partiesList": "List of parties",
+    "noParties": "No parties are currently ongoing, please wait.",
+    "join": "Join",
+    "enterPasswordFor": "Enter the password for",
+    "validate": "Validate",
+    "back": "Back"
+    
   }
