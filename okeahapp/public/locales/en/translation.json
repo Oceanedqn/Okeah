@@ -1,0 +1,10 @@
+{
+    "login": "Login",
+    "logout": "Logout",
+    "loginAction": "Login",
+    "logoutAction": "Logout",
+    "french": "French",
+    "english": "English",
+    "mail": "Email",
+    "password": "Password"
+  }

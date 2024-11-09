@@ -13,18 +13,77 @@ const GlobalStyles = createGlobalStyle`
   }
 `;
 
-export const Button = styled.button`
-  background-color: ${({ theme }) => theme.colors.accent};
-  color: white;
+export default GlobalStyles;
+
+
+// ################# TITRES #################
+export const TitleH1Style = styled.h1`
+    text-align: center;
+    padding: 5px;
+    font-size: 32px;
+`;
+
+export const TitleH2Style = styled.h2`
+    text-align: center;
+    padding: 5px;
+    font-size: 28px;
+`;
+
+export const TitleH3Style = styled.h3`
+    text-align: center;
+    padding: 5px;
+    font-size: 16px;
+`;
+
+// ################# COMPOSANTS DE BASE #################
+// Composant Select
+export const SelectStyle = styled.select`
+  padding: 10px;
+  font-size: 16px;
   border: none;
-  padding: 10px 20px;
-  font-size: 1rem;
+  text-align: center;
+  border-radius: 24px;
   cursor: pointer;
-  border-radius: 5px;
+  background-color: ${({ theme }) => theme.colors.primary};
+  color: white;
+  margin-top: 20px;
+  padding-left: 10px;
+  padding-right: 10px;
 
   &:hover {
-    background-color: ${({ theme }) => theme.colors.primary};
+    border: none;
+    background-color: ${({ theme }) => theme.colors.primary_dark};
   }
 `;
 
-export default GlobalStyles;
+// Composant Button
+export const ButtonStyle = styled.button`
+  padding: 10px;
+  font-size: 16px;
+  border: none;
+  border-radius: 24px;
+  cursor: pointer;
+  background-color: ${({ theme }) => theme.colors.primary};
+  color: white;
+  margin-top: 20px;
+  padding-left: 10px;
+  padding-right: 10px;
+
+  &:hover {
+    border: none;
+    background-color: ${({ theme }) => theme.colors.primary_dark};
+  }
+`;
+
+
+
+// ################# PARTIE VISUAL SETTINGS (THEME ET LANGUES) #################
+export const VisualSettingsContainerStyle = styled.div`
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex; /* Utilisation de flexbox pour aligner les enfants côte à côte */
+  align-items: center; /* Alignement vertical centré */
+  gap: 10px; /* Espace entre les composants */
+  padding: 10px;
+`;

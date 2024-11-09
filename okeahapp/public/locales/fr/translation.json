@@ -1,0 +1,10 @@
+{
+    "login": "Connexion",
+    "logout": "Déconnexion",
+    "loginAction": "Se connecter",
+    "logoutAction": "Se déconnecter",
+    "french": "Français",
+    "english": "Anglais",
+    "mail": "Email",
+    "password": "Mot de passe"
+  }

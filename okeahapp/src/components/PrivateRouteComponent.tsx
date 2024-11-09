@@ -2,10 +2,9 @@
 import React from 'react';
 import { Route, Navigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import { PrivateRouteProps } from '../types';
 
-interface PrivateRouteProps {
-    children: React.ReactNode; // Use children prop to receive the component to render
-  }
+
 
 const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
   // Récupération du token depuis les cookies
