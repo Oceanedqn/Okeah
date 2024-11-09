@@ -5,18 +5,15 @@ import asyncio
 from init_db import init_db_async
 from fastapi.security import OAuth2PasswordBearer
 
-
 app = FastAPI()
 
-# Creation de la base de données au démarrage de l'application
+# Création de la base de données au démarrage de l'application
 @app.on_event("startup")
 async def startup_event():
     await init_db_async()
 
-
 # Inclure le routeur principal
 app.include_router(api_router)
-
 
 # Configurer les origines autorisées (par exemple, localhost:3000 pour le développement)
 origins = [
@@ -27,14 +24,11 @@ origins = [
 # Appliquer le middleware CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # Permet uniquement aux origines spécifiées d'accéder
+    allow_origins=origins,  # Utilisez la liste d'origines autorisées
     allow_credentials=True,
-    allow_methods=["*"],  # Permet toutes les méthodes (GET, POST, etc.)
-    allow_headers=["*"],  # Permet tous les en-têtes
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
-
-
-
 
 # Schéma de sécurité OAuth2 avec le token
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")

@@ -2,6 +2,13 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import date, datetime
 
+
+# Modèle pour le login
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
 # Modèle pour l'utilisateur
 class UserBase(BaseModel):
     id_user: int
