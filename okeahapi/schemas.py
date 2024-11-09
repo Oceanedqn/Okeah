@@ -31,6 +31,10 @@ class EnigmatoParty(BaseModel):
     name: str
     password: str
     id_user: int
+    date_start: date
+    game_mode: int
+    number_of_box: int
+    include_weekends: bool
 
 class EnigmatoPartySchema(BaseModel):
     id_party: int

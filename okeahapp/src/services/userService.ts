@@ -1,37 +1,35 @@
 import axios from "axios";
 import { User, UserCreate } from "../interfaces/IUser"; // Assurez-vous d'avoir défini les types User et UserCreate dans un fichier types.ts
 import { API_USERS_URL } from "../constants/constants";
-import Cookies from "js-cookie";
-
-
+import { checkCookie } from "../utils/utils";
 
 
 export const getCurrentUser = async (): Promise<User> => {
-    const accessToken = Cookies.get('access_token');
-    if (!accessToken) {
-      throw new Error('No access token found');
-    }
-  
+    const accessToken = checkCookie();
+
     try {
-      const response = await axios.get(`${API_USERS_URL}/me`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        withCredentials: true, // Inclut les cookies dans la requête
-      });
-      return response.data; // L'utilisateur actif
+        const response = await axios.get(`${API_USERS_URL}/me`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+            withCredentials: true,
+        });
+        return response.data;
     } catch (error) {
-      throw new Error('Failed to fetch current user');
+        throw new Error('Failed to fetch current user');
     }
-  };
-
-
+};
 
 
 // Récupère tous les utilisateurs
 export const fetchUsers = async (): Promise<User[]> => {
+    const accessToken = checkCookie();
+
     try {
         const response = await axios.get<User[]>(`${API_USERS_URL}/`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
             withCredentials: true,
         });
         return response.data;
@@ -40,10 +38,15 @@ export const fetchUsers = async (): Promise<User[]> => {
     }
 };
 
+
 // Récupère un utilisateur spécifique par ID
 export const fetchUserById = async (userId: number): Promise<User> => {
+    const accessToken = checkCookie();
     try {
         const response = await axios.get<User>(`${API_USERS_URL}/${userId}`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
             withCredentials: true,
         });
         return response.data;
@@ -52,10 +55,15 @@ export const fetchUserById = async (userId: number): Promise<User> => {
     }
 };
 
+
 // Met à jour les informations d'un utilisateur
 export const updateUser = async (userId: number, user: UserCreate): Promise<User> => {
+    const accessToken = checkCookie();
     try {
         const response = await axios.put<User>(`${API_USERS_URL}/${userId}`, user, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
             withCredentials: true,
         });
         return response.data;
@@ -64,8 +72,10 @@ export const updateUser = async (userId: number, user: UserCreate): Promise<User
     }
 };
 
+
 // Supprime un utilisateur
 export const deleteUser = async (userId: number): Promise<User> => {
+    const accessToken = checkCookie();
     try {
         const response = await axios.delete<User>(`${API_USERS_URL}/${userId}`, {
             withCredentials: true,

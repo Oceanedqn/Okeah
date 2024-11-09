@@ -3,9 +3,9 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from typing import List
-from models import EnigmatoParty, User
+from models import EnigmatoParty, EnigmatoPartyUser, User
 from routers.authRouter import get_current_user_async
-from schemas import EnigmatoParty as EnigmatoPartySchema
+from schemas import EnigmatoParty as EnigmatoPartySchema, User as UserSchema
 from database import get_db_async
 from utils.authUtils import hash_password
 
@@ -39,19 +39,6 @@ async def read_parties_async(skip: int = 0, limit: int = 10, db: AsyncSession = 
     result = await db.execute(select(EnigmatoParty).offset(skip).limit(limit))
     parties = result.scalars().all()
 
-    # Si aucune partie n'est trouvée, en créer une
-    if not parties:
-        new_party = EnigmatoParty(
-            date_creation=date.today(),
-            name="Partie 1",  # Vous pouvez remplacer par un nom par défaut de votre choix
-            password=hash_password("123"), # Utilisez un mot de passe par défaut ou générez-en un
-            id_user=current_user.id_user
-        )
-        db.add(new_party)
-        await db.commit()  # Sauvegarder la nouvelle partie dans la base de données
-        await db.refresh(new_party)  # Rafraîchir pour obtenir l'ID et autres valeurs mises à jour
-        parties = [new_party]  # Retourner la liste avec la nouvelle partie
-
     return parties
 
 
@@ -72,6 +59,25 @@ async def read_party_async(party_id: int, db: AsyncSession = Depends(get_db_asyn
     if party is None:
         raise HTTPException(status_code=404, detail="Party not found")
     return party
+
+
+
+@router.get("/{id_party}/participants", response_model=List[UserSchema])
+async def get_participants(id_party: int, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
+    # Requête pour récupérer les utilisateurs associés à cette partie
+    result = await db.execute(
+        select(User).join(EnigmatoPartyUser).filter(EnigmatoPartyUser.id_party == id_party)
+    )
+    participants = result.scalars().all()
+    
+    # Vérifie si des participants ont été trouvés
+    if not participants:
+        raise HTTPException(status_code=404, detail="No participants found for this party")
+    
+    print(participants)
+    return participants
+
+
 
 
 @router.put("/{party_id}", response_model=EnigmatoPartySchema)

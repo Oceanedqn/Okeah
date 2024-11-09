@@ -1,43 +1,77 @@
 import axios from 'axios';
-import Cookies from 'js-cookie';
 import { API_ENIGMATO_PARTIES_URL } from '../../constants/constants';
 import { EnigmatoParty } from '../../interfaces/IEnigmato';
+import { checkCookie } from '../../utils/utils';
+import { handleError } from '../authentication/loginService';
+import { useNavigate } from 'react-router-dom';
 
-export const getParties = async (): Promise<EnigmatoParty[]> => {
-    const accessToken = Cookies.get('access_token');
-    if (!accessToken) {
-        throw new Error('No access token found');
-      }
 
-    try {
-        const response = await axios.get(`${API_ENIGMATO_PARTIES_URL}`, {
-      headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        withCredentials: true,
-      });
-    return response.data;
-  } catch (error) {
-    throw new Error('Erreur lors de la récupération des parties en cours');
-  }
-};
-
-export const getPartiesCreatedByUser = async (): Promise<EnigmatoParty[]> => {
-  const accessToken = Cookies.get('access_token');
-  console.log(accessToken)
-  if (!accessToken) {
-      throw new Error('No access token found');
-  }
+export const getPartiesAsync = async (page = 1, limit = 10, navigate: ReturnType<typeof useNavigate>): Promise<EnigmatoParty[] | null> => {
+  const accessToken = checkCookie();
+  const offset = (page - 1) * limit; // Calcule le décalage (offset) pour la pagination
 
   try {
-      const response = await axios.get(`${API_ENIGMATO_PARTIES_URL}/user`, {
-          headers: {
-              Authorization: `Bearer ${accessToken}`,
-          },
-          withCredentials: true,
-      });
-      return response.data;
+    const response = await axios.get(`${API_ENIGMATO_PARTIES_URL}?skip=${offset}&limit=${limit}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      withCredentials: true,
+    });
+    return response.data;
   } catch (error) {
-      throw new Error('Erreur lors de la récupération des parties en cours');
+    handleError(error, navigate);
+    return null;
   }
 };
+
+export const getPartiesCreatedByUserAsync = async (navigate: ReturnType<typeof useNavigate>): Promise<EnigmatoParty[] | null> => {
+  const accessToken = checkCookie();
+
+  try {
+    const response = await axios.get(`${API_ENIGMATO_PARTIES_URL}/user`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    handleError(error, navigate);
+    return null;
+  }
+};
+
+export const getPartyAsync = async (id_party: number, navigate: ReturnType<typeof useNavigate>): Promise<EnigmatoParty[] | null> => {
+  const accessToken = checkCookie();
+
+  try {
+    const response = await axios.get(`${API_ENIGMATO_PARTIES_URL}/${id_party}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    handleError(error, navigate);
+    return null;
+  }
+};
+
+export const fetchParticipants = async (id_party: number, navigate: ReturnType<typeof useNavigate>) => {
+  const accessToken = checkCookie();
+
+  try {
+    const response = await axios.get(`${API_ENIGMATO_PARTIES_URL}/${id_party}/participants`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    handleError(error, navigate);
+  }
+};
+
+

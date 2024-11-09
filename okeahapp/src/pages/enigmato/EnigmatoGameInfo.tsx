@@ -1,8 +1,10 @@
 // pages/EnigmatoGameInfo.tsx
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ButtonStyle } from '../../styles/GlobalStyles';
-import { DateContainer, PreviousDaysContainer, PreviousDayItem } from '../../styles/EnigmatoStyles';
+import { ButtonStyle, ContainerUnderTitleStyle, Title1Style } from '../../styles/GlobalStyles';
+import { DateContainer, PreviousDaysContainer, PreviousDayItem, EnigmatoContainerStyle, EnigmatoItemStyle, ContainerBackgroundStyle } from '../../styles/EnigmatoStyles';
+import { Container } from '@mui/material';
+import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
 
 const exampleParties = [
     { id: 1, name: 'Partie 1', date: new Date('2023-11-01') },
@@ -42,32 +44,35 @@ const EnigmatoGameInfo: React.FC = () => {
     };
 
     const handleBack = () => {
-        navigate(-1);
+        navigate(`/enigmato/home`);
     };
 
     return (
-        <></>
-        // <Container>
-        //     <ButtonStyle onClick={handleBack}>Retour</ButtonStyle>
-        //     <Title>{partyName}</Title>
-        //     <ButtonStyle onClick={handleInfo}>Information de la partie</ButtonStyle>
-            
-        //     <DateContainer>
-        //         <p>Date du jour: {new Date().toLocaleDateString()}</p>
-        //         <ButtonStyle onClick={handlePlay}>Jouer</ButtonStyle>
-        //     </DateContainer>
-            
-        //     {previousDays.length > 0 && (
-        //         <PreviousDaysContainer>
-        //             <h2>Autres jours</h2>
-        //             {previousDays.map((day) => (
-        //                 <PreviousDayItem key={day.id}>
-        //                     {day.name} - {day.date.toLocaleDateString()}
-        //                 </PreviousDayItem>
-        //             ))}
-        //         </PreviousDaysContainer>
-        //     )}
-        // </Container>
+        <>
+            <HeaderTitleComponent title={partyName} onBackClick={handleBack} />
+            <ContainerUnderTitleStyle>
+                <EnigmatoContainerStyle>
+
+                    <ButtonStyle onClick={handleInfo}>Information de la partie</ButtonStyle>
+                    <ContainerBackgroundStyle>
+                        <p>Date du jour: {new Date().toLocaleDateString()}</p>
+                        <ButtonStyle onClick={handlePlay}>Jouer</ButtonStyle>
+                    </ContainerBackgroundStyle>
+                    {previousDays.length > 0 && (
+                        <ContainerBackgroundStyle>
+                            <h2>Autres jours</h2>
+                            {previousDays.map((day) => (
+                                <PreviousDayItem key={day.id}>
+                                    {day.name} - {day.date.toLocaleDateString()}
+                                </PreviousDayItem>
+                            ))}
+                        </ContainerBackgroundStyle>
+                    )}
+                </EnigmatoContainerStyle>
+
+            </ContainerUnderTitleStyle>
+        </>
+
     );
 };
 

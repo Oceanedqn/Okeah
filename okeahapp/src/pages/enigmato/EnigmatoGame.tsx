@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ButtonStyle } from '../../styles/GlobalStyles';
+import { ButtonStyle, Title1Style, Title2Style } from '../../styles/GlobalStyles';
 import { AutoCompleteContainer } from '../../styles/EnigmatoStyles';
+import { Container } from '@mui/material';
 
 // Données simulées pour les participants
 const exampleParticipants = [
@@ -34,7 +35,10 @@ const EnigmatoGame: React.FC = () => {
     const [showHintUser, setShowHintUser] = useState<any | null>(null);
     const [hintRequested, setHintRequested] = useState(false);
     const dropdownRef = useRef<HTMLDivElement | null>(null);
+    const param = useParams();
 
+
+    console.log(param)
     // Simuler une fonction qui récupère l'utilisateur associé à l'id_enigma
     const fetchHintUser = () => {
         // Simuler le retour d'un utilisateur
@@ -89,23 +93,23 @@ const EnigmatoGame: React.FC = () => {
     const selectRandomParticipants = (selectedName: string) => {
         const selected = exampleParticipants.find(p => p.name === selectedName);
         if (!selected) return;
-    
+
         const sameGender = exampleParticipants.filter(p => p.gender === selected.gender && p.name !== selectedName);
         const oppositeGender = exampleParticipants.filter(p => p.gender !== selected.gender && p.name !== selectedName);
-    
+
         // On commence avec le participant sélectionné
         const participantsToSelect = [selected];
-    
+
         // Ajout de participants du même genre
         const randomSameGender = sameGender.sort(() => 0.5 - Math.random()).slice(0, 2); // 2 participants du même genre
         participantsToSelect.push(...randomSameGender);
-    
+
         // Compléter avec des participants de l'autre genre si besoin
         const remainingCount = 3 - randomSameGender.length; // On a déjà ajouté 1 + 2 = 3 participants
         const randomOppositeGender = oppositeGender.sort(() => 0.5 - Math.random()).slice(0, remainingCount);
-    
+
         participantsToSelect.push(...randomOppositeGender);
-    
+
         // S'assurer d'avoir exactement 4 participants
         setRandomParticipants(participantsToSelect);
     };
@@ -124,64 +128,64 @@ const EnigmatoGame: React.FC = () => {
     }, []);
 
     return (
-        <></>
-        // <Container>
-        //     <ButtonStyle onClick={handleBack}>Retour</ButtonStyle>
-        //     <Title>Information de la partie</Title>
+        // <></>
+        <Container>
+            <ButtonStyle onClick={handleBack}>Retour</ButtonStyle>
+            <Title1Style>Information de la partie</Title1Style>
 
-        //     <Container>
-        //         <h2>{exampleBox.name}</h2>
-        //         <img src={exampleBox.imageUrl} alt={exampleBox.name} style={{ width: '100%', height: 'auto' }} />
+            <Container>
+                <h2>{exampleBox.name}</h2>
+                <img src={exampleBox.imageUrl} alt={exampleBox.name} style={{ width: '100%', height: 'auto' }} />
 
-        //         {!hintRequested && (
-        //             <AutoCompleteContainer ref={dropdownRef}>
-        //                 <input
-        //                     type="text"
-        //                     value={inputValue}
-        //                     onClick={toggleDropdown}
-        //                     onChange={handleInputChange}
-        //                     placeholder="Sélectionner un participant"
-        //                 />
-        //                 {isDropdownOpen && filteredParticipants.length > 0 && (
-        //                     <ul style={{ listStyleType: 'none', padding: 0, maxHeight: '150px', overflowY: 'auto' }}>
-        //                         {filteredParticipants.map(participant => (
-        //                             <li key={participant.id} onClick={() => handleOptionClick(participant.name)} style={{ cursor: 'pointer' }}>
-        //                                 {participant.name}
-        //                             </li>
-        //                         ))}
-        //                     </ul>
-        //                 )}
-        //             </AutoCompleteContainer>
-        //         )}
+                {!hintRequested && (
+                    <AutoCompleteContainer ref={dropdownRef}>
+                        <input
+                            type="text"
+                            value={inputValue}
+                            onClick={toggleDropdown}
+                            onChange={handleInputChange}
+                            placeholder="Sélectionner un participant"
+                        />
+                        {isDropdownOpen && filteredParticipants.length > 0 && (
+                            <ul style={{ listStyleType: 'none', padding: 0, maxHeight: '150px', overflowY: 'auto' }}>
+                                {filteredParticipants.map(participant => (
+                                    <li key={participant.id} onClick={() => handleOptionClick(participant.name)} style={{ cursor: 'pointer' }}>
+                                        {participant.name}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </AutoCompleteContainer>
+                )}
 
-        //         {!hintRequested && (
-        //             <div>
-        //                 <ButtonStyle onClick={handleNeedHint}>Besoin d'indice</ButtonStyle>
-        //                 <TitleH3Style>Attention : l'indice fait perdre la moitié des points.</TitleH3Style>
-        //             </div>
-        //         )}
+                {!hintRequested && (
+                    <div>
+                        <ButtonStyle onClick={handleNeedHint}>Besoin d'indice</ButtonStyle>
+                        <Title2Style>Attention : l'indice fait perdre la moitié des points.</Title2Style>
+                    </div>
+                )}
 
-        //         {hintRequested && (
-        //             <div>
-        //                 <h3>Participants proposés :</h3>
-        //                 {randomParticipants.length > 0 ? (
-        //                     randomParticipants.map(participant => (
-        //                         <div key={participant.id} style={{ margin: '5px 0' }}>
-        //                             <span style={{ color: participant.name === selectedParticipant ? 'blue' : 'black' }}>
-        //                                 {participant.name}
-        //                             </span>
-        //                         </div>
-        //                     ))
-        //                 ) : (
-        //                     <p>Aucun participant proposé.</p>
-        //                 )}
-        //                 <TitleH3Style>Utilisateur d'indice : {showHintUser?.name}</TitleH3Style>
-        //             </div>
-        //         )}
+                {hintRequested && (
+                    <div>
+                        <h3>Participants proposés :</h3>
+                        {randomParticipants.length > 0 ? (
+                            randomParticipants.map(participant => (
+                                <button key={participant.id} style={{ margin: '5px 0' }}>
+                                    <span style={{ color: participant.name === selectedParticipant ? 'blue' : 'black' }}>
+                                        {participant.name}
+                                    </span>
+                                </button>
+                            ))
+                        ) : (
+                            <p>Aucun participant proposé.</p>
+                        )}
+                        <Title2Style>Utilisateur d'indice : {showHintUser?.name}</Title2Style>
+                    </div>
+                )}
 
-        //         <ButtonStyle onClick={handleValidateChoice}>Valider mon choix</ButtonStyle>
-        //     </Container>
-        // </Container>
+                <ButtonStyle onClick={handleValidateChoice}>Valider mon choix</ButtonStyle>
+            </Container>
+        </Container>
     );
 };
 
