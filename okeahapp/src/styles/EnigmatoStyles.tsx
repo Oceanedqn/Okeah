@@ -24,8 +24,19 @@ export const EnigmatoItemStyle = styled.div`
     justify-content: space-between;
     width: 100%;
     padding: 10px;
-    background-color: #f0f0f0;
+    background-color: ${({ theme }) => theme.colors.background_light};
     border-radius: 10px;
+`;
+
+
+export const ContainerBackgroundStyle = styled.div`
+    background-color: ${({ theme }) => theme.colors.background_light};
+    padding: 20px;
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
 `;
 
 
@@ -98,30 +109,12 @@ export const Header = styled.div`
     position: relative;
 `;
 
-export const BackButton = styled.button`
-    position: absolute;
-    left: 20px;
-    background: none;
-    color: #333;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-`;
-
 export const Title2 = styled.h1`
     font-size: 2rem;
     color: #333;
 `;
 
-export const ProfileContainer = styled.div`
-    background: #f9f9f9;
-    padding: 20px;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-`;
+
 
 export const PreviewContainer = styled.div`
     display: flex;

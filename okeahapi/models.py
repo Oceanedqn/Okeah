@@ -34,6 +34,7 @@ class EnigmatoParty(Base):
     game_mode = Column(Integer, nullable=False)
     number_of_box = Column(Integer, nullable=False)
     id_user = Column(Integer, ForeignKey('users.id_user'), nullable=False)
+    include_weekends = Column(Boolean, nullable=False, default=True)
 
     # Relation avec User et EnigmatoBox et EnigmatoPartyUser
     user = relationship("User", back_populates="parties")

@@ -48,6 +48,12 @@ export const ButtonStyle = styled.button`
     border: none;
     background-color: ${({ theme }) => theme.colors.primary_dark};
   }
+
+  &:disabled {
+    background-color: ${({ theme }) => theme.colors.background_alternatif}; // Couleur de fond pour état désactivé
+    color: ${({ theme }) => theme.colors.title_text};          // Couleur de texte pour état désactivé                                         // Changement de curseur
+    opacity: 0.6;                                                // Rendre le bouton semi-transparent
+  }
 `;
 
 

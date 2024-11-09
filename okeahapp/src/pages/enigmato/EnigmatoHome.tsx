@@ -20,11 +20,11 @@ const EnigmatoHome: React.FC = () => {
         setLoading(true);
 
         // Appel du service pour récupérer les parties en cours
-        const games = await getUserParties();
-        if (games.length === 0) {
+        const games = await getUserParties(navigate);
+        if (games!.length === 0) {
           return;
         } else {
-          setOngoingGames(games);  // Sinon, mettre à jour l'état avec les parties récupérées
+          setOngoingGames(games!);  // Sinon, mettre à jour l'état avec les parties récupérées
         }
       } catch (error) {
         setError('Impossible de récupérer les parties en cours.');
@@ -65,7 +65,7 @@ const EnigmatoHome: React.FC = () => {
         <EnigmatoContainerStyle>
           <Title2Style>{t('game_explanation')}</Title2Style>
           <TextStyle>{t('game_description')}</TextStyle>
-          <SpaceStyle/>
+          <SpaceStyle />
           <Title2Style>{t('ongoing_games')}</Title2Style>
           {ongoingGames.length === 0 ? (
             <TextStyle>{t('no_ongoing_games')}</TextStyle>

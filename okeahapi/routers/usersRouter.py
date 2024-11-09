@@ -6,7 +6,7 @@ from models import User
 from schemas import User as UserSchema, UserCreate
 from database import get_db_async
 from routers.authRouter import get_current_user_async  # Importez les fonctions d'authentification
-from utils.authUtils import hash_password
+from utils.authUtils import hash_password, verify_password
 
 
 router = APIRouter(

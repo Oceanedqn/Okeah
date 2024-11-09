@@ -69,6 +69,7 @@ const App: React.FC = () => {
             <Route path="/enigmato/parties/:id_party/profil" element={<PrivateRoute><EnigmatoProfil /></PrivateRoute>} />
             <Route path="/enigmato/parties/:id_party/game/info" element={<PrivateRoute><EnigmatoGameInfo /></PrivateRoute>} />
             <Route path="/enigmato/parties/:id_party/game" element={<PrivateRoute><EnigmatoGame /></PrivateRoute>} />
+            <Route path="/*" element={<div>404</div>} />
           </Routes>
           <VisualSettingsComponent
             currentTheme={currentTheme}

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ButtonStyle, ContainerUnderTitleStyle } from '../../styles/GlobalStyles';
 import { EnigmatoContainerStyle, ModalContent, ModalOverlay, EnigmatoItemStyle } from '../../styles/EnigmatoStyles';
-import { getParties } from '../../services/enigmato/enigmatoPartiesService';
+import { getPartiesAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { EnigmatoJoinParty, EnigmatoParty } from '../../interfaces/IEnigmato';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
 import { useTranslation } from 'react-i18next';
@@ -17,13 +17,17 @@ const EnigmatoParties: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true); // Nouveau état pour gérer la disponibilité des pages suivantes
+
 
     useEffect(() => {
         const fetchParties = async () => {
             try {
                 setLoading(true);
-                const partiesData = await getParties();
-                setParties(partiesData);
+                const partiesData = await getPartiesAsync(currentPage, 10, navigate);
+                setParties(partiesData!);
+                setHasMore(partiesData!.length === 10);
             } catch (error) {
                 setError("Impossible de récupérer les parties en cours.");
             } finally {
@@ -32,7 +36,11 @@ const EnigmatoParties: React.FC = () => {
         };
 
         fetchParties();
-    }, [t]);
+    }, [t, currentPage]);
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
 
     // Gère le clic sur le bouton retour
     const handleBack = () => {
@@ -81,7 +89,7 @@ const EnigmatoParties: React.FC = () => {
 
         try {
             // Envoi de la requête pour lier l'utilisateur à la partie
-            await joinParty(joinPartyData); // Remplacer par la fonction de service appropriée
+            await joinParty(joinPartyData, navigate); // Remplacer par la fonction de service appropriée
             navigate(`/enigmato/parties/${partyId}/profil/`); // Rediriger vers la page de la partie
         } catch (error) {
             setError("Impossible de rejoindre la partie.");
@@ -128,6 +136,26 @@ const EnigmatoParties: React.FC = () => {
                         </ModalContent>
                     </ModalOverlay>
                 )}
+
+                {/* Pagination */}
+                <EnigmatoContainerStyle>
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                        <ButtonStyle
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                        >
+                            {t('<')}
+                        </ButtonStyle>
+                        <span>{t('Page')} {currentPage}</span>
+                        <ButtonStyle
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={!hasMore}
+                        >
+                            {t('>')}
+                        </ButtonStyle>
+                    </div>
+                </EnigmatoContainerStyle>
+
             </ContainerUnderTitleStyle>
         </>
     );
