@@ -15,6 +15,11 @@ export interface EnigmatoProfil {
     password: string;
     id_user: number;
   }
+
+  export interface EnigmatoJoinParty {
+    id_party: number;
+    password?: string;
+  }
   
   // Exemple d'une case du calendrier
   export interface EnigmatoBox {

@@ -39,11 +39,12 @@ class EnigmatoParty(Base):
 
 
 class EnigmatoPartyUser(Base):
-    __tablename__ = 'enigmato_party_users'
+    __tablename__ = 'enigmato_parties_users'
 
     id = Column(Integer, primary_key=True, index=True)
     id_user = Column(Integer, ForeignKey('users.id_user'), nullable=False)
     id_party = Column(Integer, ForeignKey('enigmato_parties.id_party'), nullable=False)
+    date_joined_at = Column(Date, nullable=False)
     
     # Relations avec User et EnigmatoParty
     user = relationship("User", back_populates="joined_parties")

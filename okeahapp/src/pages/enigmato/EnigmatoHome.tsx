@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'; // Importer le hook useTranslation
 import { ButtonStyle, ContainerUnderTitleStyle, SpaceStyle, TextStyle, Title2Style } from '../../styles/GlobalStyles';
 import { EnigmatoContainerStyle, EnigmatoItemStyle } from '../../styles/EnigmatoStyles';
-import { getUserParties } from '../../services/enigmato/enigmatoPartiesService'; // Importer le service pour récupérer les parties
+import { getUserParties } from '../../services/enigmato/enigmatoUserPartiesService'; // Importer le service pour récupérer les parties
 import { EnigmatoParty } from '../../interfaces/IEnigmato';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
 

@@ -34,9 +34,14 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
-# Méthode pour vérifier le mot de passe
-def verify_password(plain_password, hashed_password):
+# Fonction pour vérifier un mot de passe
+def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
+
+
+# Fonction pour hacher le mot de passe
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
 
 
 # Décodez le token JWT et récupérez l'utilisateur

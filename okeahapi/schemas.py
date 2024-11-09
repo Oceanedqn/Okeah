@@ -32,10 +32,21 @@ class EnigmatoParty(BaseModel):
     password: str
     id_user: int
 
+class EnigmatoPartySchema(BaseModel):
+    id_party: int
+    date_creation: date
+    name: str
+    id_user: int
+
 # Schéma pour l'association entre un utilisateur et une partie
-class EnigmatoPartyUser(BaseModel):
+class EnigmatoUserParty(BaseModel):
     id_user: int
     id_party: int
+    date_joined_at: date
+
+class EnigmatoUserPartyCreate(BaseModel):
+    id_party: int
+    password: str
 
 # Modèle pour les données de jeu d'un utilisateur sur Enigmato (Profil)
 class EnigmatoProfil(BaseModel):
