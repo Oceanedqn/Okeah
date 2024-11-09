@@ -32,6 +32,11 @@ class EnigmatoParty(BaseModel):
     password: str
     id_user: int
 
+# Schéma pour l'association entre un utilisateur et une partie
+class EnigmatoPartyUser(BaseModel):
+    id_user: int
+    id_party: int
+
 # Modèle pour les données de jeu d'un utilisateur sur Enigmato (Profil)
 class EnigmatoProfil(BaseModel):
     id_profil: int

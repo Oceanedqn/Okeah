@@ -16,10 +16,11 @@ class User(Base):
     password = Column(String, nullable=False)
     gender = Column(Boolean, default=False)
 
-    # Relation avec EnigmatoProfil et EnigmatoParty
+    # Relation avec EnigmatoProfil et EnigmatoParty et EnigmatoPartyUser
     profiles = relationship("EnigmatoProfil", back_populates="user")
     parties = relationship("EnigmatoParty", back_populates="user")
     box_responses = relationship("EnigmatoBoxResponse", back_populates="user")
+    joined_parties = relationship("EnigmatoPartyUser", back_populates="user")
 
 # Modèle pour une partie de jeu Enigmato
 class EnigmatoParty(Base):
@@ -31,9 +32,26 @@ class EnigmatoParty(Base):
     password = Column(String, nullable=False)
     id_user = Column(Integer, ForeignKey('users.id_user'), nullable=False)
 
-    # Relation avec User et EnigmatoBox
+    # Relation avec User et EnigmatoBox et EnigmatoPartyUser
     user = relationship("User", back_populates="parties")
     boxes = relationship("EnigmatoBox", back_populates="party")
+    participants = relationship("EnigmatoPartyUser", back_populates="party")
+
+
+class EnigmatoPartyUser(Base):
+    __tablename__ = 'enigmato_party_users'
+
+    id = Column(Integer, primary_key=True, index=True)
+    id_user = Column(Integer, ForeignKey('users.id_user'), nullable=False)
+    id_party = Column(Integer, ForeignKey('enigmato_parties.id_party'), nullable=False)
+    
+    # Relations avec User et EnigmatoParty
+    user = relationship("User", back_populates="joined_parties")
+    party = relationship("EnigmatoParty", back_populates="participants")
+
+
+
+
 
 # Modèle pour les données de jeu d'un utilisateur sur Enigmato (Profil)
 class EnigmatoProfil(Base):
@@ -56,7 +74,7 @@ class EnigmatoBox(Base):
     id_party = Column(Integer, ForeignKey('enigmato_parties.id_party'), nullable=False)
     name = Column(String, nullable=False)
     date = Column(DateTime, nullable=True)
-    id_enigma = Column(Integer, nullable=False)
+    id_enigma_user = Column(Integer, nullable=False)
 
     # Relation avec EnigmatoParty et EnigmatoBoxResponse
     party = relationship("EnigmatoParty", back_populates="boxes")
