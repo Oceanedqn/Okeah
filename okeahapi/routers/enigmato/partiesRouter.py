@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from typing import List
-from models import EnigmatoParty, User
+from models import EnigmatoParty, EnigmatoPartyUser, User
 from routers.authRouter import get_current_user_async
 from schemas import EnigmatoParty as EnigmatoPartySchema
 from database import get_db_async
@@ -30,13 +30,25 @@ async def read_parties_async(skip: int = 0, limit: int = 10, db: AsyncSession = 
 
 @router.get("/user", response_model=List[EnigmatoPartySchema])
 async def read_parties_by_user_async(db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
-    # Filtrer les parties pour l'utilisateur actuel
+    # Filtrer les parties créée par l'utilisateur actuel
     result = await db.execute(
         select(EnigmatoParty)
         .filter(EnigmatoParty.id_user == current_user.id_user)
     )
     parties = result.scalars().all()
     return parties
+
+
+@router.get("/user/parties", response_model=List[EnigmatoPartySchema])
+async def read_user_parties(db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
+    # Récupérer toutes les parties associées à l'utilisateur actuel
+    result = await db.execute(
+        select(EnigmatoParty)
+        .join(EnigmatoPartyUser, EnigmatoParty.id_party == EnigmatoPartyUser.id_party)
+        .filter(EnigmatoPartyUser.id_user == current_user.id_user)
+    )
+    user_parties = result.scalars().all()
+    return user_parties
 
 
 @router.get("/{party_id}", response_model=EnigmatoPartySchema)

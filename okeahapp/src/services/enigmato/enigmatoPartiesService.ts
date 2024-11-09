@@ -41,3 +41,23 @@ export const getOngoingPartiesByUser = async (): Promise<EnigmatoParty[]> => {
       throw new Error('Erreur lors de la récupération des parties en cours');
   }
 };
+
+// Service pour obtenir toutes les parties associées à un utilisateur
+export const getUserParties = async (): Promise<EnigmatoParty[]> => {
+  const accessToken = Cookies.get('access_token');
+  if (!accessToken) {
+    throw new Error('No access token found');
+  }
+
+  try {
+    const response = await axios.get(`${API_ENIGMATO_PARTIES_URL}/user/parties`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      withCredentials: true, // Inclut les cookies dans la requête
+    });
+    return response.data; // Retourne directement un tableau de parties
+  } catch (error) {
+    throw new Error('Erreur lors de la récupération des parties utilisateur');
+  }
+};
