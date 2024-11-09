@@ -17,8 +17,6 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 if not SECRET_KEY:
     raise HTTPException(status_code=500, detail="SECRET_KEY is not set in .env file.")
 
-print(f"SECRET_KEY loaded: {SECRET_KEY}")
-
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -36,6 +34,8 @@ def create_access_token(data: dict, expires_delta: datetime.timedelta = None):
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
+
+
 
 async def get_current_user_async(token: str = Header(...), db: AsyncSession = Depends(get_db_async)):
     credentials_exception = HTTPException(

@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from database import async_engine, Base
 from routers import router as api_router
 import asyncio
 from init_db import init_db_async
+from fastapi.security import OAuth2PasswordBearer
 
 
 app = FastAPI()
@@ -32,3 +32,16 @@ app.add_middleware(
     allow_methods=["*"],  # Permet toutes les méthodes (GET, POST, etc.)
     allow_headers=["*"],  # Permet tous les en-têtes
 )
+
+
+
+
+# Schéma de sécurité OAuth2 avec le token
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+# Appliquez le schéma de sécurité global à Swagger
+app.openapi_schema = app.openapi()
+app.openapi_schema["components"]["securitySchemes"] = {
+    "BearerAuth": {"type": "http", "scheme": "bearer"}
+}
+
+app.openapi_schema["security"] = [{"BearerAuth": []}]
