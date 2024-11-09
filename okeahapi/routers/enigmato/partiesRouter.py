@@ -26,6 +26,18 @@ async def read_parties_async(skip: int = 0, limit: int = 10, db: AsyncSession = 
     parties = result.scalars().all()
     return parties
 
+
+@router.get("/user", response_model=List[EnigmatoPartySchema])
+async def read_parties_by_user_async(db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
+    # Filtrer les parties pour l'utilisateur actuel
+    result = await db.execute(
+        select(EnigmatoParty)
+        .filter(EnigmatoParty.user_id == current_user.id)
+    )
+    parties = result.scalars().all()
+    return parties
+
+
 @router.get("/{party_id}", response_model=EnigmatoPartySchema)
 async def read_party_async(party_id: int, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
     result = await db.execute(select(EnigmatoParty).filter(EnigmatoParty.id_party == party_id))

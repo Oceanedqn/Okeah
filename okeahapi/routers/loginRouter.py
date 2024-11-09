@@ -2,7 +2,7 @@ from fastapi import APIRouter, Cookie, HTTPException, Depends, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from models import User
 from schemas import LoginRequest
-from routers.authRouter import create_access_token, verify_password
+from utils.authUtils import create_access_token, verify_password
 from database import get_db_async
 from sqlalchemy.future import select
 from fastapi.responses import JSONResponse

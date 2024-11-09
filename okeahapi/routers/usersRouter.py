@@ -8,23 +8,20 @@ from database import get_db_async
 import bcrypt
 from routers.authRouter import get_current_user_async  # Importez les fonctions d'authentification
 from passlib.context import CryptContext
+from utils.authUtils import verify_password
+
 
 router = APIRouter(
     prefix="/users",
     tags=['Users']
 )
 
-# Créez un contexte pour le hachage des mots de passe
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-
-
+# Creation d'un utilisateur
 @router.post("/", response_model=UserSchema)
 async def create_user_async(user: UserCreate, db: AsyncSession = Depends(get_db_async)):
-    # Hash the password
-    hashed_password = pwd_context.hash(user.password)
+    hashed_password = verify_password(user.password)
 
-    # Create a new user with the hashed password
     db_user = User(
         name=user.name,
         firstname=user.firstname,
@@ -38,14 +35,30 @@ async def create_user_async(user: UserCreate, db: AsyncSession = Depends(get_db_
     await db.refresh(db_user)
     return db_user
 
+
+
+# ##########################################################
+
+# Recupere tous les utilisateurs
 @router.get("/", response_model=List[UserSchema])
 async def read_users_async(
     db: AsyncSession = Depends(get_db_async),
-    current_user: User = Depends(get_current_user_async)  # This should work without needing to specify the access_token manually
+    access_token: str = Depends(get_current_user_async)  # Cette fonction va extraire l'utilisateur du token
 ):
     result = await db.execute(select(User))
     users = result.scalars().all()
     return users
+
+
+
+
+
+@router.get("/me", response_model=UserSchema)
+async def get_me(current_user: str = Depends(get_current_user_async)):
+    # Récupérer l'utilisateur actuellement authentifié
+    return current_user  # Retourne l'utilisateur actuel
+
+
 
 @router.get("/paginated", response_model=List[UserSchema])
 async def read_users_paginated_async(
@@ -85,7 +98,7 @@ async def update_user_async(
     for key, value in user.dict().items():
         if key == 'password':
             # Hash the new password if it is being updated
-            value = pwd_context.hash(value)
+            value = verify_password(value)
         setattr(db_user, key, value)
     await db.commit()
     await db.refresh(db_user)

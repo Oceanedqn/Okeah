@@ -1,0 +1,77 @@
+import axios from "axios";
+import { User, UserCreate } from "../interfaces/IUser"; // Assurez-vous d'avoir défini les types User et UserCreate dans un fichier types.ts
+import { API_USERS_URL } from "../constants/constants";
+import Cookies from "js-cookie";
+
+
+
+
+export const getCurrentUser = async (): Promise<User> => {
+    const accessToken = Cookies.get('access_token');
+    if (!accessToken) {
+      throw new Error('No access token found');
+    }
+  
+    try {
+      const response = await axios.get(`${API_USERS_URL}/me`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        withCredentials: true, // Inclut les cookies dans la requête
+      });
+      return response.data; // L'utilisateur actif
+    } catch (error) {
+      throw new Error('Failed to fetch current user');
+    }
+  };
+
+
+
+
+// Récupère tous les utilisateurs
+export const fetchUsers = async (): Promise<User[]> => {
+    try {
+        const response = await axios.get<User[]>(`${API_USERS_URL}/`, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.detail || "Erreur lors de la récupération des utilisateurs");
+    }
+};
+
+// Récupère un utilisateur spécifique par ID
+export const fetchUserById = async (userId: number): Promise<User> => {
+    try {
+        const response = await axios.get<User>(`${API_USERS_URL}/${userId}`, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.detail || `Erreur lors de la récupération de l'utilisateur ID: ${userId}`);
+    }
+};
+
+// Met à jour les informations d'un utilisateur
+export const updateUser = async (userId: number, user: UserCreate): Promise<User> => {
+    try {
+        const response = await axios.put<User>(`${API_USERS_URL}/${userId}`, user, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.detail || `Erreur lors de la mise à jour de l'utilisateur ID: ${userId}`);
+    }
+};
+
+// Supprime un utilisateur
+export const deleteUser = async (userId: number): Promise<User> => {
+    try {
+        const response = await axios.delete<User>(`${API_USERS_URL}/${userId}`, {
+            withCredentials: true,
+        });
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.detail || `Erreur lors de la suppression de l'utilisateur ID: ${userId}`);
+    }
+};

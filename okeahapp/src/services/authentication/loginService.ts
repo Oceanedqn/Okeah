@@ -1,12 +1,6 @@
 import axios from "axios";
 import { API_LOGIN_URL, API_LOGOUT_URL } from "../../constants/constants"
-
-
-
-
-interface LoginResponse {
-    access_token: string;
-  }
+import { LoginResponse } from "../../interfaces/ILogin";
 
 
 export const login_async = async (email: string, password: string): Promise<LoginResponse> => {

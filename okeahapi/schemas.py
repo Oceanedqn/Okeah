@@ -10,14 +10,6 @@ class LoginRequest(BaseModel):
 
 
 # Modèle pour l'utilisateur
-class UserBase(BaseModel):
-    id_user: int
-    name: str
-    firstname: str
-    mail: str
-    password: str
-    gender: bool = False
-
 class User(BaseModel):
     id_user: int
     name: str
