@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Cookie, HTTPException, Depends, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from models import User
-from schemas import LoginRequest
+from schemas import LoginRequestSchema
 from utils.authUtils import create_access_token, verify_password
 from database import get_db_async
 from sqlalchemy.future import select
@@ -14,7 +14,7 @@ router = APIRouter(
 
 # Login Endpoint
 @router.post("/login/")
-async def login_async(request: LoginRequest, response: Response, db: AsyncSession = Depends(get_db_async)):
+async def login_async(request: LoginRequestSchema, response: Response, db: AsyncSession = Depends(get_db_async)):
     # Fetch user by email
     result = await db.execute(select(User).where(User.mail == request.email))
     user = result.scalar_one_or_none()

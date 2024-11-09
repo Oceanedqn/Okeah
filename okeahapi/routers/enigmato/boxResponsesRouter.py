@@ -4,7 +4,7 @@ from sqlalchemy.future import select
 from typing import List
 from models import EnigmatoBoxResponse, User
 from routers.authRouter import get_current_user_async
-from schemas import EnigmatoBoxResponse as EnigmatoBoxResponseSchema
+from schemas import EnigmatoBoxResponseSchema
 from database import get_db_async
 
 router = APIRouter(

@@ -14,6 +14,11 @@ export interface EnigmatoParty {
   name: string;
   password: string;
   id_user: number;
+  date_start: string;
+  game_mode: number;
+  number_of_box: number;
+  include_weekends: boolean;
+  set_password: boolean;
 }
 
 export interface EnigmatoPartyCreateRequest {
@@ -23,6 +28,7 @@ export interface EnigmatoPartyCreateRequest {
   game_mode: number;
   number_of_box: number;
   include_weekends: boolean;
+  set_password: boolean;
 }
 
 export interface EnigmatoJoinParty {

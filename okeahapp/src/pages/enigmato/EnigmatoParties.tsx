@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ButtonStyle, ContainerUnderTitleStyle } from '../../styles/GlobalStyles';
+import { ButtonStyle, ContainerUnderTitleStyle, TextStyle } from '../../styles/GlobalStyles';
 import { EnigmatoContainerStyle, ModalContent, ModalOverlay, EnigmatoItemStyle } from '../../styles/EnigmatoStyles';
 import { getPartiesAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { EnigmatoJoinParty, EnigmatoParty } from '../../interfaces/IEnigmato';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
 import { useTranslation } from 'react-i18next';
 import { joinParty } from '../../services/enigmato/enigmatoUserPartiesService'; // Importer la fonction de service
+import { calculateGameStage } from '../../utils/utils';
 
 const EnigmatoParties: React.FC = () => {
     const navigate = useNavigate();
@@ -25,7 +26,7 @@ const EnigmatoParties: React.FC = () => {
         const fetchParties = async () => {
             try {
                 setLoading(true);
-                const partiesData = await getPartiesAsync(currentPage, 10, navigate);
+                const partiesData = await getPartiesAsync(currentPage, 8, navigate);
                 setParties(partiesData!);
                 setHasMore(partiesData!.length === 10);
             } catch (error) {
@@ -114,7 +115,12 @@ const EnigmatoParties: React.FC = () => {
                     <EnigmatoContainerStyle>
                         {parties.map((partie) => (
                             <EnigmatoItemStyle key={partie.id_party}>
-                                <span>{partie.name}</span>
+                                <TextStyle>{partie.name}</TextStyle>
+                                {/* Vérification de set_password */}
+                                {partie.set_password && (
+                                    <TextStyle>{t('mdp')}</TextStyle>
+                                )}
+                                {calculateGameStage(partie, t)}
                                 <ButtonStyle onClick={() => handleJoin(partie)}>{t('join')}</ButtonStyle>
                             </EnigmatoItemStyle>
                         ))}

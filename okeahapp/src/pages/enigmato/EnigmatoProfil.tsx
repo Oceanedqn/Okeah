@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ButtonStyle, ContainerUnderTitleStyle, Title2Style, TextStyle } from '../../styles/GlobalStyles';
-import { Container2, EditButton, EnigmatoContainerStyle, EnigmatoItemStyle, Header, ParticipantItem, ParticipantsContainer, ParticipantsTitle, PreviewContainer, ContainerBackgroundStyle } from '../../styles/EnigmatoStyles';
+import { Container2, EnigmatoContainerStyle, EnigmatoItemStyle, PreviewContainer, ContainerBackgroundStyle } from '../../styles/EnigmatoStyles';
 import { User } from '../../interfaces/IUser';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
 import { useTranslation } from 'react-i18next';
@@ -41,12 +41,18 @@ const EnigmatoProfil: React.FC = () => {
         }
     };
 
-    const handleDeletePhoto = (setPhoto: React.Dispatch<React.SetStateAction<File | null>>) => {
-        setPhoto(null); // Supprimer la photo en la définissant sur null
-    };
-
     const handleSubmitProfile = () => {
         setIsProfileSet(!isProfileSet); // Basculer entre Valider et Modifier
+    };
+
+    const handleClickPhoto = (e: React.MouseEvent<HTMLDivElement>, photoSetter: React.Dispatch<React.SetStateAction<File | null>>) => {
+        // Si on est en mode édition, on permet de changer la photo
+        if (!isProfileSet) {
+            const input = e.currentTarget.querySelector('input');
+            if (input) {
+                input.click(); // Ouvre la boîte de dialogue de sélection de fichier
+            }
+        }
     };
 
     return (
@@ -61,35 +67,35 @@ const EnigmatoProfil: React.FC = () => {
 
                         <PreviewContainer>
                             {/* Affiche photo1 ou un carré blanc si photo1 est manquante */}
-                            <div style={{ position: 'relative' }}>
+                            <div
+                                style={{ position: 'relative', width: '100px', height: '100px', backgroundColor: 'white', border: '1px solid #ccc' }}
+                                onClick={(e) => handleClickPhoto(e, setPhoto1)}
+                            >
                                 {photo1 ? (
-                                    <>
-                                        <img src={URL.createObjectURL(photo1)} alt="Photo 1 Preview" />
-                                        <ButtonStyle onClick={() => handleDeletePhoto(setPhoto1)} style={{ position: 'absolute', top: 0, right: 0 }}>X</ButtonStyle>
-                                    </>
-                                ) : (
-                                    <div style={{ width: '100px', height: '100px', backgroundColor: 'white', border: '1px solid #ccc' }} />
-                                )}
+                                    <img src={URL.createObjectURL(photo1)} alt="Photo 1 Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : null}
+                                <input
+                                    type="file"
+                                    style={{ display: 'none' }} // Cache l'input
+                                    onChange={(e) => handlePhotoChange(e, setPhoto1)}
+                                />
                             </div>
+
                             {/* Affiche photo2 ou un carré blanc si photo2 est manquante */}
-                            <div style={{ position: 'relative' }}>
+                            <div
+                                style={{ position: 'relative', width: '100px', height: '100px', backgroundColor: 'white', border: '1px solid #ccc' }}
+                                onClick={(e) => handleClickPhoto(e, setPhoto2)}
+                            >
                                 {photo2 ? (
-                                    <>
-                                        <img src={URL.createObjectURL(photo2)} alt="Photo 2 Preview" />
-                                        <ButtonStyle onClick={() => handleDeletePhoto(setPhoto2)} style={{ position: 'absolute', top: 0, right: 0 }}>X</ButtonStyle>
-                                    </>
-                                ) : (
-                                    <div style={{ width: '100px', height: '100px', backgroundColor: 'white', border: '1px solid #ccc' }} />
-                                )}
+                                    <img src={URL.createObjectURL(photo2)} alt="Photo 2 Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                ) : null}
+                                <input
+                                    type="file"
+                                    style={{ display: 'none' }} // Cache l'input
+                                    onChange={(e) => handlePhotoChange(e, setPhoto2)}
+                                />
                             </div>
                         </PreviewContainer>
-
-                        {!isProfileSet && (
-                            <>
-                                <input type="file" onChange={(e) => handlePhotoChange(e, setPhoto1)} />
-                                <input type="file" onChange={(e) => handlePhotoChange(e, setPhoto2)} />
-                            </>
-                        )}
 
                         {/* Bouton Valider ou Modifier en fonction de isProfileSet */}
                         <ButtonStyle onClick={handleSubmitProfile}>
@@ -97,11 +103,22 @@ const EnigmatoProfil: React.FC = () => {
                         </ButtonStyle>
                     </ContainerBackgroundStyle>
 
-                    <Title2Style>{t('participants_list')}</Title2Style>
+                    <Title2Style>{t('particpantsList')}</Title2Style>
                     <ul>
                         {participants.map((participant) => (
                             <EnigmatoItemStyle key={participant.id_user}>
                                 {participant.name} {participant.firstname}
+
+                                {/* Vérification si les photos sont présentes pour chaque participant */}
+                                {/* {!participant.photo1 || !participant.photo2 ? (
+                                    <span style={{ color: 'red', marginLeft: '10px' }}>
+                                        {t('profile_incomplete')}
+                                    </span>
+                                ) : (
+                                    <span style={{ color: 'green', marginLeft: '10px' }}>
+                                        {t('profile_complete')}
+                                    </span>
+                                )} */}
                             </EnigmatoItemStyle>
                         ))}
                     </ul>

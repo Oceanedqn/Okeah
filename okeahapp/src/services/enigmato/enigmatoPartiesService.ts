@@ -6,7 +6,7 @@ import { handleError } from '../authentication/loginService';
 import { useNavigate } from 'react-router-dom';
 
 
-export const getPartiesAsync = async (page = 1, limit = 10, navigate: ReturnType<typeof useNavigate>): Promise<EnigmatoParty[] | null> => {
+export const getPartiesAsync = async (page = 1, limit = 8, navigate: ReturnType<typeof useNavigate>): Promise<EnigmatoParty[] | null> => {
   const accessToken = checkCookie();
   const offset = (page - 1) * limit; // Calcule le décalage (offset) pour la pagination
 
@@ -75,7 +75,7 @@ export const fetchParticipants = async (id_party: number, navigate: ReturnType<t
 };
 
 
-export const createParty = async (party: EnigmatoPartyCreateRequest) => {
+export const createParty = async (party: EnigmatoPartyCreateRequest, navigate: ReturnType<typeof useNavigate>) => {
   const accessToken = checkCookie();
 
   try {
@@ -89,7 +89,7 @@ export const createParty = async (party: EnigmatoPartyCreateRequest) => {
 
     return response.data;
   } catch (error) {
-    throw new Error('Impossible de créer la partie');
+    handleError(error, navigate);
   }
 };
 

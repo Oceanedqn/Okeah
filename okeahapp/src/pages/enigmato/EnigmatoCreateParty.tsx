@@ -18,6 +18,7 @@ const EnigmatoCreateParty: React.FC = () => {
     const [gameMode, setGameMode] = useState(1); // Par défaut, mode de jeu 1
     const [numberOfBox, setNumberOfBox] = useState(1); // Par défaut, 1 boîte
     const [includeWeekends, setIncludeWeekends] = useState(true); // Par défaut, inclure les week-ends
+    const [isPasswordRequired, setIsPasswordRequired] = useState(false); // Nouvel état pour savoir si un mot de passe est requis
 
     // États de validation et de chargement
     const [loading, setLoading] = useState(false);
@@ -33,18 +34,19 @@ const EnigmatoCreateParty: React.FC = () => {
 
         const newParty: EnigmatoPartyCreateRequest = {
             name: name,
-            password: password,
+            password: isPasswordRequired ? password : "", // Si isPasswordRequired est true, on envoie le mot de passe, sinon on envoie une chaîne vide
             date_start: dateStart,
             game_mode: gameMode,
             number_of_box: numberOfBox,
             include_weekends: includeWeekends,
+            set_password: isPasswordRequired
         };
 
         try {
-            const response = await createParty(newParty); // Appel du service pour créer la partie
+            const response = await createParty(newParty, navigate); // Appel du service pour créer la partie
             navigate(`/enigmato/parties/${response.id_party}/game/info`); // Redirige vers la page du jeu
-        } catch (err) {
-            setError('Impossible de créer la partie.');
+        } catch (err: any) { // TypeScript demande de gérer le type de `err`
+            setError(err?.message || 'Impossible de créer la partie.'); // Affiche l'erreur réelle retournée par l'API
         } finally {
             setLoading(false);
         }
@@ -71,15 +73,29 @@ const EnigmatoCreateParty: React.FC = () => {
                         </div>
 
                         <div>
-                            <label>{t('password')}</label>
-                            <input
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                                placeholder={t('enter_password')}
-                            />
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={isPasswordRequired}
+                                    onChange={() => setIsPasswordRequired((prev) => !prev)} // Toggle de l'état isPasswordRequired
+                                />
+                                {t('set_password')}
+                            </label>
                         </div>
+
+                        {/* Affichage du champ mot de passe uniquement si isPasswordRequired est true */}
+                        {isPasswordRequired && (
+                            <div>
+                                <label>{t('password')}</label>
+                                <input
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required={isPasswordRequired} // Si isPasswordRequired est true, rendre le champ requis
+                                    placeholder={t('enter_password')}
+                                />
+                            </div>
+                        )}
 
                         <div>
                             <label>{t('start_date')}</label>

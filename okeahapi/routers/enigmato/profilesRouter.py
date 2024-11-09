@@ -4,7 +4,7 @@ from sqlalchemy.future import select
 from typing import List
 from models import EnigmatoProfil, User
 from routers.authRouter import get_current_user_async
-from schemas import EnigmatoProfil as EnigmatoProfilSchema
+from schemas import EnigmatoProfilSchema
 from database import get_db_async
 
 router = APIRouter(
@@ -13,8 +13,10 @@ router = APIRouter(
 )
 
 @router.post("/", response_model=EnigmatoProfilSchema)
-async def create_profile_async(profile: EnigmatoProfilSchema, db: AsyncSession = Depends(get_db_async)):
-    db_profile = EnigmatoProfil(**profile.model_dump())
+async def create_profile_async(db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
+    db_profile = EnigmatoProfil(
+        id_user= current_user.id_user
+    )
     db.add(db_profile)
     await db.commit()
     await db.refresh(db_profile)

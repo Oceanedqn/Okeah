@@ -6,6 +6,7 @@ import { EnigmatoContainerStyle, EnigmatoItemStyle } from '../../styles/Enigmato
 import { getUserParties } from '../../services/enigmato/enigmatoUserPartiesService'; // Importer le service pour récupérer les parties
 import { EnigmatoParty } from '../../interfaces/IEnigmato';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
+import { calculateGameStage } from '../../utils/utils';
 
 const EnigmatoHome: React.FC = () => {
   const { t } = useTranslation(); // Déclarer la fonction de traduction
@@ -18,8 +19,6 @@ const EnigmatoHome: React.FC = () => {
     const fetchPartiesByUser = async () => {
       try {
         setLoading(true);
-
-        // Appel du service pour récupérer les parties en cours
         const games = await getUserParties(navigate);
         if (games!.length === 0) {
           return;
@@ -32,11 +31,9 @@ const EnigmatoHome: React.FC = () => {
         setLoading(false);
       }
     };
-
     fetchPartiesByUser();
-  }, [navigate]); // Le token est récupéré directement dans useEffect, donc pas besoin de le mettre dans les dépendances.
+  }, [navigate]);
 
-  // Fonction pour naviguer vers la page EnigmatoParties
   const handleJoinGame = () => {
     navigate('/enigmato/parties');
   };
@@ -47,8 +44,14 @@ const EnigmatoHome: React.FC = () => {
   };
 
   const handleBack = () => {
-    navigate(`/home`);
+    navigate(-1);
   }
+
+
+
+
+
+  // --------------------------- PARTIE AFFICHAGE DE LA PAGE ---------------------------
 
   if (loading) {
     return <div>{t('loading')}</div>;
@@ -70,14 +73,13 @@ const EnigmatoHome: React.FC = () => {
           {ongoingGames.length === 0 ? (
             <TextStyle>{t('no_ongoing_games')}</TextStyle>
           ) : (
-            <>
-              {ongoingGames.map((game) => (
-                <EnigmatoItemStyle key={game.id_party}>
-                  {game.name}
-                  <ButtonStyle onClick={() => handleViewGame(game.id_party)}>{t('view')}</ButtonStyle>
-                </EnigmatoItemStyle>
-              ))}
-            </>
+            ongoingGames.map((game) => (
+              <EnigmatoItemStyle key={game.id_party}>
+                <TextStyle>{game.name}</TextStyle>
+                {calculateGameStage(game, t)}
+                <ButtonStyle onClick={() => handleViewGame(game.id_party)}>{t('view')}</ButtonStyle>
+              </EnigmatoItemStyle>
+            ))
           )}
           <ButtonStyle style={{ width: '100%' }} onClick={handleJoinGame}>{t('join_game')}</ButtonStyle>
         </EnigmatoContainerStyle>

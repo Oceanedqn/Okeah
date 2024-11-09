@@ -29,17 +29,24 @@ class EnigmatoParty(Base):
     id_party = Column(Integer, primary_key=True, index=True)
     date_creation = Column(Date, nullable=False)
     name = Column(String, nullable=False)
-    password = Column(String, nullable=False)
+    password = Column(String, nullable=True)
     date_start = Column(Date, nullable=False)
     game_mode = Column(Integer, nullable=False)
     number_of_box = Column(Integer, nullable=False)
     id_user = Column(Integer, ForeignKey('users.id_user'), nullable=False)
     include_weekends = Column(Boolean, nullable=False, default=True)
+    set_password = Column(Boolean, default=False)
 
     # Relation avec User et EnigmatoBox et EnigmatoPartyUser
     user = relationship("User", back_populates="parties")
     boxes = relationship("EnigmatoBox", back_populates="party")
     participants = relationship("EnigmatoPartyUser", back_populates="party")
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # Si set_password est True, alors password doit être présent
+        if self.set_password and not self.password:
+            raise ValueError("Password must be set if 'set_password' is True.")
 
 
 class EnigmatoPartyUser(Base):
@@ -47,6 +54,7 @@ class EnigmatoPartyUser(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     id_user = Column(Integer, ForeignKey('users.id_user'), nullable=False)
+    id_profil = Column(Integer, ForeignKey('enigmato_profiles.id_profil'), nullable=False)
     id_party = Column(Integer, ForeignKey('enigmato_parties.id_party'), nullable=False)
     date_joined_at = Column(Date, nullable=False)
     
@@ -64,9 +72,8 @@ class EnigmatoProfil(Base):
     
     id_profil = Column(Integer, primary_key=True, index=True)
     id_user = Column(Integer, ForeignKey('users.id_user'), nullable=False)
-    picture_young = Column(String, nullable=True)
-    picture_old = Column(String, nullable=True)
-    is_referral = Column(Boolean, default=False)
+    picture1 = Column(String, nullable=True)
+    picture2 = Column(String, nullable=True)
 
     # Relation avec User
     user = relationship("User", back_populates="profiles")

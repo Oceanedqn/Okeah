@@ -1,7 +1,15 @@
-// src/styles/GlobalStyles.tsx
 import { createGlobalStyle } from "styled-components";
 import styled from "styled-components";
 
+// Définition des breakpoints pour une meilleure gestion de la responsivité
+const breakpoints = {
+  sm: '576px',  // Taille pour les petits appareils (mobiles)
+  md: '768px',  // Taille pour les tablettes
+  lg: '992px',  // Taille pour les écrans moyens
+  xl: '1200px', // Taille pour les grands écrans
+};
+
+// Global Styles
 const GlobalStyles = createGlobalStyle`
   body {
     margin: 0;
@@ -16,9 +24,37 @@ const GlobalStyles = createGlobalStyle`
 export default GlobalStyles;
 
 
+// ---------------- Container pour la page ----------------
+export const ContainerStyle = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 66px); /* 100vh moins la hauteur de la navbar */
+  padding: 20px;
+
+  @media (max-width: ${breakpoints.sm}) {
+    padding: 10px; /* Réduire le padding sur les petits écrans */
+  }
+`;
+
+// ---------------- Conteneur pour le titre et le bouton retour ----------------
+export const ContainerTitleStyle = styled.div`
+  display: flex;
+  flex-direction: column; /* Aligne horizontalement les éléments */
+  align-items: center; /* Centre verticalement les éléments */
+  width: 100%; /* Prend toute la largeur */
+  padding: 10px;
+  position: relative;
+  height: auto;
+
+  @media (max-width: ${breakpoints.sm}) {
+    padding: 5px; /* Réduire le padding sur mobile */
+  }
+`;
+
+
 // Composant Select
 export const SelectStyle = styled.select`
-  padding: 5px 10px 5px 10px;
+  padding: 5px 10px;
   font-size: 16px;
   border: none;
   text-align: center;
@@ -31,12 +67,15 @@ export const SelectStyle = styled.select`
     border: none;
     background-color: ${({ theme }) => theme.colors.secondary_dark};
   }
-`;
 
+  @media (max-width: ${breakpoints.sm}) {
+    font-size: 14px; /* Réduire la taille du texte sur mobile */
+  }
+`;
 
 // Composant Button
 export const ButtonStyle = styled.button`
-  padding: 5px 10px 5px 10px;
+  padding: 5px 10px;
   font-size: 16px;
   border: none;
   border-radius: 50px;
@@ -51,30 +90,14 @@ export const ButtonStyle = styled.button`
 
   &:disabled {
     background-color: ${({ theme }) => theme.colors.background_alternatif}; // Couleur de fond pour état désactivé
-    color: ${({ theme }) => theme.colors.title_text};          // Couleur de texte pour état désactivé                                         // Changement de curseur
+    color: ${({ theme }) => theme.colors.title_text};          // Couleur de texte pour état désactivé
     opacity: 0.6;                                                // Rendre le bouton semi-transparent
   }
-`;
 
-
-// ---------------- Container pour la page ----------------
-export const ContainerStyle = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 66px); /* 100vh moins la hauteur de la navbar */
-  padding: 20px;
-`;
-
-
-// ---------------- Conteneur pour le titre et le bouton retour ----------------
-export const ContainerTitleStyle = styled.div`
-  display: flex;
-  flex-direction: column; /* Aligne horizontalement les éléments */
-  align-items: center; /* Centre verticalement les éléments */
-  width: 100%; /* Prend toute la largeur */
-  padding: 10px;
-  position: relative;
-  height: auto;
+  @media (max-width: ${breakpoints.sm}) {
+    font-size: 14px; /* Réduire la taille du texte sur mobile */
+    padding: 4px 8px; /* Réduire le padding sur mobile */
+  }
 `;
 
 // Style du titre
@@ -83,6 +106,10 @@ export const Title1Style = styled.h1`
   color: ${({ theme }) => theme.colors.title_text};
   margin: 0; /* Supprimer les marges par défaut */
   text-align: center; /* Centre le texte horizontalement */
+
+  @media (max-width: ${breakpoints.sm}) {
+    font-size: 24px; /* Réduire la taille du titre sur mobile */
+  }
 `;
 
 export const Title2Style = styled.h2`
@@ -90,6 +117,10 @@ export const Title2Style = styled.h2`
   color: ${({ theme }) => theme.colors.title_text};
   margin: 0; /* Supprimer les marges par défaut */
   text-align: center; /* Centre le texte horizontalement */
+
+  @media (max-width: ${breakpoints.sm}) {
+    font-size: 22px; /* Réduire la taille du titre sur mobile */
+  }
 `;
 
 export const TextCenterStyle = styled.p`
@@ -97,17 +128,25 @@ export const TextCenterStyle = styled.p`
   line-height: 19px;
   color: ${({ theme }) => theme.colors.text};
   text-align: center; /* Centre le texte horizontalement */
+
+  @media (max-width: ${breakpoints.sm}) {
+    font-size: 16px; /* Réduire la taille du texte sur mobile */
+  }
 `;
 
 export const TextStyle = styled.p`
   font-size: 19px;
   line-height: 19px;
   color: ${({ theme }) => theme.colors.text};
+
+  @media (max-width: ${breakpoints.sm}) {
+    font-size: 16px; /* Réduire la taille du texte sur mobile */
+  }
 `;
 
 // Style pour le bouton "Retour"
 export const ButtonBackStyle = styled.button`
-  padding: 5px 10px 5px 10px;
+  padding: 5px 10px;
   font-size: 16px;
   border: none;
   border-radius: 50px;
@@ -115,29 +154,38 @@ export const ButtonBackStyle = styled.button`
   background-color: ${({ theme }) => theme.colors.secondary};
   color: white;
   align-self: flex-start; /* Place le bouton à gauche */
-  
+
   &:hover {
     border: none;
     background-color: ${({ theme }) => theme.colors.secondary_dark};
   }
+
+  @media (max-width: ${breakpoints.sm}) {
+    font-size: 14px; /* Réduire la taille du texte sur mobile */
+    padding: 4px 8px; /* Réduire le padding sur mobile */
+  }
 `;
 
-
-// ---------------- Conteneur pour la page en general ----------------
+// ---------------- Conteneur pour la page en général ----------------
 export const ContainerUnderTitleStyle = styled.div`
   display: flex;
   flex-direction: column;
   height: calc(100vh - 66px); /* 100vh moins la hauteur de la navbar */
   padding: 20px;
   overflow-y: auto; /* Pour rendre le contenu défilable si nécessaire */
-`;
 
+  @media (max-width: ${breakpoints.sm}) {
+    padding: 10px; /* Réduire le padding sur les petits écrans */
+  }
+`;
 
 export const SpaceStyle = styled.div`
-  height:30px;
+  height: 30px;
+
+  @media (max-width: ${breakpoints.sm}) {
+    height: 20px; /* Réduire l'espace sur mobile */
+  }
 `;
-
-
 
 // ################# PARTIE VISUAL SETTINGS (THEME ET LANGUES) #################
 export const VisualSettingsContainerStyle = styled.div`
@@ -148,4 +196,10 @@ export const VisualSettingsContainerStyle = styled.div`
   align-items: center; /* Alignement vertical centré */
   gap: 10px; /* Espace entre les composants */
   padding: 10px;
+
+  @media (max-width: ${breakpoints.sm}) {
+    bottom: 10px; /* Réduire la marge inférieure sur mobile */
+    right: 10px; /* Réduire la marge droite sur mobile */
+    padding: 8px; /* Réduire le padding sur mobile */
+  }
 `;

@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from typing import List
 from models import User
-from schemas import User as UserSchema, UserCreate
+from schemas import UserSchema, UserCreateSchema
 from database import get_db_async
 from routers.authRouter import get_current_user_async  # Importez les fonctions d'authentification
 from utils.authUtils import hash_password, verify_password
@@ -17,7 +17,7 @@ router = APIRouter(
 
 # Creation d'un utilisateur
 @router.post("/", response_model=UserSchema)
-async def create_user_async(user: UserCreate, db: AsyncSession = Depends(get_db_async)):
+async def create_user_async(user: UserCreateSchema, db: AsyncSession = Depends(get_db_async)):
     hashed_password = hash_password(user.password)
 
     db_user = User(
@@ -84,7 +84,7 @@ async def read_user_async(
 @router.put("/{id_user}", response_model=UserSchema)
 async def update_user_async(
     id_user: int,
-    user: UserCreate,
+    user: UserCreateSchema,
     db: AsyncSession = Depends(get_db_async),
     current_user: User = Depends(get_current_user_async)  # Dépendance pour l'utilisateur actuel
 ):

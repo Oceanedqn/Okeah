@@ -1,11 +1,12 @@
 from datetime import date
 from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy import not_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from typing import List
 from models import EnigmatoParty, EnigmatoPartyUser, User
 from routers.authRouter import get_current_user_async
-from schemas import EnigmatoParty as EnigmatoPartySchema, EnigmatoPartyCreate, User as UserSchema
+from schemas import EnigmatoPartySchema, EnigmatoPartyCreateRequestSchema, UserSchema
 from database import get_db_async
 from utils.authUtils import hash_password
 
@@ -17,30 +18,52 @@ router = APIRouter(
 
 
 @router.post("/", response_model=EnigmatoPartySchema)
-async def create_party_async(party: EnigmatoPartyCreate, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
-    hashed_password = hash_password(party.password)
-    db_party = EnigmatoPartySchema(
+async def create_party_async(
+    party: EnigmatoPartyCreateRequestSchema, 
+    db: AsyncSession = Depends(get_db_async), 
+    current_user: User = Depends(get_current_user_async)
+):
+    print(party.set_password, party.password)
+    # Si set_password est True, on hash le mot de passe. Sinon, on le met à None.
+    password_to_store = hash_password(party.password) if party.set_password and party.password else None
+    
+    print("password to store : ", password_to_store)
+    # Créer la nouvelle partie dans la base de données
+    db_party = EnigmatoParty(
         name=party.name,
         date_creation=date.today(),
-        password=hashed_password,
+        password=password_to_store,  # Si set_password est False, password sera None
         id_user=current_user.id_user,
         date_start=party.date_start,
         game_mode=party.game_mode,
         number_of_box=party.number_of_box,
-        include_weekends=party.include_weekends
+        include_weekends=party.include_weekends,
+        set_password=party.set_password
     )
 
+    # Ajouter la partie à la base de données
     db.add(db_party)
     await db.commit()
     await db.refresh(db_party)
+    
+    # Retourner la partie créée
     return db_party
 
 
+# Retourne les parties sans celles que l'utilisateur à déjà rejoint
 @router.get("/", response_model=List[EnigmatoPartySchema])
-async def read_parties_async(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
-    result = await db.execute(select(EnigmatoParty).offset(skip).limit(limit))
+async def read_parties_async(skip: int = 0, limit: int = 8, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
+    # Sous-requête pour obtenir les parties que l'utilisateur a rejoint
+    subquery = select(EnigmatoPartyUser.id_party).filter(EnigmatoPartyUser.id_user == current_user.id_user)
+    
+    # Requête principale pour obtenir les parties que l'utilisateur n'a pas rejoint
+    result = await db.execute(
+        select(EnigmatoParty)
+        .where(not_(EnigmatoParty.id_party.in_(subquery)))
+        .offset(skip)
+        .limit(limit)
+    )
     parties = result.scalars().all()
-
     return parties
 
 
@@ -104,3 +127,14 @@ async def delete_party_async(party_id: int, db: AsyncSession = Depends(get_db_as
     await db.delete(db_party)
     await db.commit()
     return db_party
+
+
+
+
+
+# @router.get("/", response_model=List[EnigmatoPartySchema])
+# async def read_parties_async(skip: int = 0, limit: int = 8, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
+#     result = await db.execute(select(EnigmatoParty).offset(skip).limit(limit))
+#     parties = result.scalars().all()
+
+#     return parties

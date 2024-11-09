@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from typing import List
 from models import EnigmatoBox
-from schemas import EnigmatoBox as EnigmatoBoxSchema
+from schemas import EnigmatoBoxSchema
 from database import get_db_async
 
 router = APIRouter(
