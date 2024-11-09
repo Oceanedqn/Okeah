@@ -32,7 +32,7 @@ async def read_parties_by_user_async(db: AsyncSession = Depends(get_db_async), c
     # Filtrer les parties pour l'utilisateur actuel
     result = await db.execute(
         select(EnigmatoParty)
-        .filter(EnigmatoParty.user_id == current_user.id)
+        .filter(EnigmatoParty.id_user == current_user.id_user)
     )
     parties = result.scalars().all()
     return parties

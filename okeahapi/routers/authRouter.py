@@ -15,8 +15,8 @@ async def get_current_user_async(access_token: str = Cookie(...), db: AsyncSessi
     )
     try:
         payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = payload.get("sub")
-        if user_id is None:
+        id_user = payload.get("sub")
+        if id_user is None:
             raise credentials_exception
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired, please log in again")
@@ -24,7 +24,7 @@ async def get_current_user_async(access_token: str = Cookie(...), db: AsyncSessi
         raise credentials_exception
     
     # Chercher l'utilisateur dans la base de données
-    result = await db.execute(select(User).where(User.id_user == user_id))
+    result = await db.execute(select(User).where(User.id_user == id_user))
     user = result.scalar_one_or_none()
     if user is None:
         raise credentials_exception

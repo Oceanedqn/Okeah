@@ -69,26 +69,26 @@ async def read_users_paginated_async(
     users = result.scalars().all()
     return users
 
-@router.get("/{user_id}", response_model=UserSchema)
+@router.get("/{id_user}", response_model=UserSchema)
 async def read_user_async(
-    user_id: int,
+    id_user: int,
     db: AsyncSession = Depends(get_db_async),
     current_user: User = Depends(get_current_user_async)  # Dépendance pour l'utilisateur actuel
 ):
-    result = await db.execute(select(User).filter(User.id_user == user_id))
+    result = await db.execute(select(User).filter(User.id_user == id_user))
     user = result.scalar_one_or_none()
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
-@router.put("/{user_id}", response_model=UserSchema)
+@router.put("/{id_user}", response_model=UserSchema)
 async def update_user_async(
-    user_id: int,
+    id_user: int,
     user: UserCreate,
     db: AsyncSession = Depends(get_db_async),
     current_user: User = Depends(get_current_user_async)  # Dépendance pour l'utilisateur actuel
 ):
-    result = await db.execute(select(User).filter(User.id_user == user_id))
+    result = await db.execute(select(User).filter(User.id_user == id_user))
     db_user = result.scalar_one_or_none()
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
@@ -102,13 +102,13 @@ async def update_user_async(
     await db.refresh(db_user)
     return db_user
 
-@router.delete("/{user_id}", response_model=UserSchema)
+@router.delete("/{id_user}", response_model=UserSchema)
 async def delete_user_async(
-    user_id: int,
+    id_user: int,
     db: AsyncSession = Depends(get_db_async),
     current_user: User = Depends(get_current_user_async)  # Dépendance pour l'utilisateur actuel
 ):
-    result = await db.execute(select(User).filter(User.id_user == user_id))
+    result = await db.execute(select(User).filter(User.id_user == id_user))
     db_user = result.scalar_one_or_none()
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")

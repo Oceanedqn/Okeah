@@ -43,15 +43,15 @@ def verify_password(plain_password, hashed_password):
 async def get_user_from_token_async(access_token: str, db) -> 'User':
     try:
         payload = jwt.decode(access_token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = payload.get("sub")
-        if user_id is None:
+        id_user = payload.get("sub")
+        if id_user is None:
             raise HTTPException(status_code=401, detail="Invalid credentials")
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired, please log in again")
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
-    result = db.execute(select(User).where(User.id_user == user_id))
+    result = db.execute(select(User).where(User.id_user == id_user))
     user = result.scalar_one_or_none()
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
