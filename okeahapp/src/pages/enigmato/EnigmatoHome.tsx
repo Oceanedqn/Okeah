@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'; // Importer le hook useTranslation
 import { ButtonStyle, ContainerUnderTitleStyle, SpaceStyle, TextStyle, Title2Style } from '../../styles/GlobalStyles';
 import { EnigmatoContainerStyle, EnigmatoItemStyle } from '../../styles/EnigmatoStyles';
-import { getOngoingPartiesByUser } from '../../services/enigmato/enigmatoPartiesService'; // Importer le service pour récupérer les parties
+import { getUserParties } from '../../services/enigmato/enigmatoPartiesService'; // Importer le service pour récupérer les parties
 import { EnigmatoParty } from '../../interfaces/IEnigmato';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
 
@@ -20,7 +20,7 @@ const EnigmatoHome: React.FC = () => {
         setLoading(true);
 
         // Appel du service pour récupérer les parties en cours
-        const games = await getOngoingPartiesByUser();
+        const games = await getUserParties();
         if (games.length === 0) {
           return;
         } else {
