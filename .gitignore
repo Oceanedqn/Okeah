@@ -1,0 +1,90 @@
+# Fichiers et dossiers Python (FastAPI)
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.log
+
+# Environnements virtuels Python
+.venv/
+venv/
+env/
+ENV/
+.venv/
+env.bak/
+venv.bak/
+*.env
+*.env.*
+
+# Cache de FastAPI et configuration
+instance/
+.cache/
+
+# Fichiers de configuration Pytest
+.pytest_cache/
+*.pytest_cache
+
+# Fichiers et dossiers Node.js (React)
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+dist/
+build/
+
+# Fichiers de configuration spécifiques à TypeScript
+*.tsbuildinfo
+
+# Dossiers de cache de l'éditeur et configuration
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*~
+*.sublime-workspace
+*.sublime-project
+
+# Fichiers de couverture des tests
+coverage/
+*.coverage
+.nyc_output/
+
+# Fichiers générés par Babel et Webpack
+.cache/
+.parcel-cache/
+*.babelrc
+*.parcelrc
+*.eslintrc.js
+.eslintcache
+.prettierignore
+.prettierrc
+
+# Fichiers de logs
+logs/
+*.log
+
+# Dossier temporaire des tests Jest
+jest/
+.jest/
+
+# Fichiers de sortie des tests
+coverage/
+test-output/
+report/
+*.spec.*
+*.test.*
+
+# Exclure les fichiers générés par React
+*.css.map
+*.js.map
+
+# Exclusion des fichiers de build si CI/CD en production
+/.env.production.local
+/.env.development.local
+/.env.test.local
+/.env.local
