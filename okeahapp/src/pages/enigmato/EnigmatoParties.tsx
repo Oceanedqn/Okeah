@@ -1,26 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
 import { ButtonStyle } from '../../styles/GlobalStyles';
-import { Container1, ModalContent, ModalOverlay, PartieItem, PartiesContainer, Title, Title1 } from '../../styles/EnigmatoStyles';
-
-interface Partie {
-    id: number;
-    nom: string;
-    hasPassword: boolean;
-}
-
-const partiesData: Partie[] = [
-    { id: 1, nom: 'Partie 1', hasPassword: false },
-    { id: 2, nom: 'Partie 2', hasPassword: true },
-    { id: 3, nom: 'Partie 3', hasPassword: true },
-];
+import { Container1, ModalContent, ModalOverlay, PartieItem, PartiesContainer, Title1 } from '../../styles/EnigmatoStyles';
+import { getOngoingParties } from '../../services/enigmato/enigmatoPartiesService';
+import { EnigmatoParty } from '../../interfaces/IEnigmato';
 
 const EnigmatoParties: React.FC = () => {
     const navigate = useNavigate();
-    const [selectedPartie, setSelectedPartie] = useState<Partie | null>(null);
+    const [parties, setParties] = useState<EnigmatoParty[]>([]);
+    const [selectedPartie, setSelectedPartie] = useState<EnigmatoParty | null>(null);
     const [password, setPassword] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchParties = async () => {
+            try {
+                setLoading(true);
+                const partiesData = await getOngoingParties();
+                setParties(partiesData);
+            } catch (error) {
+                setError("Impossible de récupérer les parties en cours.");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchParties();
+    }, []);
 
     // Gère le clic sur le bouton retour
     const handleBack = () => {
@@ -28,41 +36,54 @@ const EnigmatoParties: React.FC = () => {
     };
 
     // Gère le clic sur le bouton "Rejoindre"
-    const handleJoin = (partie: Partie) => {
-        if (partie.hasPassword) {
+    const handleJoin = (partie: EnigmatoParty) => {
+        if (partie.password) {
             setSelectedPartie(partie);
             setIsModalOpen(true);
         } else {
-            // navigate(`/enigmato/parties/${id_party}/profil/`);
+            navigate(`/enigmato/parties/${partie.id_party}/profil/`);
         }
     };
 
     // Gère la soumission du mot de passe
     const handleSubmitPassword = () => {
-        if (password || !selectedPartie?.hasPassword) {
+        if (password || !selectedPartie?.password) {
             setIsModalOpen(false);
-            // navigate(`/enigmato/parties/${id_party}/profil/`);
+            navigate(`/enigmato/parties/${selectedPartie?.id_party}/profil/`);
         }
     };
+
+    if (loading) {
+        return <div>Chargement des parties...</div>;
+    }
+
+    if (error) {
+        return <div>{error}</div>;
+    }
 
     return (
         <Container1>
             <ButtonStyle onClick={handleBack}>Retour</ButtonStyle>
             <Title1>Liste des parties</Title1>
-            <PartiesContainer>
-                {partiesData.map((partie) => (
-                    <PartieItem key={partie.id}>
-                        <span>{partie.nom}</span>
-                        <ButtonStyle onClick={() => handleJoin(partie)}>Rejoindre</ButtonStyle>
-                    </PartieItem>
-                ))}
-            </PartiesContainer>
-
+    
+            {parties.length === 0 ? (
+                <div>Il n'y a pas encore de partie en cours, merci de patienter.</div>
+            ) : (
+                <PartiesContainer>
+                    {parties.map((partie) => (
+                        <PartieItem key={partie.id_party}>
+                            <span>{partie.name}</span>
+                            <ButtonStyle onClick={() => handleJoin(partie)}>Rejoindre</ButtonStyle>
+                        </PartieItem>
+                    ))}
+                </PartiesContainer>
+            )}
+    
             {/* Modal pour le mot de passe */}
             {isModalOpen && (
                 <ModalOverlay>
                     <ModalContent>
-                        <h3>Entrer le mot de passe pour {selectedPartie?.nom}</h3>
+                        <h3>Entrer le mot de passe pour {selectedPartie?.name}</h3>
                         <input
                             type="password"
                             placeholder="Mot de passe"
