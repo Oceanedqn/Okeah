@@ -6,5 +6,12 @@
     "french": "Français",
     "english": "Anglais",
     "mail": "Email",
-    "password": "Mot de passe"
+    "password": "Mot de passe",
+    "register": "Inscription",
+    "registerAction": "S'inscrire",
+    "name": "Nom",
+    "firstname": "Prénom",
+    "gender": "Genre",
+    "female": "Femme",
+    "male": "Homme"
   }

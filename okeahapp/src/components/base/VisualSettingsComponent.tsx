@@ -1,7 +1,7 @@
 // src/components/ThemeAndLanguageSwitcher.tsx
 import React from 'react';
 import ThemeSwitcherComponent from './ThemeSwitcherComponent';
-import LanguageSwitcherComponent from '../visualsettings/LanguageSwitcherComponent';
+import LanguageSwitcherComponent from '../base/LanguageSwitcherComponent';
 import { VisualSettingsContainerStyle } from '../../styles/GlobalStyles';
 import { VisualSettingsProps } from '../../types';
 

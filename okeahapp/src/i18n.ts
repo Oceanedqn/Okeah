@@ -11,7 +11,7 @@ i18n
     fallbackLng: 'fr', // Langue par défaut
     lng: 'fr', // Initialiser la langue par défaut
     supportedLngs: ['en', 'fr'], // Langues supportées
-    debug: true, // Active le mode debug
+    debug: false, // Active le mode debug
     interpolation: {
       escapeValue: false, // React s'occupe déjà de l'échappement
     },

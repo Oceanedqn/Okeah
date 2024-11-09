@@ -42,7 +42,7 @@ export const SelectStyle = styled.select`
   font-size: 16px;
   border: none;
   text-align: center;
-  border-radius: 24px;
+  border-radius: 16px;
   cursor: pointer;
   background-color: ${({ theme }) => theme.colors.primary};
   color: white;
@@ -61,11 +61,10 @@ export const ButtonStyle = styled.button`
   padding: 10px;
   font-size: 16px;
   border: none;
-  border-radius: 24px;
+  border-radius: 16px;
   cursor: pointer;
   background-color: ${({ theme }) => theme.colors.primary};
   color: white;
-  margin-top: 20px;
   padding-left: 10px;
   padding-right: 10px;
 

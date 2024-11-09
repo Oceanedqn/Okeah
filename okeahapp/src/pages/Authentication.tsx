@@ -1,68 +1,22 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
-import { login_async } from '../services/authentication/loginService';
-import { CenteredElement, InputStyle, LabelStyle } from '../styles/AuthenticationStyles';
-import { ButtonStyle, TitleH1Style } from '../styles/GlobalStyles';
-import { useTranslation } from 'react-i18next';
+import LoginComponent from '../components/authentication/LoginComponent';
+import RegisterComponent from '../components/authentication/RegisterComponent';
+import { ContainerStyle } from '../styles/AuthenticationStyles';
 
-const Authentication: React.FC = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState<string | null>(null);
-    const navigate = useNavigate();
-    const { t } = useTranslation();
-  
-    const handleLogin = async (event: React.FormEvent) => {
-      event.preventDefault();
-      setError(null);
-  
-      try {
-        const { access_token } = await login_async(email, password);
-        Cookies.set('token', access_token, { expires: 1 });
-        navigate('/home'); // Redirige vers la page d'accueil après la connexion
-      } catch (err: any) {
-        // Gérer l'erreur
-        if (err.response && err.response.data && err.response.data.detail) {
-          setError(err.response.data.detail);
-        } else {
-          setError('An unexpected error occurred.');
-        }
-      }
-    };
-  
-    return (
-        <CenteredElement>
-            <TitleH1Style>{t('login')}</TitleH1Style>
-            <form onSubmit={handleLogin}>
-                <div>
-                <LabelStyle htmlFor="email">{t('mail')}</LabelStyle>
-                <InputStyle 
-                    type="email" 
-                    id="email" 
-                    value={email} 
-                    onChange={(e) => setEmail(e.target.value)} 
-                    required 
-                />
-                </div>
-                <div>
-                <label htmlFor="password">{t('password')}</label>
-                <InputStyle 
-                    type="password" 
-                    id="password" 
-                    value={password} 
-                    onChange={(e) => setPassword(e.target.value)} 
-                    required 
-                />
-                </div>
-                <ButtonStyle type="submit" style={{float: 'right'}}>{t('loginAction')}</ButtonStyle>
-                {error && <p style={{ color: 'red' }}>{error}</p>}
-            </form>
-        </CenteredElement>
-    );
+const Authentication: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
+  const [isLogin, setIsLogin] = useState(true); // State to toggle between login and register
+
+
+  const handleToggle = () => {
+    setIsLogin(prev => !prev); // Toggle between login and register
   };
 
-  
-  
-  export default Authentication;
-  
+  return (
+    <ContainerStyle>
+      <LoginComponent onLogin={onLogin} handleToggle={handleToggle} isLogin={isLogin} />
+      <RegisterComponent onRegister={() => { }} handleToggle={handleToggle} isLogin={isLogin} />
+    </ContainerStyle>
+  );
+};
+
+export default Authentication;
