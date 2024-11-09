@@ -30,6 +30,9 @@ class EnigmatoParty(Base):
     date_creation = Column(Date, nullable=False)
     name = Column(String, nullable=False)
     password = Column(String, nullable=False)
+    date_start = Column(Date, nullable=False)
+    game_mode = Column(Integer, nullable=False)
+    number_of_box = Column(Integer, nullable=False)
     id_user = Column(Integer, ForeignKey('users.id_user'), nullable=False)
 
     # Relation avec User et EnigmatoBox et EnigmatoPartyUser
