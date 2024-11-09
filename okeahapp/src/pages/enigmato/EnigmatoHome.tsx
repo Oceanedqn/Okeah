@@ -43,7 +43,7 @@ const EnigmatoHome: React.FC = () => {
 
   // Fonction pour naviguer vers la page de jeu spécifique
   const handleViewGame = (id: number) => {
-    navigate(`/enigmato/parties/${id}/game`);
+    navigate(`/enigmato/parties/${id}/game/info`);
   };
 
   const handleBack = () => {
