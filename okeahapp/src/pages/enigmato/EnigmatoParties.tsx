@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ButtonStyle, ContainerUnderTitleStyle } from '../../styles/GlobalStyles';
 import { EnigmatoContainerStyle, ModalContent, ModalOverlay, EnigmatoItemStyle } from '../../styles/EnigmatoStyles';
-import { getOngoingParties } from '../../services/enigmato/enigmatoPartiesService';
-import { EnigmatoParty } from '../../interfaces/IEnigmato';
+import { getParties } from '../../services/enigmato/enigmatoPartiesService';
+import { EnigmatoJoinParty, EnigmatoParty } from '../../interfaces/IEnigmato';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
 import { useTranslation } from 'react-i18next';
+import { joinParty } from '../../services/enigmato/enigmatoUserPartiesService'; // Importer la fonction de service
 
 const EnigmatoParties: React.FC = () => {
     const navigate = useNavigate();
@@ -21,7 +22,7 @@ const EnigmatoParties: React.FC = () => {
         const fetchParties = async () => {
             try {
                 setLoading(true);
-                const partiesData = await getOngoingParties();
+                const partiesData = await getParties();
                 setParties(partiesData);
             } catch (error) {
                 setError("Impossible de récupérer les parties en cours.");
@@ -41,18 +42,49 @@ const EnigmatoParties: React.FC = () => {
     // Gère le clic sur le bouton "Rejoindre"
     const handleJoin = (partie: EnigmatoParty) => {
         if (partie.password) {
+            console.log("Mot de passe requis pour rejoindre la partie", partie.password);
             setSelectedPartie(partie);
             setIsModalOpen(true);
         } else {
-            navigate(`/enigmato/parties/${partie.id_party}/profil/`);
+            console.log("Pas de mot de passe requis");
+            joinAndNavigate(partie.id_party,); // Passer l'ID de l'utilisateur actuel
         }
     };
 
-    // Gère la soumission du mot de passe
-    const handleSubmitPassword = () => {
-        if (password || !selectedPartie?.password) {
-            setIsModalOpen(false);
-            navigate(`/enigmato/parties/${selectedPartie?.id_party}/profil/`);
+
+    // Gère la soumission du mot de passe et la requête pour lier l'utilisateur à la partie
+    const handleSubmitPassword = async () => {
+        if (!password && selectedPartie?.password) {
+            setError("Veuillez entrer un mot de passe.");
+            return; // Si un mot de passe est requis et vide, on arrête la soumission
+        }
+
+        setIsModalOpen(false);
+
+        // Vérification de `selectedPartie` avant d'appeler `joinAndNavigate`
+        if (selectedPartie?.id_party) {
+            await joinAndNavigate(selectedPartie.id_party, password);  // Envoyer le mot de passe si nécessaire
+        } else {
+            setError("ID de la partie invalide.");
+        }
+    };
+
+
+
+
+    // Fonction pour rejoindre une partie
+    const joinAndNavigate = async (partyId: number, password?: string) => {
+        const joinPartyData: EnigmatoJoinParty = {
+            id_party: partyId,
+            password: password,  // Le mot de passe est optionnel
+        };
+
+        try {
+            // Envoi de la requête pour lier l'utilisateur à la partie
+            await joinParty(joinPartyData); // Remplacer par la fonction de service appropriée
+            navigate(`/enigmato/parties/${partyId}/profil/`); // Rediriger vers la page de la partie
+        } catch (error) {
+            setError("Impossible de rejoindre la partie.");
         }
     };
 
@@ -66,7 +98,7 @@ const EnigmatoParties: React.FC = () => {
 
     return (
         <>
-            <HeaderTitleComponent title='partiesList' onBackClick={handleBack}/>
+            <HeaderTitleComponent title='partiesList' onBackClick={handleBack} />
             <ContainerUnderTitleStyle>
                 {parties.length === 0 ? (
                     <div>{t('noParties')}</div>
@@ -97,10 +129,7 @@ const EnigmatoParties: React.FC = () => {
                     </ModalOverlay>
                 )}
             </ContainerUnderTitleStyle>
-
         </>
-
-
     );
 };
 

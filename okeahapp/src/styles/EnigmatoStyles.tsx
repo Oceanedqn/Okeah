@@ -203,7 +203,7 @@ export const AutoCompleteContainer = styled.div`
         border-radius: 4px;
         z-index: 1;
         max-height: 150px;
-        overflow-y: auto; /* Permet de défiler si la liste est trop longue */
+        overflow-y: auto;
     }
 
     li {

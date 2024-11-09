@@ -10,3 +10,4 @@ export const API_LOGOUT_URL = `${BASE_URL}/logout/`;
 
 // Enigmato
 export const API_ENIGMATO_PARTIES_URL = `${BASE_URL}/enigmato/parties`;
+export const API_ENIGMATO_USER_PARTIES_URL = `${BASE_URL}/enigmato/parties/user`;
