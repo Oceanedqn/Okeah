@@ -1,8 +1,5 @@
-import os
-from dotenv import load_dotenv
 import jwt
-import datetime
-from fastapi import Cookie, Depends, HTTPException, Header
+from fastapi import Cookie, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from models import User
@@ -23,9 +20,10 @@ async def get_current_user_async(access_token: str = Cookie(...), db: AsyncSessi
             raise credentials_exception
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired, please log in again")
-    except jwt.PyJWTError:
+    except jwt.InvalidTokenError as e:
         raise credentials_exception
     
+    # Chercher l'utilisateur dans la base de données
     result = await db.execute(select(User).where(User.id_user == user_id))
     user = result.scalar_one_or_none()
     if user is None:

@@ -17,8 +17,7 @@ app.include_router(api_router)
 
 # Configurer les origines autorisées (par exemple, localhost:3000 pour le développement)
 origins = [
-    "http://localhost:3000",  # frontend React en développement
-    "http://localhost:3001",
+    "http://localhost:3000"
     # ajoutez d'autres origines autorisées si nécessaire
 ]
 

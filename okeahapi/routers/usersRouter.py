@@ -5,9 +5,7 @@ from typing import List
 from models import User
 from schemas import User as UserSchema, UserCreate
 from database import get_db_async
-import bcrypt
 from routers.authRouter import get_current_user_async  # Importez les fonctions d'authentification
-from passlib.context import CryptContext
 from utils.authUtils import verify_password
 
 

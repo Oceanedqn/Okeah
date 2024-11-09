@@ -2,32 +2,34 @@ import select
 from passlib.context import CryptContext
 import jwt
 import os
-import datetime
+from datetime import datetime, timedelta, timezone
 from fastapi import HTTPException
+from models import User
+import os
 from dotenv import load_dotenv
 
-from models import User
-
-# Chargement des variables d'environnement
+# Charger les variables d'environnement depuis le fichier .env
 load_dotenv()
 
-ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")  # Valeur par défaut si non définie
-ALGORITHM = os.getenv("ALGORITHM")
+# Définir les variables de configuration
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 30))  # Valeur par défaut de 30 minutes si non définie
+ALGORITHM = os.getenv("ALGORITHM", "HS256")  # Valeur par défaut "HS256"
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-# Vérification si la clé secrète est définie
+# Assurez-vous que les variables essentielles sont définies
 if not SECRET_KEY:
-    raise HTTPException(status_code=500, detail="SECRET_KEY is not set in .env file.")
+    raise ValueError("SECRET_KEY must be set in the .env file")
+
 
 # Créez un contexte pour le hachage des mots de passe
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 # Créez un JWT Access Token
-def create_access_token(data: dict, expires_delta: datetime.timedelta = None):
+def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
-    now = datetime.datetime.now()
-    expire = now + (expires_delta if expires_delta else datetime.timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES)))
+    now = datetime.now(timezone.utc)
+    expire = now + (expires_delta if expires_delta else timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode.update({"exp": expire, "iat": now})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
