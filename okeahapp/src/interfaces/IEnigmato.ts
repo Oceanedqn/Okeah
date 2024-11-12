@@ -31,14 +31,18 @@ export interface IEnigmatoProfil {
   picture1?: string;
   picture2?: string;
   is_complete: boolean;
+  gender: boolean;
 }
 
 export interface IEnigmatoParticipants {
   id_user: number
+  id_party: number
+  id_profil: number
   name: string
   firstname: string
   gender: boolean
   is_complete: boolean
+  picture2: string
 }
 
 export interface IEnigmatoPartyCreateRequest {

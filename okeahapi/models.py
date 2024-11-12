@@ -14,7 +14,6 @@ class User(Base):
     firstname = Column(String, nullable=False)
     mail = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
-    gender = Column(Boolean, default=False)
 
     # Relation avec EnigmatoProfil et EnigmatoParty et EnigmatoPartyUser
     profiles = relationship("EnigmatoProfil", back_populates="user")
@@ -56,6 +55,7 @@ class EnigmatoProfil(Base):
     id_profil = Column(Integer, primary_key=True, index=True)
     id_user = Column(Integer, ForeignKey('users.id_user'), nullable=False)
     id_party = Column(Integer, ForeignKey('enigmato_parties.id_party'), nullable=False)
+    gender = Column(Boolean, default=False)
     picture1 = Column(String, nullable=True)
     picture2 = Column(String, nullable=True)
     date_joined_at = Column(Date, nullable=False)

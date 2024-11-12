@@ -42,20 +42,16 @@ const EnigmatoParties: React.FC = () => {
         setCurrentPage(page);
     };
 
-    // Gère le clic sur le bouton retour
     const handleBack = () => {
         navigate('/enigmato/home');
     };
 
-    // Gère le clic sur le bouton "Rejoindre"
     const handleJoin = (partie: IEnigmatoParty) => {
         if (partie.password) {
-            console.log("Mot de passe requis pour rejoindre la partie", partie.password);
             setSelectedPartie(partie);
             setIsModalOpen(true);
         } else {
-            console.log("Pas de mot de passe requis");
-            joinAndNavigate(partie.id_party,); // Passer l'ID de l'utilisateur actuel
+            joinAndNavigate(partie.id_party,);
         }
     };
 

@@ -15,7 +15,7 @@ router = APIRouter(
 )
 
 
-# Creation d'un utilisateur
+# [OK] Creation d'un utilisateur
 @router.post("/", response_model=UserSchema)
 async def create_user_async(user: UserCreateSchema, db: AsyncSession = Depends(get_db_async)):
     hashed_password = hash_password(user.password)
@@ -24,8 +24,7 @@ async def create_user_async(user: UserCreateSchema, db: AsyncSession = Depends(g
         name=user.name,
         firstname=user.firstname,
         mail=user.mail,
-        password=hashed_password,
-        gender=user.gender
+        password=hashed_password
     )
 
     db.add(db_user)

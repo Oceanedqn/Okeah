@@ -16,18 +16,16 @@ router = APIRouter(
 )
 
 
-# Cree une partie
+# [OK] Crée une partie.
 @router.post("/", response_model=EnigmatoPartySchema)
 async def create_party_async(
     party: EnigmatoPartyCreateRequestSchema, 
     db: AsyncSession = Depends(get_db_async), 
     current_user: User = Depends(get_current_user_async)
 ):
-    print(party.set_password, party.password)
     # Si set_password est True, on hash le mot de passe. Sinon, on le met à None.
     password_to_store = hash_password(party.password) if party.set_password and party.password else None
     
-    print("password to store : ", password_to_store)
     # Créer la nouvelle partie dans la base de données
     db_party = EnigmatoParty(
         name=party.name,
@@ -50,7 +48,24 @@ async def create_party_async(
     return db_party
 
 
-# Liste des parties sans celles que l'utilisateur à déjà rejoint
+# [OK] Retourne les parties auxquelles l'utilisateur participe.
+@router.get("/user/parties", response_model=List[EnigmatoPartySchema])
+async def read_user_parties_async(
+    db: AsyncSession = Depends(get_db_async),
+    current_user: User = Depends(get_current_user_async)
+):
+    # Requête pour récupérer les parties de l'utilisateur via la table enigmato_profiles
+    result = await db.execute(
+        select(EnigmatoParty)
+        .join(EnigmatoProfil, EnigmatoParty.id_party == EnigmatoProfil.id_party)
+        .filter(EnigmatoProfil.id_user == current_user.id_user)
+    )
+    user_parties = result.scalars().all()
+    return user_parties
+
+
+
+# [OK] Liste des parties sans celles que l'utilisateur à déjà rejoint avec pagination.
 @router.get("/", response_model=List[EnigmatoPartySchema])
 async def read_parties_async(skip: int = 0, limit: int = 8, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
     # Sous-requête pour obtenir les parties que l'utilisateur a rejoint
@@ -67,6 +82,85 @@ async def read_parties_async(skip: int = 0, limit: int = 8, db: AsyncSession = D
     return parties
 
 
+# [OK] Rejoindre une partie avec ou sans mot de passe.
+@router.post("/join", response_model=EnigmatoProfilSchema)
+async def join_party(join_party: EnigmatoJoinPartySchema, db: AsyncSession = Depends(get_db_async), user: User = Depends(get_current_user_async)
+):
+    # Vérifier si la partie existe
+    party = await read_party_async(join_party.id_party, db, user)
+
+    # Vérifier si un mot de passe est requis et s'il est correct (si la partie en nécessite un)
+    if party.set_password:
+        if not join_party.password:
+            raise HTTPException(status_code=400, detail="Mot de passe manquant")
+        if not verify_password(join_party.password, party.password):
+            raise HTTPException(status_code=400, detail="Mot de passe incorrect")
+        
+      
+    existing_user_party = await db.execute(
+        select(EnigmatoProfil).filter(
+            EnigmatoProfil.id_user == user.id_user, 
+            EnigmatoProfil.id_party == join_party.id_party
+        )
+    )
+    if existing_user_party.scalar_one_or_none():
+        raise HTTPException(status_code=400, detail="Utilisateur déjà membre de cette partie")
+
+    # Créer une nouvelle entrée dans la table EnigmatoProfil pour lier l'utilisateur à la partie
+    new_user_party = EnigmatoProfil(
+        id_user=user.id_user,  # Utilisation de l'ID de l'utilisateur actuel provenant du cookie
+        id_party=join_party.id_party,
+        date_joined_at=date.today()  # Génération automatique de la date d'adhésion
+    )
+
+    # Ajouter et valider l'insertion dans la base de données
+    db.add(new_user_party)
+    await db.commit()
+    return new_user_party
+
+
+
+
+# Récupére tous les participants d'une partie
+@router.get("/{id_party}/participants", response_model=List[EnigmatoParticipantsSchema])
+async def get_participants_async(id_party: int, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
+    party = await read_party_async(id_party, db, current_user)
+    
+    
+    # Requête pour récupérer les utilisateurs associés à cette partie avec leur profil
+    result = await db.execute(
+        select(User, EnigmatoProfil)
+        .join(EnigmatoProfil, EnigmatoProfil.id_user == User.id_user)
+        .filter(EnigmatoProfil.id_party == id_party)
+    )
+    participants = result.all()
+    
+    if not participants:
+        raise HTTPException(status_code=404, detail="No participants found for this party")
+    
+    # Préparer la liste des participants avec le statut `is_complete`
+    participants_with_profile_status = [
+        EnigmatoParticipantsSchema(
+            id_user=user.id_user,
+            id_party=id_party,
+            id_profil=profile.id_profil,
+            name=user.name,
+            firstname=user.firstname,
+            gender=profile.gender,
+            picture2=profile.picture2,
+            is_complete=bool(profile.gender and profile.picture1 and profile.picture2)
+        )
+        for user, profile in participants
+    ]
+    
+    return participants_with_profile_status
+
+
+
+
+
+
+
 
 # Liste des parties que l'utilisateur a cree
 @router.get("/user", response_model=List[EnigmatoPartySchema])
@@ -78,6 +172,9 @@ async def read_parties_created_by_user_async(db: AsyncSession = Depends(get_db_a
     )
     parties = result.scalars().all()
     return parties
+
+
+
 
 
 # Retourne la partie en fonction de son id
@@ -122,28 +219,19 @@ async def read_party_async(party_id: int, db: AsyncSession = Depends(get_db_asyn
     return party
 
 
-# Retourne les parties de l'utilisateur auquel il participe
-@router.get("/user/parties", response_model=List[EnigmatoPartySchema])
-async def read_user_parties(
-    db: AsyncSession = Depends(get_db_async),
-    current_user: User = Depends(get_current_user_async)
-):
-    # Requête pour récupérer les parties de l'utilisateur via la table enigmato_profiles
-    result = await db.execute(
-        select(EnigmatoParty)
-        .join(EnigmatoProfil, EnigmatoParty.id_party == EnigmatoProfil.id_party)
-        .filter(EnigmatoProfil.id_user == current_user.id_user)
-    )
-    user_parties = result.scalars().all()
-    return user_parties
 
 
 
 
-# Retourne tous les participants d'une partie
-@router.get("/{id_party}/participants", response_model=List[EnigmatoParticipantsSchema])
-async def get_participants(id_party: int, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
-    # Requête pour récupérer les utilisateurs associés à cette partie
+
+
+
+
+
+# Route pour récupérer tous les participants d'une partie ayant complété leur profil
+@router.get("/{id_party}/participants/completed", response_model=List[EnigmatoParticipantsSchema])
+async def get_participants_completed_async(id_party: int, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
+    # Requête pour récupérer les utilisateurs associés à cette partie et dont le profil est complet
     result = await db.execute(
         select(User, EnigmatoProfil)  # Sélectionner à la fois User et EnigmatoProfil
         .join(EnigmatoProfil, EnigmatoProfil.id_user == User.id_user)
@@ -154,17 +242,26 @@ async def get_participants(id_party: int, db: AsyncSession = Depends(get_db_asyn
     if not participants:
         raise HTTPException(status_code=404, detail="No participants found for this party")
     
-    # Récupérer les profils des utilisateurs et vérifier s'ils sont complets
-    participants_with_profile_status = [
-        {
-            **user.__dict__,  # Les attributs de l'utilisateur
-            **profile.__dict__,  # Les attributs du profil
-            "is_profile_complete": profile.picture1 is not None and profile.picture2 is not None  # Vérification du profil complet
-        }
+    # Filtrer les participants ayant un profil complet
+    completed_participants = [
+        EnigmatoParticipantsSchema(
+            id_user=user.id_user,
+            name=user.name,
+            firstname=user.firstname,
+            gender=profile.gender,
+            picture1=profile.picture1,
+            picture2=profile.picture2,
+            # Calcul du statut de complétion du profil en fonction des attributs requis
+            is_complete=bool(profile.gender and profile.picture1 and profile.picture2)
+        )
         for user, profile in participants
+        if profile.gender and profile.picture1 and profile.picture2  # Vérification du profil complet
     ]
     
-    return participants_with_profile_status
+    if not completed_participants:
+        raise HTTPException(status_code=404, detail="No completed participants found for this party")
+    
+    return completed_participants
 
 
 
@@ -194,45 +291,7 @@ async def delete_party_async(party_id: int, db: AsyncSession = Depends(get_db_as
 
 
 
-@router.post("/join", response_model=EnigmatoProfilSchema)
-async def join_party(join_party: EnigmatoJoinPartySchema, db: AsyncSession = Depends(get_db_async), user: User = Depends(get_current_user_async)
-):
 
-    # Vérifier si la partie existe
-    party = await read_party_async(join_party.id_party, db, user)
-
-
-    # Vérifier si un mot de passe est requis et s'il est correct (si la partie en nécessite un)
-    if party.set_password:
-        if not join_party.password:
-            raise HTTPException(status_code=400, detail="Mot de passe manquant")
-        if not verify_password(join_party.password, party.password):
-            raise HTTPException(status_code=400, detail="Mot de passe incorrect")
-        
-        
-    existing_user_party = await db.execute(
-        select(EnigmatoProfil).filter(
-            EnigmatoProfil.id_user == user.id_user, 
-            EnigmatoProfil.id_party == join_party.id_party
-        )
-    )
-    if existing_user_party.scalar_one_or_none():
-        raise HTTPException(status_code=400, detail="Utilisateur déjà membre de cette partie")
-
-
-    # Créer une nouvelle entrée dans la table EnigmatoProfil pour lier l'utilisateur à la partie
-    new_user_party = EnigmatoProfil(
-        id_user=user.id_user,  # Utilisation de l'ID de l'utilisateur actuel provenant du cookie
-        id_party=join_party.id_party,
-        date_joined_at=date.today()  # Génération automatique de la date d'adhésion
-    )
-
-
-    # Ajouter et valider l'insertion dans la base de données
-    db.add(new_user_party)
-    await db.commit()
-
-    return new_user_party
 
 # @router.get("/", response_model=List[EnigmatoPartySchema])
 # async def read_parties_async(skip: int = 0, limit: int = 8, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):

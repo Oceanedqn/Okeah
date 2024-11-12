@@ -15,7 +15,7 @@ const EnigmatoProfil: React.FC = () => {
     const [profil, setCurrentUserProfile] = useState<IEnigmatoProfil | null>(null);
     const [party, setParty] = useState<IEnigmatoParty | null>(null);
     const { t } = useTranslation();
-    const [canEditProfile, setCanEditProfile] = useState<boolean>(false); // État pour vérifier si l'utilisateur peut modifier son profil
+    const [canEditProfile, setCanEditProfile] = useState<boolean>(false);
 
     useEffect(() => {
         const loadDatas = async () => {
@@ -24,24 +24,20 @@ const EnigmatoProfil: React.FC = () => {
                     const currentUserProfile = await fetchProfile(parseInt(id_party, 10), navigate);
                     setCurrentUserProfile(currentUserProfile);
 
-                    const participants = await fetchParticipants(parseInt(id_party, 10), navigate);
-                    setParticipants(participants);
+                    const participantsList = await fetchParticipants(parseInt(id_party, 10), navigate);
+                    setParticipants(participantsList);
 
                     const party = await getPartyAsync(parseInt(id_party), navigate);
                     setParty(party);
 
-                    // Vérification si la partie n'a pas encore commencé
                     const currentDate = new Date();
                     const startDate = new Date(party?.date_start || 0);
 
-                    // L'utilisateur peut modifier son profil uniquement si :
-                    // 1. La partie n'a pas encore commencé.
-                    if (currentDate < startDate) {
+                    if (currentDate < startDate || (currentDate >= startDate && currentUserProfile?.is_complete === false)) {
                         setCanEditProfile(true);
                     } else {
-                        setCanEditProfile(false); // Impossible de modifier si la partie a commencé
+                        setCanEditProfile(false);
                     }
-
                 } catch (error) {
                     console.error("Erreur lors de la récupération des données:", error);
                 }
@@ -72,8 +68,6 @@ const EnigmatoProfil: React.FC = () => {
         if (profil && id_party) {
             try {
                 await updateProfile(profil, navigate);
-
-                // Re-fetch participants to update the profile status
                 const updatedParticipants = await fetchParticipants(parseInt(id_party, 10), navigate);
                 setParticipants(updatedParticipants);
 
@@ -97,19 +91,53 @@ const EnigmatoProfil: React.FC = () => {
         return regex.test(str);
     };
 
+    const handleGenderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (profil) {
+            // Met à jour correctement le genre (true = femme, false = homme)
+            setCurrentUserProfile({ ...profil, gender: e.target.value === 'female' });
+        }
+    };
+
     return (
         <>
             <HeaderTitleComponent title={`Profil de la partie : ${party?.name || ''}`} onBackClick={handleBack} />
             <ContainerUnderTitleStyle>
                 <EnigmatoContainerStyle>
                     <ContainerBackgroundStyle>
-                        {/* Show message if picture1 or picture2 is missing */}
+
+                        <div style={{ marginBottom: '20px' }}>
+                            <label>
+                                <input
+                                    type="radio"
+                                    name="gender"
+                                    value="female"
+                                    checked={profil?.gender === true}
+                                    onChange={handleGenderChange}
+                                    disabled={!canEditProfile}
+                                />
+                                {t('female')}
+                            </label>
+                            <label style={{ marginLeft: '10px' }}>
+                                <input
+                                    type="radio"
+                                    name="gender"
+                                    value="male"
+                                    checked={profil?.gender === false}
+                                    onChange={handleGenderChange}
+                                    disabled={!canEditProfile}
+                                />
+                                {t('male')}
+                            </label>
+                        </div>
+
+
+                        {/* Message si les photos sont manquantes */}
                         {(!profil?.picture1 || !isBase64(profil.picture1)) || (!profil?.picture2 || !isBase64(profil.picture2)) ? (
                             <TextStyle>{t('completeProfileMessage')}</TextStyle>
                         ) : null}
 
                         <PreviewContainer>
-                            {/* Display photo1 or a white square if photo1 is missing */}
+                            {/* Affichage des photos */}
                             <div
                                 style={{ position: 'relative', width: '100px', height: '100px', backgroundColor: 'white', border: '1px solid #ccc' }}
                                 onClick={(e) => handleClickPhoto(e, 'picture1')}
@@ -125,11 +153,10 @@ const EnigmatoProfil: React.FC = () => {
                                     type="file"
                                     style={{ display: 'none' }}
                                     onChange={(e) => handlePhotoChange(e, 'picture1')}
-                                    disabled={!canEditProfile} // Désactive le champ si la partie a commencé
+                                    disabled={!canEditProfile}
                                 />
                             </div>
 
-                            {/* Display photo2 or a white square if photo2 is missing */}
                             <div
                                 style={{ position: 'relative', width: '100px', height: '100px', backgroundColor: 'white', border: '1px solid #ccc' }}
                                 onClick={(e) => handleClickPhoto(e, 'picture2')}
@@ -145,7 +172,7 @@ const EnigmatoProfil: React.FC = () => {
                                     type="file"
                                     style={{ display: 'none' }}
                                     onChange={(e) => handlePhotoChange(e, 'picture2')}
-                                    disabled={!canEditProfile} // Désactive le champ si la partie a commencé
+                                    disabled={!canEditProfile}
                                 />
                             </div>
                         </PreviewContainer>
@@ -166,16 +193,36 @@ const EnigmatoProfil: React.FC = () => {
                     <ul>
                         {participants.map((participant) => (
                             <EnigmatoItemStyle key={participant.id_user}>
-                                {participant.name} {participant.firstname}
-                                {!participant.is_complete ? (
-                                    <span style={{ color: 'red', marginLeft: '10px' }} >
-                                        {t('profile_incomplete')}
-                                    </span>
-                                ) : (
-                                    <span style={{ color: 'green', marginLeft: '10px' }}>
-                                        {t('profile_complete')}
-                                    </span>
-                                )}
+                                <div style={{ display: 'flex', alignItems: 'center' }}>
+                                    {/* Photo 2 du participant */}
+                                    {participant.picture2 && isBase64(participant.picture2) ? (
+                                        <img
+                                            src={participant.picture2}
+                                            alt={`${participant.name} ${participant.firstname} photo`}
+                                            style={{
+                                                width: '40px',  // Taille de l'image
+                                                height: '40px',
+                                                borderRadius: 'Rpx',  // Pour arrondir l'image en cercle
+                                                marginRight: '10px',  // Espacement entre l'image et le texte
+                                                objectFit: 'cover',  // Pour que l'image garde une bonne forme
+                                            }}
+                                        />
+                                    ) : (
+                                        <div style={{ width: '30px', height: '30px', marginRight: '10px', borderRadius: '50%', backgroundColor: '#ccc' }} /> // Placeholder si pas de photo
+                                    )}
+
+                                    <span>{participant.name} {participant.firstname}</span>
+
+                                    {!participant.is_complete ? (
+                                        <span style={{ color: 'red', marginLeft: '10px' }}>
+                                            {t('profile_incomplete')}
+                                        </span>
+                                    ) : (
+                                        <span style={{ color: 'green', marginLeft: '10px' }}>
+                                            {t('profile_complete')}
+                                        </span>
+                                    )}
+                                </div>
                             </EnigmatoItemStyle>
                         ))}
                     </ul>

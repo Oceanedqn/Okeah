@@ -91,7 +91,8 @@ export const ButtonStyle = styled.button`
   &:disabled {
     background-color: ${({ theme }) => theme.colors.background_alternatif}; // Couleur de fond pour état désactivé
     color: ${({ theme }) => theme.colors.title_text};          // Couleur de texte pour état désactivé
-    opacity: 0.6;                                                // Rendre le bouton semi-transparent
+    opacity: 0.6;
+    cursor: default;                                              
   }
 
   @media (max-width: ${breakpoints.sm}) {

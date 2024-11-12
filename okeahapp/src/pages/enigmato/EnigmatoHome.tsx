@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ButtonStyle, ContainerUnderTitleStyle, SpaceStyle, TextStyle, Title2Style } from '../../styles/GlobalStyles';
@@ -12,74 +12,59 @@ import { calculateGameStage } from '../../utils/utils';
 const EnigmatoHome: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+
   const [ongoingGames, setOngoingGames] = useState<IEnigmatoParty[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<IEnigmatoProfil | null>(null); // État pour le profil
+  const [isFetchingProfile, setIsFetchingProfile] = useState(false); // Nouvel état pour éviter les appels répétés
+
 
   useEffect(() => {
     const fetchPartiesByUser = async () => {
       try {
         setLoading(true);
         const games = await getUserParties(navigate);
-        if (games!.length === 0) {
-          return;
-        } else {
-          setOngoingGames(games!);
-        }
-      } catch (error) {
-        setError('Impossible de récupérer les parties en cours.');
+        if (games?.length) setOngoingGames(games);
+      } catch {
+        setError(t('error_fetching_games'));
       } finally {
         setLoading(false);
       }
     };
 
     fetchPartiesByUser();
-  }, [navigate]);
+  }, [navigate, t]);
 
-  const fetchUserProfile = async (id_party: number) => {
+
+  const fetchUserProfile = useCallback(async (id_party: number) => {
+    if (isFetchingProfile) return;
+    setIsFetchingProfile(true);
+
     try {
-      const profile = await fetchProfile(id_party, navigate); // Récupérer le profil de l'utilisateur
-      console.log(profile)
+      const profile = await fetchProfile(id_party, navigate);
       setUserProfile(profile);
-      if (profile && !profile.is_complete) {
-        navigate(`/enigmato/parties/${id_party}/profil`); // Redirection vers la page de profil si le profil est incomplet
-      }
+      const path = profile && !profile.is_complete ? `/enigmato/parties/${id_party}/profil` : `/enigmato/parties/${id_party}/game/info`;
+      navigate(path);
     } catch (error) {
       console.error('Erreur lors de la récupération du profil:', error);
+    } finally {
+      setIsFetchingProfile(false);
     }
-  };
+  }, [isFetchingProfile, navigate]);
 
-  const handleJoinNewGame = () => {
-    {
-      navigate('/enigmato/parties');
-    }
-  };
 
   const handleViewGame = (id: number) => {
-    // Vérification si le profil est complet avant de permettre la navigation
-    if (userProfile && userProfile.is_complete) {
-      navigate(`/enigmato/parties/${id}/game/info`);
-    } else {
-      fetchUserProfile(id); // Vérifier le profil avant d'accéder à la page de jeu
-    }
+    userProfile?.is_complete ? navigate(`/enigmato/parties/${id}/game/info`) : fetchUserProfile(id);
   };
 
-  const handleBack = () => {
-    navigate(-1);
-  };
 
-  if (loading) {
-    return <div>{t('loading')}</div>;
-  }
-
-  if (error) {
-    return <div>{error}</div>;
-  }
+  if (loading) return <div>{t('loading')}</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <>
-      <HeaderTitleComponent title={t('welcomeenigmato')} onBackClick={handleBack} />
+      <HeaderTitleComponent title={t('welcomeenigmato')} onBackClick={() => navigate(-1)} />
       <ContainerUnderTitleStyle>
         <EnigmatoContainerStyle>
           <Title2Style>{t('game_explanation')}</Title2Style>
@@ -97,7 +82,7 @@ const EnigmatoHome: React.FC = () => {
               </EnigmatoItemStyle>
             ))
           )}
-          <ButtonStyle style={{ width: '100%' }} onClick={() => handleJoinNewGame()}>{t('join_game')}</ButtonStyle>
+          <ButtonStyle style={{ width: '100%' }} onClick={() => navigate('/enigmato/parties')}>{t('join_game')}</ButtonStyle>
         </EnigmatoContainerStyle>
       </ContainerUnderTitleStyle>
     </>

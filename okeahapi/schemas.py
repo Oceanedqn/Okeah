@@ -2,27 +2,25 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import date, datetime
 
-# Modèle pour le login
+# [OK] Modèle pour le login
 class LoginRequestSchema(BaseModel):
     email: str
     password: str
 
-# Modèle pour l'utilisateur
+# [OK] Schéma pour l'utilisateur
 class UserSchema(BaseModel):
     id_user: int
     name: str
     firstname: str
     mail: str
-    gender: bool = False
 
 class UserCreateSchema(BaseModel):
     name: str
     firstname: str
     mail: str
     password: str
-    gender: bool = False
 
-# Modèle pour une partie de jeu Enigmato
+# [OK] Modèle pour une partie de jeu Enigmato
 class EnigmatoPartySchema(BaseModel):
     id_party: int
     name: str
@@ -34,6 +32,7 @@ class EnigmatoPartySchema(BaseModel):
     include_weekends: bool
     id_user: int
     set_password: bool
+
 
 class EnigmatoPartyCreateRequestSchema(BaseModel):
     name: str
@@ -47,12 +46,14 @@ class EnigmatoPartyCreateRequestSchema(BaseModel):
 # # Schéma pour les participants d'une partie avec vérification de profil
 class EnigmatoParticipantsSchema(BaseModel):
     id_user: int
+    id_party: int
+    id_profil: int
     name: str
     firstname: str
     gender: bool = False
-    picture1: Optional[str] = None
     picture2: Optional[str] = None
     is_complete: bool = False
+
 
 # Modèle pour les données de jeu d'un utilisateur sur Enigmato (Profil)
 class EnigmatoProfilSchema(BaseModel):
@@ -61,8 +62,12 @@ class EnigmatoProfilSchema(BaseModel):
     id_party: int  # ID de la partie associée
     picture1: Optional[str] = None
     picture2: Optional[str] = None
+    gender: bool = False
     is_complete: bool = False
 
+
+
+# [OK] Schema pour rejoindre une partie avec ou sans mot de passe
 class EnigmatoJoinPartySchema(BaseModel):
     id_party: int
     password: Optional[str] = Field(None, description="Mot de passe de la partie, requis si la partie en a un.")
