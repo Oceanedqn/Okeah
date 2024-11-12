@@ -37,5 +37,7 @@
     "enterPasswordFor": "Entrer le mot de passe pour",
     "validate": "Valider",
     "back": "Retour",
-    "particpantsList": "Liste des participants"
+    "participantsList": "Liste des participants",
+    "completeProfileMessage": "Merci de compléter le profil de jeu afin de pouvoir jouer",
+    "edit": "Modifier"
 }

@@ -1,10 +1,10 @@
 import axios from "axios";
-import { User, UserCreate } from "../interfaces/IUser"; // Assurez-vous d'avoir défini les types User et UserCreate dans un fichier types.ts
+import { IUser, IUserCreate } from "../interfaces/IUser"; // Assurez-vous d'avoir défini les types User et UserCreate dans un fichier types.ts
 import { API_USERS_URL } from "../constants/constants";
 import { checkCookie } from "../utils/utils";
 
 
-export const getCurrentUser = async (): Promise<User> => {
+export const getCurrentUser = async (): Promise<IUser> => {
     const accessToken = checkCookie();
 
     try {
@@ -22,11 +22,11 @@ export const getCurrentUser = async (): Promise<User> => {
 
 
 // Récupère tous les utilisateurs
-export const fetchUsers = async (): Promise<User[]> => {
+export const fetchUsers = async (): Promise<IUser[]> => {
     const accessToken = checkCookie();
 
     try {
-        const response = await axios.get<User[]>(`${API_USERS_URL}/`, {
+        const response = await axios.get<IUser[]>(`${API_USERS_URL}/`, {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
             },
@@ -40,10 +40,10 @@ export const fetchUsers = async (): Promise<User[]> => {
 
 
 // Récupère un utilisateur spécifique par ID
-export const fetchUserById = async (userId: number): Promise<User> => {
+export const fetchUserById = async (userId: number): Promise<IUser> => {
     const accessToken = checkCookie();
     try {
-        const response = await axios.get<User>(`${API_USERS_URL}/${userId}`, {
+        const response = await axios.get<IUser>(`${API_USERS_URL}/${userId}`, {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
             },
@@ -57,10 +57,10 @@ export const fetchUserById = async (userId: number): Promise<User> => {
 
 
 // Met à jour les informations d'un utilisateur
-export const updateUser = async (userId: number, user: UserCreate): Promise<User> => {
+export const updateUser = async (userId: number, user: IUserCreate): Promise<IUser> => {
     const accessToken = checkCookie();
     try {
-        const response = await axios.put<User>(`${API_USERS_URL}/${userId}`, user, {
+        const response = await axios.put<IUser>(`${API_USERS_URL}/${userId}`, user, {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
             },
@@ -74,10 +74,13 @@ export const updateUser = async (userId: number, user: UserCreate): Promise<User
 
 
 // Supprime un utilisateur
-export const deleteUser = async (userId: number): Promise<User> => {
+export const deleteUser = async (userId: number): Promise<IUser> => {
     const accessToken = checkCookie();
     try {
-        const response = await axios.delete<User>(`${API_USERS_URL}/${userId}`, {
+        const response = await axios.delete<IUser>(`${API_USERS_URL}/${userId}`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
             withCredentials: true,
         });
         return response.data;

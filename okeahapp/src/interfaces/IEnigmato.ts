@@ -1,14 +1,5 @@
-// Exemple d'un profil d'utilisateur
-export interface EnigmatoProfil {
-  id_profil: number;
-  id_user: number;
-  picture_young?: string;
-  picture_old?: string;
-  is_referral: boolean;
-}
-
 // Exemple d'une partie de jeu
-export interface EnigmatoParty {
+export interface IEnigmatoParty {
   id_party: number;
   date_creation: string; // format ISO 8601
   name: string;
@@ -21,7 +12,36 @@ export interface EnigmatoParty {
   set_password: boolean;
 }
 
-export interface EnigmatoPartyCreateRequest {
+export interface IEnigmatoPartyBoxes {
+  id_party: number;
+  date_creation: string; // format ISO 8601
+  name: string;
+  id_user: number;
+  date_start: string;
+  number_of_box: number;
+  today_box: IEnigmatoBox;
+  previous_box: IEnigmatoBox[];
+}
+
+// Exemple d'un profil d'utilisateur
+export interface IEnigmatoProfil {
+  id_profil: number;
+  id_user: number;
+  id_party: number;
+  picture1?: string;
+  picture2?: string;
+  is_complete: boolean;
+}
+
+export interface IEnigmatoParticipants {
+  id_user: number
+  name: string
+  firstname: string
+  gender: boolean
+  is_complete: boolean
+}
+
+export interface IEnigmatoPartyCreateRequest {
   name: string;
   password: string;
   date_start: string;
@@ -31,22 +51,22 @@ export interface EnigmatoPartyCreateRequest {
   set_password: boolean;
 }
 
-export interface EnigmatoJoinParty {
+export interface IEnigmatoJoinParty {
   id_party: number;
   password?: string;
 }
 
 // Exemple d'une case du calendrier
-export interface EnigmatoBox {
+export interface IEnigmatoBox {
   id_box: number;
   id_party: number;
   name: string;
   date?: string; // format ISO 8601 si une date existe
-  id_enigma: number;
+  id_enigma_user: number;
 }
 
 // Exemple d'une réponse à une case
-export interface EnigmatoBoxResponse {
+export interface IEnigmatoBoxResponse {
   id_box: number;
   id_user: number;
   id_user_response: number;

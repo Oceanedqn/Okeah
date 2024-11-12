@@ -1,10 +1,10 @@
 import axios from "axios";
 import { API_LOGIN_URL, API_LOGOUT_URL } from "../../constants/constants"
-import { LoginResponse } from "../../interfaces/ILogin";
+import { ILoginResponse } from "../../interfaces/ILogin";
 import { useNavigate } from 'react-router-dom';
 
 
-export const login_async = async (email: string, password: string): Promise<LoginResponse> => {
+export const login_async = async (email: string, password: string): Promise<ILoginResponse> => {
   const response = await axios.post(
     API_LOGIN_URL,
     { email, password },

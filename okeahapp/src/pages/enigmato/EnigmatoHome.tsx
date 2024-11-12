@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next'; // Importer le hook useTranslation
+import { useTranslation } from 'react-i18next';
 import { ButtonStyle, ContainerUnderTitleStyle, SpaceStyle, TextStyle, Title2Style } from '../../styles/GlobalStyles';
 import { EnigmatoContainerStyle, EnigmatoItemStyle } from '../../styles/EnigmatoStyles';
-import { getUserParties } from '../../services/enigmato/enigmatoUserPartiesService'; // Importer le service pour récupérer les parties
-import { EnigmatoParty } from '../../interfaces/IEnigmato';
+import { getUserParties } from '../../services/enigmato/enigmatoPartiesService';
+import { fetchProfile } from '../../services/enigmato/enigmatoProfileService'; // Importer la fonction pour récupérer le profil
+import { IEnigmatoParty, IEnigmatoProfil } from '../../interfaces/IEnigmato';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
 import { calculateGameStage } from '../../utils/utils';
 
 const EnigmatoHome: React.FC = () => {
-  const { t } = useTranslation(); // Déclarer la fonction de traduction
+  const { t } = useTranslation();
   const navigate = useNavigate();
-  const [ongoingGames, setOngoingGames] = useState<EnigmatoParty[]>([]);  // Correction du type
+  const [ongoingGames, setOngoingGames] = useState<IEnigmatoParty[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [userProfile, setUserProfile] = useState<IEnigmatoProfil | null>(null); // État pour le profil
 
   useEffect(() => {
     const fetchPartiesByUser = async () => {
@@ -23,7 +25,7 @@ const EnigmatoHome: React.FC = () => {
         if (games!.length === 0) {
           return;
         } else {
-          setOngoingGames(games!);  // Sinon, mettre à jour l'état avec les parties récupérées
+          setOngoingGames(games!);
         }
       } catch (error) {
         setError('Impossible de récupérer les parties en cours.');
@@ -31,27 +33,41 @@ const EnigmatoHome: React.FC = () => {
         setLoading(false);
       }
     };
+
     fetchPartiesByUser();
   }, [navigate]);
 
-  const handleJoinGame = () => {
-    navigate('/enigmato/parties');
+  const fetchUserProfile = async (id_party: number) => {
+    try {
+      const profile = await fetchProfile(id_party, navigate); // Récupérer le profil de l'utilisateur
+      console.log(profile)
+      setUserProfile(profile);
+      if (profile && !profile.is_complete) {
+        navigate(`/enigmato/parties/${id_party}/profil`); // Redirection vers la page de profil si le profil est incomplet
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération du profil:', error);
+    }
   };
 
-  // Fonction pour naviguer vers la page de jeu spécifique
+  const handleJoinNewGame = () => {
+    {
+      navigate('/enigmato/parties');
+    }
+  };
+
   const handleViewGame = (id: number) => {
-    navigate(`/enigmato/parties/${id}/game/info`);
+    // Vérification si le profil est complet avant de permettre la navigation
+    if (userProfile && userProfile.is_complete) {
+      navigate(`/enigmato/parties/${id}/game/info`);
+    } else {
+      fetchUserProfile(id); // Vérifier le profil avant d'accéder à la page de jeu
+    }
   };
 
   const handleBack = () => {
     navigate(-1);
-  }
-
-
-
-
-
-  // --------------------------- PARTIE AFFICHAGE DE LA PAGE ---------------------------
+  };
 
   if (loading) {
     return <div>{t('loading')}</div>;
@@ -81,7 +97,7 @@ const EnigmatoHome: React.FC = () => {
               </EnigmatoItemStyle>
             ))
           )}
-          <ButtonStyle style={{ width: '100%' }} onClick={handleJoinGame}>{t('join_game')}</ButtonStyle>
+          <ButtonStyle style={{ width: '100%' }} onClick={() => handleJoinNewGame()}>{t('join_game')}</ButtonStyle>
         </EnigmatoContainerStyle>
       </ContainerUnderTitleStyle>
     </>

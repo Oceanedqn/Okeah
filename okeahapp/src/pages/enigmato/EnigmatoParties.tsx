@@ -2,18 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ButtonStyle, ContainerUnderTitleStyle, TextStyle } from '../../styles/GlobalStyles';
 import { EnigmatoContainerStyle, ModalContent, ModalOverlay, EnigmatoItemStyle } from '../../styles/EnigmatoStyles';
-import { getPartiesAsync } from '../../services/enigmato/enigmatoPartiesService';
-import { EnigmatoJoinParty, EnigmatoParty } from '../../interfaces/IEnigmato';
+import { getPartiesAsync, joinParty } from '../../services/enigmato/enigmatoPartiesService';
+import { IEnigmatoJoinParty, IEnigmatoParty } from '../../interfaces/IEnigmato';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
 import { useTranslation } from 'react-i18next';
-import { joinParty } from '../../services/enigmato/enigmatoUserPartiesService'; // Importer la fonction de service
 import { calculateGameStage } from '../../utils/utils';
 
 const EnigmatoParties: React.FC = () => {
     const navigate = useNavigate();
     const { t } = useTranslation();
-    const [parties, setParties] = useState<EnigmatoParty[]>([]);
-    const [selectedPartie, setSelectedPartie] = useState<EnigmatoParty | null>(null);
+    const [parties, setParties] = useState<IEnigmatoParty[]>([]);
+    const [selectedPartie, setSelectedPartie] = useState<IEnigmatoParty | null>(null);
     const [password, setPassword] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -49,7 +48,7 @@ const EnigmatoParties: React.FC = () => {
     };
 
     // Gère le clic sur le bouton "Rejoindre"
-    const handleJoin = (partie: EnigmatoParty) => {
+    const handleJoin = (partie: IEnigmatoParty) => {
         if (partie.password) {
             console.log("Mot de passe requis pour rejoindre la partie", partie.password);
             setSelectedPartie(partie);
@@ -83,7 +82,7 @@ const EnigmatoParties: React.FC = () => {
 
     // Fonction pour rejoindre une partie
     const joinAndNavigate = async (partyId: number, password?: string) => {
-        const joinPartyData: EnigmatoJoinParty = {
+        const joinPartyData: IEnigmatoJoinParty = {
             id_party: partyId,
             password: password,  // Le mot de passe est optionnel
         };

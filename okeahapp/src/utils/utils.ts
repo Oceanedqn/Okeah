@@ -1,5 +1,5 @@
 import Cookies from "js-cookie";
-import { EnigmatoParty } from "../interfaces/IEnigmato";
+import { IEnigmatoParty } from "../interfaces/IEnigmato";
 
 export const checkCookie = (): string => {
     const accessToken = Cookies.get('access_token');
@@ -10,7 +10,7 @@ export const checkCookie = (): string => {
 };
 
 
-export const calculateGameStage = (party: EnigmatoParty, t: Function) => {
+export const calculateGameStage = (party: IEnigmatoParty, t: Function) => {
     const today = new Date();
     const dateStart = new Date(party.date_start);
     const formattedDateStart = dateStart.toLocaleDateString('fr-FR', {

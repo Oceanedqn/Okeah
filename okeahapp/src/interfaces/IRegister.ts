@@ -1,4 +1,4 @@
-export interface RegisterResponse {
+export interface IRegisterResponse {
     name: string;
     firstname: string;
     mail: string;
@@ -6,7 +6,7 @@ export interface RegisterResponse {
 }
 
 // Create an interface for the registration data
-export interface RegisterData {
+export interface IRegisterData {
     name: string;
     firstname: string;
     mail: string;

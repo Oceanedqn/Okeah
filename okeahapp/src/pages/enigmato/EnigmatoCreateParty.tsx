@@ -5,7 +5,7 @@ import { ButtonStyle, ContainerUnderTitleStyle, SpaceStyle, TextStyle, Title2Sty
 import { EnigmatoContainerStyle } from '../../styles/EnigmatoStyles';
 import { createParty } from '../../services/enigmato/enigmatoPartiesService'; // Service pour créer la partie
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
-import { EnigmatoPartyCreateRequest } from '../../interfaces/IEnigmato';  // Modèle pour une partie
+import { IEnigmatoPartyCreateRequest } from '../../interfaces/IEnigmato';  // Modèle pour une partie
 
 const EnigmatoCreateParty: React.FC = () => {
     const { t } = useTranslation(); // Déclarer la fonction de traduction
@@ -32,7 +32,7 @@ const EnigmatoCreateParty: React.FC = () => {
         e.preventDefault();
         setLoading(true);
 
-        const newParty: EnigmatoPartyCreateRequest = {
+        const newParty: IEnigmatoPartyCreateRequest = {
             name: name,
             password: isPasswordRequired ? password : "", // Si isPasswordRequired est true, on envoie le mot de passe, sinon on envoie une chaîne vide
             date_start: dateStart,
@@ -44,7 +44,7 @@ const EnigmatoCreateParty: React.FC = () => {
 
         try {
             const response = await createParty(newParty, navigate); // Appel du service pour créer la partie
-            navigate(`/enigmato/parties/${response.id_party}/game/info`); // Redirige vers la page du jeu
+            navigate(`/enigmato/parties`); // Redirige vers la page du jeu
         } catch (err: any) { // TypeScript demande de gérer le type de `err`
             setError(err?.message || 'Impossible de créer la partie.'); // Affiche l'erreur réelle retournée par l'API
         } finally {

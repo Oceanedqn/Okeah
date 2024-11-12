@@ -1,13 +1,11 @@
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import List, Optional
 from datetime import date, datetime
-
 
 # Modèle pour le login
 class LoginRequestSchema(BaseModel):
     email: str
     password: str
-
 
 # Modèle pour l'utilisateur
 class UserSchema(BaseModel):
@@ -25,7 +23,6 @@ class UserCreateSchema(BaseModel):
     gender: bool = False
 
 # Modèle pour une partie de jeu Enigmato
-#Utile
 class EnigmatoPartySchema(BaseModel):
     id_party: int
     name: str
@@ -38,7 +35,6 @@ class EnigmatoPartySchema(BaseModel):
     id_user: int
     set_password: bool
 
-#Utile
 class EnigmatoPartyCreateRequestSchema(BaseModel):
     name: str
     password: Optional[str]
@@ -48,27 +44,30 @@ class EnigmatoPartyCreateRequestSchema(BaseModel):
     include_weekends: bool
     set_password: bool
 
-
-# Schéma pour l'association entre un utilisateur et une partie
-class EnigmatoUserPartySchema(BaseModel):
+# # Schéma pour les participants d'une partie avec vérification de profil
+class EnigmatoParticipantsSchema(BaseModel):
     id_user: int
-    id_party: int
-    id_profil: int
-    date_joined_at: date
-
-class EnigmatoUserPartyCreateRequestSchema(BaseModel):
-    id_party: int
-    password: Optional[str] = Field(None, description="Mot de passe de la partie, requis si la partie en a un.")
+    name: str
+    firstname: str
+    gender: bool = False
+    picture1: Optional[str] = None
+    picture2: Optional[str] = None
+    is_complete: bool = False
 
 # Modèle pour les données de jeu d'un utilisateur sur Enigmato (Profil)
 class EnigmatoProfilSchema(BaseModel):
     id_profil: int
     id_user: int  # ID de l'utilisateur associé
+    id_party: int  # ID de la partie associée
     picture1: Optional[str] = None
     picture2: Optional[str] = None
+    is_complete: bool = False
 
-class EnigmatoProfilCreateSchema(BaseModel):
-    id_user: int
+class EnigmatoJoinPartySchema(BaseModel):
+    id_party: int
+    password: Optional[str] = Field(None, description="Mot de passe de la partie, requis si la partie en a un.")
+
+
 
 # Modèle pour une case du calendrier
 class EnigmatoBoxSchema(BaseModel):
@@ -78,6 +77,20 @@ class EnigmatoBoxSchema(BaseModel):
     date: Optional[datetime] = None
     id_enigma: int
 
+
+
+class EnigmatoPartyBoxesSchema(BaseModel):
+  id_party: int
+  date_creation: str
+  name: str
+  id_user: int
+  date_start: str
+  number_of_box: int
+  today_box: EnigmatoBoxSchema
+  previous_box: List[EnigmatoBoxSchema]
+
+
+
 # Modèle la réponse d'une personne par rapport à une case du calendrier
 class EnigmatoBoxResponseSchema(BaseModel):
     id_box: int
@@ -85,4 +98,3 @@ class EnigmatoBoxResponseSchema(BaseModel):
     id_user_response: int
     date: Optional[datetime] = None
     cluse_used: bool = False
-
