@@ -13,3 +13,5 @@ export const API_ENIGMATO_PARTIES_URL = `${BASE_URL}/enigmato/parties`;
 export const API_ENIGMATO_USER_PARTIES_URL = `${BASE_URL}/enigmato/parties/user`;
 export const API_ENIGMATO_JOIN_PARTIES_URL = `${BASE_URL}/enigmato/parties/join`;
 export const API_ENIGMATO_PROFILES_URL = `${BASE_URL}/enigmato/parties/profiles`;
+
+export const API_ENIGMATO_BOXES_URL = `${BASE_URL}/enigmato/boxes`;

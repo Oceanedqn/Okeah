@@ -48,10 +48,10 @@ async def update_profile_async(
     party = await read_party_async(enigmatoProfil.id_party, db, current_user)
 
     # Vérifie si on est avant la start_date de la partie ou si le profil n'est pas complet
-    current_date = datetime.now(timezone.utc)
+    current_date = datetime.now(timezone.utc).date()
 
     # Si la date actuelle est avant la date de début de la partie ou si le profil est incomplet, permettre l'update
-    if current_date < datetime.combine(party.date_start, datetime.min.time()) or not profile.is_complete:
+    if current_date < party.date_start or not profile.is_complete:
         # Dictionnaire pour contenir les modifications
         updates = {}
 

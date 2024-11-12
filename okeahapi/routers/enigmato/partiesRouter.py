@@ -1,4 +1,5 @@
 from datetime import date, datetime, timedelta
+import random
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy import not_
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -148,7 +149,7 @@ async def get_participants_async(id_party: int, db: AsyncSession = Depends(get_d
             firstname=user.firstname,
             gender=profile.gender,
             picture2=profile.picture2,
-            is_complete=bool(profile.gender and profile.picture1 and profile.picture2)
+            is_complete=bool(profile.picture1 and profile.picture2)
         )
         for user, profile in participants
     ]
@@ -229,40 +230,55 @@ async def read_party_async(party_id: int, db: AsyncSession = Depends(get_db_asyn
 
 
 # Route pour récupérer tous les participants d'une partie ayant complété leur profil
-@router.get("/{id_party}/participants/completed", response_model=List[EnigmatoParticipantsSchema])
-async def get_participants_completed_async(id_party: int, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
+
+async def get_random_participant_completed_async(
+    id_party: int,
+    db: AsyncSession = Depends(get_db_async),
+    current_user: User = Depends(get_current_user_async)
+):
     # Requête pour récupérer les utilisateurs associés à cette partie et dont le profil est complet
     result = await db.execute(
-        select(User, EnigmatoProfil)  # Sélectionner à la fois User et EnigmatoProfil
+        select(User, EnigmatoProfil)
         .join(EnigmatoProfil, EnigmatoProfil.id_user == User.id_user)
         .filter(EnigmatoProfil.id_party == id_party)
     )
     participants = result.all()
-    
-    if not participants:
-        raise HTTPException(status_code=404, detail="No participants found for this party")
-    
+
     # Filtrer les participants ayant un profil complet
     completed_participants = [
         EnigmatoParticipantsSchema(
             id_user=user.id_user,
+            id_party=id_party,
+            id_profil=profile.id_profil,
             name=user.name,
             firstname=user.firstname,
             gender=profile.gender,
-            picture1=profile.picture1,
             picture2=profile.picture2,
-            # Calcul du statut de complétion du profil en fonction des attributs requis
-            is_complete=bool(profile.gender and profile.picture1 and profile.picture2)
+            is_complete=bool(profile.picture1 and profile.picture2)
         )
         for user, profile in participants
-        if profile.gender and profile.picture1 and profile.picture2  # Vérification du profil complet
+        if profile.gender and profile.picture1 and profile.picture2
     ]
-    
-    if not completed_participants:
-        raise HTTPException(status_code=404, detail="No completed participants found for this party")
-    
-    return completed_participants
 
+    if not completed_participants:
+        raise HTTPException(status_code=404, detail="Aucun participant avec un profil complet trouvé pour cette partie.")
+
+    # 3. Récupérer les participants déjà utilisés dans des boîtes pour cette `id_party`
+    result_used_participants = await db.execute(
+        select(EnigmatoBox.id_enigma_user).filter(EnigmatoBox.id_party == id_party)
+    )
+    used_participants = {row[0] for row in result_used_participants}  # Ensemble des IDs des utilisateurs déjà utilisés
+
+    # 4. Filtrer les participants pour ne garder que ceux qui n'ont pas encore été utilisés
+    available_participants = [p for p in completed_participants if p.id_user not in used_participants]
+
+    if not available_participants:
+        raise HTTPException(status_code=409, detail="Tous les participants ont déjà été utilisés pour cette partie.")
+
+    # 5. Sélectionner un participant aléatoire parmi ceux qui n'ont pas encore été utilisés
+    selected_participant = random.choice(available_participants)
+
+    return selected_participant
 
 
 

@@ -80,8 +80,6 @@ class EnigmatoBoxSchema(BaseModel):
     id_party: int
     name: str
     date: Optional[datetime] = None
-    id_enigma: int
-
 
 
 class EnigmatoPartyBoxesSchema(BaseModel):

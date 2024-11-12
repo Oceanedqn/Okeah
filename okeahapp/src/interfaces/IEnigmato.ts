@@ -65,8 +65,7 @@ export interface IEnigmatoBox {
   id_box: number;
   id_party: number;
   name: string;
-  date?: string; // format ISO 8601 si une date existe
-  id_enigma_user: number;
+  date?: string;
 }
 
 // Exemple d'une réponse à une case

@@ -6,6 +6,7 @@ import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
 import { IEnigmatoBox, IEnigmatoParty, IEnigmatoProfil } from '../../interfaces/IEnigmato';
 import { getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { fetchProfile } from '../../services/enigmato/enigmatoProfileService'; // Assurez-vous d'importer cette fonction
+import { getTodayBoxAsync } from '../../services/enigmato/enigmatoBoxesService';
 
 const EnigmatoGameInfo: React.FC = () => {
     const { id_party } = useParams<{ id_party: string }>();
@@ -16,18 +17,6 @@ const EnigmatoGameInfo: React.FC = () => {
 
     useEffect(() => {
         if (id_party) {
-            // Récupération de la partie
-            const fetchParty = async () => {
-                try {
-                    const fetchedParty = await getPartyAsync(parseInt(id_party), navigate);
-                    if (fetchedParty) {
-                        setParty(fetchedParty);
-                    }
-                } catch (error) {
-                    console.error("Erreur lors de la récupération des données de la partie :", error);
-                }
-            };
-
             // Vérification du profil de l'utilisateur avant de charger la partie
             const fetchUserProfile = async () => {
                 try {
@@ -42,8 +31,34 @@ const EnigmatoGameInfo: React.FC = () => {
                 }
             };
 
+
+            // Récupération de la partie
+            const fetchParty = async () => {
+                try {
+                    const fetchedParty = await getPartyAsync(parseInt(id_party), navigate);
+                    if (fetchedParty) {
+                        setParty(fetchedParty);
+                    }
+                } catch (error) {
+                    console.error("Erreur lors de la récupération des données de la partie :", error);
+                }
+            };
+            const fetchTodayBox = async () => {
+                try {
+                    const fetchedBox = await getTodayBoxAsync(parseInt(id_party), navigate);
+                    if (fetchedBox) {
+                        setTodayBox(fetchedBox);
+                    }
+                } catch (error) {
+                    console.error("Erreur lors de la récupération des données de la partie :", error);
+                }
+            };
+
+
+
             fetchParty();
             fetchUserProfile(); // Récupère et vérifie le profil à chaque fois qu'on entre sur la page
+            fetchTodayBox();
         } else {
             console.error("id_party est indéfini");
         }
@@ -75,7 +90,7 @@ const EnigmatoGameInfo: React.FC = () => {
             <HeaderTitleComponent title={party.name} onBackClick={handleBack} />
             <ContainerUnderTitleStyle>
                 <EnigmatoContainerStyle>
-                    <ButtonStyle onClick={handleInfo}>Information de la partie</ButtonStyle>
+                    <ButtonStyle onClick={handleInfo}>Information de la partie : {userProfile.id_user}</ButtonStyle>
                     <ContainerBackgroundStyle>
                         {/* Affiche le box du jour ou un message si non disponible */}
                         {todayBox ? (
