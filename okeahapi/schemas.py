@@ -79,8 +79,27 @@ class EnigmatoBoxSchema(BaseModel):
     id_box: int
     id_party: int
     name: str
-    date: Optional[datetime] = None
+    date: datetime
 
+
+class EnigmatoBoxGameSchema(BaseModel):
+    id_box: int
+    id_party: int
+    name: str
+    date: datetime
+    picture1: str
+
+class EnigmatoBoxRightResponseSchema(BaseModel):
+    id_box: int
+    id_party: int
+    name_box: str
+    date: datetime
+    id_user: int
+    id_profil: int
+    name: str
+    firstname: str
+    picture1: str
+    picture2: str
 
 class EnigmatoPartyBoxesSchema(BaseModel):
   id_party: int

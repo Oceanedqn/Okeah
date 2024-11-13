@@ -185,37 +185,6 @@ async def read_party_async(party_id: int, db: AsyncSession = Depends(get_db_asyn
     party = result.scalar_one_or_none()
     if party is None:
         raise HTTPException(status_code=404, detail="Party not found")
-    
-
-    # if party.date_start == datetime.now().date():
-    #     result = await db.execute(select(EnigmatoProfil).filter(EnigmatoProfil.id_party == party_id))
-    #     profiles = result.scalars().all()
-
-    #     for profil in profiles:
-    #         if not profil.picture1 or not profil.picture2:  # Vérifie si les deux photos sont manquantes
-    #             raise HTTPException(status_code=400, detail=f"Les profils ne sont pas completes")
-
-
-    # # Vérifier si les boxes existent déjà
-    #     result = await db.execute(select(EnigmatoBox).filter(EnigmatoBox.id_party == party_id))
-    #     boxes = result.scalars().all()
-
-    #     if not boxes:  # Si aucune box n'est trouvée, alors on doit créer les boxes
-    #         # Créer les boxes avec la logique décrite
-
-    #         for i in range(party.number_of_box):
-    #             box_name = f"Box {i+1}"
-    #             box_date = party.date_start + timedelta(days=i)  # On ajoute 1 jour à chaque itération
-    #             new_box = EnigmatoBox(
-    #                 name=box_name,
-    #                 date=box_date,
-    #                 id_enigma_user=1,  # ID utilisateur temporaire
-    #                 id_party=party.id_party
-    #             )
-    #             db.add(new_box)
-
-    #         await db.commit()  # Sauvegarder les changements
-    #         await db.refresh(party)  # Rafraîchir les données de la partie pour retourner l'état mis à jour
 
     return party
 
@@ -223,19 +192,11 @@ async def read_party_async(party_id: int, db: AsyncSession = Depends(get_db_asyn
 
 
 
-
-
-
-
-
-
-# Route pour récupérer tous les participants d'une partie ayant complété leur profil
-
-async def get_random_participant_completed_async(
-    id_party: int,
+@router.get("/{id_party}/participants/completed", response_model=List[EnigmatoParticipantsSchema])
+async def get_participants_completed_async(id_party: int,
     db: AsyncSession = Depends(get_db_async),
-    current_user: User = Depends(get_current_user_async)
-):
+    current_user: User = Depends(get_current_user_async)):
+        
     # Requête pour récupérer les utilisateurs associés à cette partie et dont le profil est complet
     result = await db.execute(
         select(User, EnigmatoProfil)
@@ -257,11 +218,24 @@ async def get_random_participant_completed_async(
             is_complete=bool(profile.picture1 and profile.picture2)
         )
         for user, profile in participants
-        if profile.gender and profile.picture1 and profile.picture2
+        if profile.picture1 and profile.picture2
     ]
 
     if not completed_participants:
         raise HTTPException(status_code=404, detail="Aucun participant avec un profil complet trouvé pour cette partie.")
+
+    return completed_participants
+
+
+
+# Route pour récupérer tous les participants d'une partie ayant complété leur profil
+
+async def get_random_participant_completed_async(
+    id_party: int,
+    db: AsyncSession = Depends(get_db_async),
+    current_user: User = Depends(get_current_user_async)
+):
+    completed_participants = await get_participants_completed_async(id_party, db, current_user)
 
     # 3. Récupérer les participants déjà utilisés dans des boîtes pour cette `id_party`
     result_used_participants = await db.execute(

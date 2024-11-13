@@ -3,27 +3,29 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ButtonStyle, ContainerUnderTitleStyle, Title2Style } from '../../styles/GlobalStyles';
 import { EnigmatoContainerStyle, ContainerBackgroundStyle } from '../../styles/EnigmatoStyles';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
-import { IEnigmatoBox, IEnigmatoParty, IEnigmatoProfil } from '../../interfaces/IEnigmato';
+import { IEnigmatoBox, IEnigmatoBoxRightResponse, IEnigmatoParty, IEnigmatoProfil } from '../../interfaces/IEnigmato';
 import { getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
-import { fetchProfile } from '../../services/enigmato/enigmatoProfileService'; // Assurez-vous d'importer cette fonction
-import { getTodayBoxAsync } from '../../services/enigmato/enigmatoBoxesService';
+import { fetchProfile } from '../../services/enigmato/enigmatoProfileService';
+import { getBeforeBoxAsync, getTodayBoxAsync } from '../../services/enigmato/enigmatoBoxesService';
 
 const EnigmatoGameInfo: React.FC = () => {
     const { id_party } = useParams<{ id_party: string }>();
     const navigate = useNavigate();
-    const [party, setParty] = useState<IEnigmatoParty | null>(null); // Initialise party à null
+    const [party, setParty] = useState<IEnigmatoParty | null>(null);
     const [todayBox, setTodayBox] = useState<IEnigmatoBox | null>(null);
-    const [userProfile, setUserProfile] = useState<IEnigmatoProfil | null>(null); // Pour stocker le profil
+    const [userProfile, setUserProfile] = useState<IEnigmatoProfil | null>(null);
+    const [beforeBoxes, setBeforeBoxes] = useState<IEnigmatoBoxRightResponse[] | null>(null);
+
+    // Vérifie si une chaîne est en base64 pour les images
+    const isBase64 = (str: string) => /^data:image\/[a-z]+;base64,/.test(str);
 
     useEffect(() => {
         if (id_party) {
-            // Vérification du profil de l'utilisateur avant de charger la partie
             const fetchUserProfile = async () => {
                 try {
                     const profile = await fetchProfile(parseInt(id_party), navigate);
                     setUserProfile(profile);
                     if (profile && !profile.is_complete) {
-                        // Si le profil est incomplet, redirige vers la page de profil
                         navigate(`/enigmato/parties/${id_party}/profil`);
                     }
                 } catch (error) {
@@ -31,8 +33,6 @@ const EnigmatoGameInfo: React.FC = () => {
                 }
             };
 
-
-            // Récupération de la partie
             const fetchParty = async () => {
                 try {
                     const fetchedParty = await getPartyAsync(parseInt(id_party), navigate);
@@ -43,6 +43,7 @@ const EnigmatoGameInfo: React.FC = () => {
                     console.error("Erreur lors de la récupération des données de la partie :", error);
                 }
             };
+
             const fetchTodayBox = async () => {
                 try {
                     const fetchedBox = await getTodayBoxAsync(parseInt(id_party), navigate);
@@ -54,11 +55,21 @@ const EnigmatoGameInfo: React.FC = () => {
                 }
             };
 
-
+            const fetchBeforeBox = async () => {
+                try {
+                    const fetchedBeforeBoxes = await getBeforeBoxAsync(parseInt(id_party), navigate);
+                    if (fetchedBeforeBoxes) {
+                        setBeforeBoxes(fetchedBeforeBoxes);
+                    }
+                } catch (error) {
+                    console.error("Erreur lors de la récupération des anciennes boxes :", error);
+                }
+            };
 
             fetchParty();
-            fetchUserProfile(); // Récupère et vérifie le profil à chaque fois qu'on entre sur la page
+            fetchUserProfile();
             fetchTodayBox();
+            fetchBeforeBox();
         } else {
             console.error("id_party est indéfini");
         }
@@ -80,7 +91,6 @@ const EnigmatoGameInfo: React.FC = () => {
         navigate(`/enigmato/home`);
     };
 
-    // Affichage de chargement tant que la partie ou le profil n'est pas chargé
     if (!party || !userProfile) {
         return <p>Chargement des informations...</p>;
     }
@@ -92,7 +102,6 @@ const EnigmatoGameInfo: React.FC = () => {
                 <EnigmatoContainerStyle>
                     <ButtonStyle onClick={handleInfo}>Information de la partie : {userProfile.id_user}</ButtonStyle>
                     <ContainerBackgroundStyle>
-                        {/* Affiche le box du jour ou un message si non disponible */}
                         {todayBox ? (
                             <div>
                                 <p>Box du jour: {todayBox.name}</p>
@@ -104,12 +113,29 @@ const EnigmatoGameInfo: React.FC = () => {
                     </ContainerBackgroundStyle>
                     <Title2Style>Autres jours</Title2Style>
                     <ContainerBackgroundStyle>
-                        {/* Exemple de liste des jours précédents */}
-                        {/* {party.previous_box?.map((box) => (
-                            <PreviousDayItem key={box.id_box}>
-                                {box.name} - {new Date(box.date!).toLocaleDateString()}
-                            </PreviousDayItem>
-                        ))} */}
+                        {beforeBoxes?.map((box) => (
+                            <div key={box.id_box}>
+                                <p>{box.name_box} - {new Date(box.date).toLocaleDateString()}</p>
+                                <p>Nom de l'utilisateur: {box.name} {box.firstname}</p>
+
+                                {/* Affiche image si picture1 est en base64 */}
+                                {box.picture1 && isBase64(box.picture1) && (
+                                    <img
+                                        src={box.picture1}
+                                        alt="Image 1"
+                                        style={{ width: '100px', height: '100px', objectFit: 'cover', marginRight: '10px' }}
+                                    />
+                                )}
+                                {/* Affiche image si picture2 est en base64 */}
+                                {box.picture2 && isBase64(box.picture2) && (
+                                    <img
+                                        src={box.picture2}
+                                        alt="Image 2"
+                                        style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                                    />
+                                )}
+                            </div>
+                        ))}
                     </ContainerBackgroundStyle>
                 </EnigmatoContainerStyle>
             </ContainerUnderTitleStyle>

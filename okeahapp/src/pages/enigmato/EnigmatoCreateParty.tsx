@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'; // Importer le hook useTranslation
 import { ButtonStyle, ContainerUnderTitleStyle, SpaceStyle, TextStyle, Title2Style } from '../../styles/GlobalStyles';
 import { EnigmatoContainerStyle } from '../../styles/EnigmatoStyles';
-import { createParty } from '../../services/enigmato/enigmatoPartiesService'; // Service pour créer la partie
+import { createPartyAsync } from '../../services/enigmato/enigmatoPartiesService'; // Service pour créer la partie
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
 import { IEnigmatoPartyCreateRequest } from '../../interfaces/IEnigmato';  // Modèle pour une partie
 
@@ -43,7 +43,7 @@ const EnigmatoCreateParty: React.FC = () => {
         };
 
         try {
-            const response = await createParty(newParty, navigate); // Appel du service pour créer la partie
+            const response = await createPartyAsync(newParty, navigate); // Appel du service pour créer la partie
             navigate(`/enigmato/parties`); // Redirige vers la page du jeu
         } catch (err: any) { // TypeScript demande de gérer le type de `err`
             setError(err?.message || 'Impossible de créer la partie.'); // Affiche l'erreur réelle retournée par l'API

@@ -42,7 +42,7 @@ export const getPartyAsync = async (id_party: number, navigate: ReturnType<typeo
 };
 
 // Service pour obtenir toutes les parties associées à un utilisateur
-export const getUserParties = async (navigate: ReturnType<typeof useNavigate>): Promise<IEnigmatoParty[] | null> => {
+export const getUserPartiesAsync = async (navigate: ReturnType<typeof useNavigate>): Promise<IEnigmatoParty[] | null> => {
   const accessToken = checkCookie();
 
   try {
@@ -59,7 +59,7 @@ export const getUserParties = async (navigate: ReturnType<typeof useNavigate>): 
   }
 };
 
-export const fetchParticipants = async (id_party: number, navigate: ReturnType<typeof useNavigate>) => {
+export const fetchParticipantsAsync = async (id_party: number, navigate: ReturnType<typeof useNavigate>) => {
   const accessToken = checkCookie();
 
   try {
@@ -76,7 +76,24 @@ export const fetchParticipants = async (id_party: number, navigate: ReturnType<t
 };
 
 
-export const createParty = async (party: IEnigmatoPartyCreateRequest, navigate: ReturnType<typeof useNavigate>) => {
+export const fetchCompletedParticipantsAsync = async (id_party: number, navigate: ReturnType<typeof useNavigate>) => {
+  const accessToken = checkCookie();
+
+  try {
+    const response = await axios.get(`${API_ENIGMATO_PARTIES_URL}/${id_party}/participants/completed`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    handleError(error, navigate);
+  }
+};
+
+
+export const createPartyAsync = async (party: IEnigmatoPartyCreateRequest, navigate: ReturnType<typeof useNavigate>) => {
   const accessToken = checkCookie();
 
   try {
@@ -95,7 +112,7 @@ export const createParty = async (party: IEnigmatoPartyCreateRequest, navigate: 
 };
 
 // Service pour rejoindre une partie
-export const joinParty = async (request: IEnigmatoJoinParty, navigate: ReturnType<typeof useNavigate>) => {
+export const joinPartyAsync = async (request: IEnigmatoJoinParty, navigate: ReturnType<typeof useNavigate>) => {
   const accessToken = checkCookie();
 
   try {

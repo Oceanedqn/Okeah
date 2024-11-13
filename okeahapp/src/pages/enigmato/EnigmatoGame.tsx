@@ -3,115 +3,104 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ButtonStyle, Title1Style, Title2Style } from '../../styles/GlobalStyles';
 import { AutoCompleteContainer } from '../../styles/EnigmatoStyles';
 import { Container } from '@mui/material';
-
-// Données simulées pour les participants
-const exampleParticipants = [
-    { id: 1, name: 'Alice', gender: 'female' },
-    { id: 2, name: 'Bob', gender: 'male' },
-    { id: 3, name: 'Charlie', gender: 'male' },
-    { id: 4, name: 'Diana', gender: 'female' },
-    { id: 5, name: 'Eve', gender: 'female' },
-    { id: 6, name: 'Frank', gender: 'male' },
-    { id: 7, name: 'Grace', gender: 'female' },
-    { id: 8, name: 'Hank', gender: 'male' },
-    { id: 9, name: 'Ivy', gender: 'female' },
-    { id: 10, name: 'Jack', gender: 'male' },
-];
-
-// Données simulées pour la boîte
-const exampleBox = {
-    name: 'Mystère de la boîte 1',
-    imageUrl: 'https://example.com/photo1.jpg',
-};
+import { fetchCompletedParticipantsAsync, getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
+import { getBeforeBoxAsync, getTodayBoxAsync, getTodayBoxGameAsync } from '../../services/enigmato/enigmatoBoxesService';
+import { IEnigmatoBox, IEnigmatoBoxGame, IEnigmatoBoxRightResponse, IEnigmatoParticipants, IEnigmatoParty } from '../../interfaces/IEnigmato';
 
 const EnigmatoGame: React.FC = () => {
     const { id_party } = useParams<{ id_party: string }>();
     const navigate = useNavigate();
+
+    const [participants, setParticipants] = useState<IEnigmatoParticipants[] | null>(null);
+    const [todayBox, setTodayBox] = useState<IEnigmatoBoxGame | null>(null);
+    const [party, setParty] = useState<IEnigmatoParty | null>(null);
+
     const [selectedParticipant, setSelectedParticipant] = useState<string | null>(null);
+
     const [inputValue, setInputValue] = useState('');
-    const [filteredParticipants, setFilteredParticipants] = useState(exampleParticipants);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [randomParticipants, setRandomParticipants] = useState<any[]>([]);
     const [showHintUser, setShowHintUser] = useState<any | null>(null);
     const [hintRequested, setHintRequested] = useState(false);
     const dropdownRef = useRef<HTMLDivElement | null>(null);
-    const param = useParams();
+
+    useEffect(() => {
+        if (id_party) {
+            const fetchParticipants = async () => {
+                try {
+                    const participantsList = await fetchCompletedParticipantsAsync(parseInt(id_party), navigate);
+                    setParticipants(participantsList);
+                } catch (error) {
+                    console.error("Erreur lors de la récupération des participants :", error);
+                }
+            };
+
+            const fetchParty = async () => {
+                try {
+                    const fetchedParty = await getPartyAsync(parseInt(id_party), navigate);
+                    if (fetchedParty) {
+                        setParty(fetchedParty);
+                    }
+                } catch (error) {
+                    console.error("Erreur lors de la récupération des données de la partie :", error);
+                }
+            };
+
+            const fetchTodayBox = async () => {
+                try {
+                    const fetchedBox = await getTodayBoxGameAsync(parseInt(id_party), navigate);
+                    if (fetchedBox) {
+                        setTodayBox(fetchedBox);
+                    }
+                } catch (error) {
+                    console.error("Erreur lors de la récupération des données de la partie :", error);
+                }
+            };
 
 
-    console.log(param)
-    // Simuler une fonction qui récupère l'utilisateur associé à l'id_enigma
-    const fetchHintUser = () => {
-        // Simuler le retour d'un utilisateur
-        return exampleParticipants[Math.floor(Math.random() * exampleParticipants.length)];
-    };
+
+            fetchParty();
+            fetchParticipants();
+            fetchTodayBox();
+        } else {
+            console.error("id_party est indéfini");
+        }
+    }, [id_party, navigate]);
 
     const handleBack = () => {
         navigate(-1);
     };
 
     const handleNeedHint = () => {
-        const hintUser = fetchHintUser();
-        setShowHintUser(hintUser);
-        setHintRequested(true);
-        setIsDropdownOpen(false);
-        setInputValue('');
-        if (selectedParticipant) {
-            selectRandomParticipants(selectedParticipant);
-        }
+        console.log("need hint");
     };
 
     const handleValidateChoice = () => {
         if (selectedParticipant) {
             alert(`Choix validé pour le participant: ${selectedParticipant}`);
-            navigate(-1);  // Cela vous ramène à la page précédente
+            navigate(-1);
         } else {
             alert('Veuillez sélectionner un participant.');
         }
     };
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const value = event.target.value;
-        setInputValue(value);
-        const filtered = exampleParticipants.filter(participant =>
-            participant.name.toLowerCase().includes(value.toLowerCase())
-        );
-        setFilteredParticipants(filtered);
+        console.log("input change");
     };
 
     const handleOptionClick = (name: string) => {
         setSelectedParticipant(name);
         setInputValue(name);
-        setFilteredParticipants([]);
         setIsDropdownOpen(false);
-        selectRandomParticipants(name);
     };
 
     const toggleDropdown = () => {
         setIsDropdownOpen(prev => !prev);
     };
 
-    const selectRandomParticipants = (selectedName: string) => {
-        const selected = exampleParticipants.find(p => p.name === selectedName);
-        if (!selected) return;
-
-        const sameGender = exampleParticipants.filter(p => p.gender === selected.gender && p.name !== selectedName);
-        const oppositeGender = exampleParticipants.filter(p => p.gender !== selected.gender && p.name !== selectedName);
-
-        // On commence avec le participant sélectionné
-        const participantsToSelect = [selected];
-
-        // Ajout de participants du même genre
-        const randomSameGender = sameGender.sort(() => 0.5 - Math.random()).slice(0, 2); // 2 participants du même genre
-        participantsToSelect.push(...randomSameGender);
-
-        // Compléter avec des participants de l'autre genre si besoin
-        const remainingCount = 3 - randomSameGender.length; // On a déjà ajouté 1 + 2 = 3 participants
-        const randomOppositeGender = oppositeGender.sort(() => 0.5 - Math.random()).slice(0, remainingCount);
-
-        participantsToSelect.push(...randomOppositeGender);
-
-        // S'assurer d'avoir exactement 4 participants
-        setRandomParticipants(participantsToSelect);
+    const isBase64 = (str: string) => {
+        const regex = /^data:image\/[a-z]+;base64,/;
+        return regex.test(str);
     };
 
     useEffect(() => {
@@ -128,14 +117,23 @@ const EnigmatoGame: React.FC = () => {
     }, []);
 
     return (
-        // <></>
         <Container>
             <ButtonStyle onClick={handleBack}>Retour</ButtonStyle>
-            <Title1Style>Information de la partie</Title1Style>
+            <Title1Style>Information de la partie {party?.name}</Title1Style>
 
             <Container>
-                <h2>{exampleBox.name}</h2>
-                <img src={exampleBox.imageUrl} alt={exampleBox.name} style={{ width: '100%', height: 'auto' }} />
+                <h2>{todayBox?.name}</h2>
+
+                {/* Render image if it's a valid base64 string */}
+                {todayBox?.picture1 && isBase64(todayBox.picture1) ? (
+                    <img
+                        src={todayBox.picture1}
+                        alt="Image du mystère"
+                        style={{ width: '150px', height: 'auto', objectFit: 'cover' }}
+                    />
+                ) : (
+                    <div>No image available</div>
+                )}
 
                 {!hintRequested && (
                     <AutoCompleteContainer ref={dropdownRef}>
@@ -146,10 +144,10 @@ const EnigmatoGame: React.FC = () => {
                             onChange={handleInputChange}
                             placeholder="Sélectionner un participant"
                         />
-                        {isDropdownOpen && filteredParticipants.length > 0 && (
+                        {isDropdownOpen && participants!.length > 0 && (
                             <ul style={{ listStyleType: 'none', padding: 0, maxHeight: '150px', overflowY: 'auto' }}>
-                                {filteredParticipants.map(participant => (
-                                    <li key={participant.id} onClick={() => handleOptionClick(participant.name)} style={{ cursor: 'pointer' }}>
+                                {participants!.map(participant => (
+                                    <li key={participant.id_user} onClick={() => handleOptionClick(participant.name)} style={{ cursor: 'pointer' }}>
                                         {participant.name}
                                     </li>
                                 ))}

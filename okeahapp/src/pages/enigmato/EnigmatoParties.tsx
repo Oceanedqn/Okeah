@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ButtonStyle, ContainerUnderTitleStyle, TextStyle } from '../../styles/GlobalStyles';
 import { EnigmatoContainerStyle, ModalContent, ModalOverlay, EnigmatoItemStyle } from '../../styles/EnigmatoStyles';
-import { getPartiesAsync, joinParty } from '../../services/enigmato/enigmatoPartiesService';
+import { getPartiesAsync, joinPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { IEnigmatoJoinParty, IEnigmatoParty } from '../../interfaces/IEnigmato';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
 import { useTranslation } from 'react-i18next';
@@ -85,7 +85,7 @@ const EnigmatoParties: React.FC = () => {
 
         try {
             // Envoi de la requête pour lier l'utilisateur à la partie
-            await joinParty(joinPartyData, navigate); // Remplacer par la fonction de service appropriée
+            await joinPartyAsync(joinPartyData, navigate); // Remplacer par la fonction de service appropriée
             navigate(`/enigmato/parties/${partyId}/profil/`); // Rediriger vers la page de la partie
         } catch (error) {
             setError("Impossible de rejoindre la partie.");

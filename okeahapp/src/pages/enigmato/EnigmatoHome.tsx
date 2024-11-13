@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ButtonStyle, ContainerUnderTitleStyle, SpaceStyle, TextStyle, Title2Style } from '../../styles/GlobalStyles';
 import { EnigmatoContainerStyle, EnigmatoItemStyle } from '../../styles/EnigmatoStyles';
-import { getUserParties } from '../../services/enigmato/enigmatoPartiesService';
+import { getUserPartiesAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { fetchProfile } from '../../services/enigmato/enigmatoProfileService'; // Importer la fonction pour récupérer le profil
 import { IEnigmatoParty, IEnigmatoProfil } from '../../interfaces/IEnigmato';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
@@ -24,7 +24,7 @@ const EnigmatoHome: React.FC = () => {
     const fetchPartiesByUser = async () => {
       try {
         setLoading(true);
-        const games = await getUserParties(navigate);
+        const games = await getUserPartiesAsync(navigate);
         if (games?.length) setOngoingGames(games);
       } catch {
         setError(t('error_fetching_games'));

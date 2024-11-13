@@ -68,6 +68,29 @@ export interface IEnigmatoBox {
   date?: string;
 }
 
+export interface IEnigmatoBoxGame {
+  id_box: number;
+  id_party: number;
+  name: string;
+  date?: string;
+  picture1: string;
+}
+
+
+export interface IEnigmatoBoxRightResponse {
+  id_box: number
+  id_party: number
+  name_box: string
+  date: string
+  id_user: number
+  id_profil: number
+  name: string
+  firstname: string
+  picture1: string
+  picture2: string
+}
+
+
 // Exemple d'une réponse à une case
 export interface IEnigmatoBoxResponse {
   id_box: number;

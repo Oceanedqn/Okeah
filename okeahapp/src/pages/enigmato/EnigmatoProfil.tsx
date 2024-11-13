@@ -4,7 +4,7 @@ import { ButtonStyle, ContainerUnderTitleStyle, Title2Style, TextStyle } from '.
 import { EnigmatoContainerStyle, PreviewContainer, ContainerBackgroundStyle, EnigmatoItemStyle } from '../../styles/EnigmatoStyles';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
 import { useTranslation } from 'react-i18next';
-import { fetchParticipants, getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
+import { fetchParticipantsAsync, getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { fetchProfile, updateProfile } from '../../services/enigmato/enigmatoProfileService';
 import { IEnigmatoParticipants, IEnigmatoParty, IEnigmatoProfil } from '../../interfaces/IEnigmato';
 
@@ -24,7 +24,7 @@ const EnigmatoProfil: React.FC = () => {
                     const currentUserProfile = await fetchProfile(parseInt(id_party, 10), navigate);
                     setCurrentUserProfile(currentUserProfile);
 
-                    const participantsList = await fetchParticipants(parseInt(id_party, 10), navigate);
+                    const participantsList = await fetchParticipantsAsync(parseInt(id_party, 10), navigate);
                     setParticipants(participantsList);
 
                     const party = await getPartyAsync(parseInt(id_party), navigate);
@@ -68,7 +68,7 @@ const EnigmatoProfil: React.FC = () => {
         if (profil && id_party) {
             try {
                 await updateProfile(profil, navigate);
-                const updatedParticipants = await fetchParticipants(parseInt(id_party, 10), navigate);
+                const updatedParticipants = await fetchParticipantsAsync(parseInt(id_party, 10), navigate);
                 setParticipants(updatedParticipants);
 
                 const currentUserProfile = await fetchProfile(parseInt(id_party, 10), navigate);

@@ -8,7 +8,7 @@ from typing import List
 from models import EnigmatoBox, EnigmatoParty, EnigmatoProfil, User
 from routers.authRouter import get_current_user_async
 from routers.enigmato.partiesRouter import get_random_participant_completed_async, read_party_async
-from schemas import EnigmatoBoxSchema, EnigmatoPartyBoxesSchema
+from schemas import EnigmatoBoxGameSchema, EnigmatoBoxRightResponseSchema, EnigmatoBoxSchema, EnigmatoPartyBoxesSchema
 from database import get_db_async
 
 router = APIRouter(
@@ -48,6 +48,107 @@ async def read_today_box_async(id_party: int, db: AsyncSession = Depends(get_db_
         party_locks.pop(id_party, None)
 
     return box
+
+
+
+@router.get("/{id_party}/today/game", response_model=EnigmatoBoxGameSchema)
+async def read_today_box_game_async(id_party: int, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
+  
+    # Vérifiez la date de début de la partie
+    party = await read_party_async(id_party, db, current_user)
+    
+    # Récupération de l'énigme d'aujourd'hui avec l'image de l'utilisateur
+    result = await db.execute(
+        select(EnigmatoBox, EnigmatoProfil.picture1)
+        .join(EnigmatoProfil, EnigmatoBox.id_enigma_user == EnigmatoProfil.id_user)
+        .where(EnigmatoBox.id_party == id_party)
+    )
+    
+    box_with_picture = result.first()
+
+    if box_with_picture is None:
+        raise HTTPException(status_code=404, detail="Box not found")
+
+    box, picture1 = box_with_picture
+
+    
+    return EnigmatoBoxGameSchema(
+        id_box=box.id_box,
+        id_party=box.id_party,
+        name=box.name,
+        date=box.date,
+        picture1=picture1
+    )
+
+
+
+@router.get("/{id_party}/before", response_model=List[EnigmatoBoxRightResponseSchema])
+async def read_before_box_async(
+    id_party: int, 
+    db: AsyncSession = Depends(get_db_async), 
+    current_user: User = Depends(get_current_user_async)
+):
+    
+    # Récupérer les boîtes précédentes (avant aujourd'hui) liées à la partie spécifiée
+    today_date = datetime.today().date()
+    # Étape 1 : Récupérer les boîtes liées à la partie avant aujourd'hui
+    result = await db.execute(
+        select(EnigmatoBox)
+        .where(EnigmatoBox.id_party == id_party)  # Filtrer par id_party
+        .where(EnigmatoBox.date < today_date)  # Filtrer les boîtes avant aujourd'hui
+        .order_by(EnigmatoBox.date.desc())  # Trier par date descendante
+    )
+
+    previous_boxes = result.scalars().all()  # Utilisez scalars() pour récupérer uniquement les objets
+
+    if not previous_boxes:
+        raise HTTPException(status_code=404, detail="No previous boxes found")
+
+    # Étape 2 : Pour chaque boîte, récupérer les informations de profil et d'utilisateur
+    previous_boxes_data = []
+
+    for box in previous_boxes:
+        # Assurez-vous que `box` a bien l'attribut `id_enigma_user`
+        if hasattr(box, 'id_enigma_user'):
+            id_enigma_user = box.id_enigma_user  # Accès correct à l'attribut
+        else:
+            raise HTTPException(status_code=404, detail=f"Missing 'id_enigma_user' in box {box.id_box}")
+        
+        # Récupérer le profil de l'utilisateur
+        profil_result = await db.execute(
+            select(EnigmatoProfil)
+            .where(EnigmatoProfil.id_user == id_enigma_user)
+            .where(EnigmatoProfil.id_party == id_party)
+        )
+
+        profil = profil_result.scalar_one_or_none()
+
+        if profil:
+            # Récupérer l'utilisateur associé au profil
+            user_result = await db.execute(
+                select(User).where(User.id_user == profil.id_user)
+            )
+            user = user_result.scalar_one_or_none()
+
+            if user:
+                previous_boxes_data.append(EnigmatoBoxRightResponseSchema(
+                    id_box=box.id_box,
+                    id_party=box.id_party,
+                    name_box=box.name,
+                    date=box.date,
+                    id_user=box.id_enigma_user,
+                    id_profil=profil.id_user,
+                    name=user.name,
+                    firstname=user.firstname,
+                    picture1=profil.picture1,
+                    picture2=profil.picture2,
+                ))
+            else:
+                raise HTTPException(status_code=404, detail=f"User for profile {profil.id_user} not found")
+        else:
+            raise HTTPException(status_code=404, detail=f"Profile for user {box.id_enigma_user} not found")
+
+    return previous_boxes_data
 
 
 
@@ -92,71 +193,3 @@ async def create_box_async(id_party: int, db: AsyncSession = Depends(get_db_asyn
         date=new_box.date
     )
 
-
-
-
-# @router.get("/before-today", response_model=List[EnigmatoBoxSchema])
-# async def read_boxes_before_today_async(date: str, db: AsyncSession = Depends(get_db_async)):
-#     # Convertir la chaîne de caractères en type date
-#     today_date = date.fromisoformat(date)
-    
-#     # Sélectionner les boxes avec une date avant aujourd'hui
-#     result = await db.execute(select(EnigmatoBox).filter(EnigmatoBox.date < today_date))
-#     boxes = result.scalars().all()
-
-#     if not boxes:
-#         raise HTTPException(status_code=404, detail="No boxes found before today")
-    
-#     return boxes
-
-
-    
-
-
-
-# @router.get("/{box_id}/id", response_model=EnigmatoBoxSchema)
-# async def read_box_by_id_async(box_id: int, db: AsyncSession = Depends(get_db_async)):
-#     result = await db.execute(select(EnigmatoBox).filter(EnigmatoBox.id_box == box_id))
-#     box = result.scalar_one_or_none()
-#     if box is None:
-#         raise HTTPException(status_code=404, detail="Box not found")
-#     return box
-
-
-# @router.get("/date", response_model=EnigmatoBoxSchema)  # Renvoie un seul objet, pas une liste
-# async def read_box_by_date_async(date: date, db: AsyncSession = Depends(get_db_async)):
-#     # Filtrer les boxes en fonction de la date
-#     result = await db.execute(select(EnigmatoBox).filter(EnigmatoBox.date == date))
-#     box = result.scalar_one_or_none()  # On s'assure d'obtenir une seule box, ou None si aucune box trouvée
-    
-#     if not box:
-#         raise HTTPException(status_code=404, detail="No box found for this date")
-    
-#     return box
-
-
-
-
-
-
-# @router.put("/{box_id}", response_model=EnigmatoBoxSchema)
-# async def update_box_async(box_id: int, box: EnigmatoBoxSchema, db: AsyncSession = Depends(get_db_async)):
-#     result = await db.execute(select(EnigmatoBox).filter(EnigmatoBox.id_box == box_id))
-#     db_box = result.scalar_one_or_none()
-#     if db_box is None:
-#         raise HTTPException(status_code=404, detail="Box not found")
-#     for key, value in box.dict().items():
-#         setattr(db_box, key, value)
-#     await db.commit()
-#     await db.refresh(db_box)
-#     return db_box
-
-# @router.delete("/{box_id}", response_model=EnigmatoBoxSchema)
-# async def delete_box_async(box_id: int, db: AsyncSession = Depends(get_db_async)):
-#     result = await db.execute(select(EnigmatoBox).filter(EnigmatoBox.id_box == box_id))
-#     db_box = result.scalar_one_or_none()
-#     if db_box is None:
-#         raise HTTPException(status_code=404, detail="Box not found")
-#     await db.delete(db_box)
-#     await db.commit()
-#     return db_box
