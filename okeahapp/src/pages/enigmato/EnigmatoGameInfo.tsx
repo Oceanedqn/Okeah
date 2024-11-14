@@ -83,6 +83,7 @@ const EnigmatoGameInfo: React.FC = () => {
 
     const handlePlay = () => {
         if (id_party) {
+            // check if already response, check if hint used
             navigate(`/enigmato/parties/${id_party}/game`);
         }
     };

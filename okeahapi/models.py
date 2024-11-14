@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Boolean, Date, DateTime, ForeignKey
+from annotated_types import Timezone
+from sqlalchemy import Column, Integer, String, Boolean, Date, DateTime, ForeignKey, func
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from typing import Optional
@@ -86,8 +87,8 @@ class EnigmatoBoxResponse(Base):
     id_box_response = Column(Integer, primary_key=True, index=True)
     id_box = Column(Integer, ForeignKey('enigmato_boxes.id_box'), nullable=False)
     id_user = Column(Integer, ForeignKey('users.id_user'), nullable=False)
-    id_user_response = Column(Integer, nullable=False)
-    date = Column(DateTime, nullable=True)
+    id_user_response = Column(Integer, nullable=True)
+    date = Column(DateTime(timezone=True), default=func.now())
     cluse_used = Column(Boolean, default=False)
 
     # Relation avec EnigmatoBox et User

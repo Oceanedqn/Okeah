@@ -94,8 +94,8 @@ export interface IEnigmatoBoxRightResponse {
 // Exemple d'une réponse à une case
 export interface IEnigmatoBoxResponse {
   id_box: number;
-  id_user: number;
-  id_user_response: number;
+  id_user: number | null;
+  id_user_response: number | null;
   date?: string; // format ISO 8601 si une date existe
   cluse_used: boolean;
 }

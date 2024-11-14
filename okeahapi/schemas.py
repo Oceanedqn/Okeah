@@ -116,7 +116,7 @@ class EnigmatoPartyBoxesSchema(BaseModel):
 # Modèle la réponse d'une personne par rapport à une case du calendrier
 class EnigmatoBoxResponseSchema(BaseModel):
     id_box: int
-    id_user: int
-    id_user_response: int
-    date: Optional[datetime] = None
-    cluse_used: bool = False
+    id_user: Optional[int] = None
+    id_user_response: Optional[int] = None
+    date: Optional[datetime] = Field(None, description="Automatically set to current datetime if not provided")
+    cluse_used: bool

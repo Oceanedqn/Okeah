@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ButtonStyle, Title1Style, Title2Style } from '../../styles/GlobalStyles';
+import { ButtonStyle, TextStyle, Title1Style, Title2Style } from '../../styles/GlobalStyles';
 import { AutoCompleteContainer } from '../../styles/EnigmatoStyles';
 import { Container } from '@mui/material';
 import { fetchCompletedParticipantsAsync, getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
-import { getBeforeBoxAsync, getTodayBoxAsync, getTodayBoxGameAsync } from '../../services/enigmato/enigmatoBoxesService';
-import { IEnigmatoBox, IEnigmatoBoxGame, IEnigmatoBoxRightResponse, IEnigmatoParticipants, IEnigmatoParty } from '../../interfaces/IEnigmato';
+import { getTodayBoxGameAsync } from '../../services/enigmato/enigmatoBoxesService';
+import { IEnigmatoBoxGame, IEnigmatoBoxResponse, IEnigmatoParticipants, IEnigmatoParty } from '../../interfaces/IEnigmato';
+import { createBoxResponseAsync, getBoxResponseByIdBoxAsync } from '../../services/enigmato/enigmatoBoxResponsesService';
 
 const EnigmatoGame: React.FC = () => {
     const { id_party } = useParams<{ id_party: string }>();
@@ -15,37 +16,15 @@ const EnigmatoGame: React.FC = () => {
     const [todayBox, setTodayBox] = useState<IEnigmatoBoxGame | null>(null);
     const [party, setParty] = useState<IEnigmatoParty | null>(null);
 
-    const [selectedParticipant, setSelectedParticipant] = useState<string | null>(null);
+    const [selectedParticipant, setSelectedParticipant] = useState<IEnigmatoParticipants | null>(null);
 
     const [inputValue, setInputValue] = useState('');
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [randomParticipants, setRandomParticipants] = useState<any[]>([]);
-    const [showHintUser, setShowHintUser] = useState<any | null>(null);
-    const [hintRequested, setHintRequested] = useState(false);
     const dropdownRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         if (id_party) {
-            const fetchParticipants = async () => {
-                try {
-                    const participantsList = await fetchCompletedParticipantsAsync(parseInt(id_party), navigate);
-                    setParticipants(participantsList);
-                } catch (error) {
-                    console.error("Erreur lors de la récupération des participants :", error);
-                }
-            };
-
-            const fetchParty = async () => {
-                try {
-                    const fetchedParty = await getPartyAsync(parseInt(id_party), navigate);
-                    if (fetchedParty) {
-                        setParty(fetchedParty);
-                    }
-                } catch (error) {
-                    console.error("Erreur lors de la récupération des données de la partie :", error);
-                }
-            };
-
             const fetchTodayBox = async () => {
                 try {
                     const fetchedBox = await getTodayBoxGameAsync(parseInt(id_party), navigate);
@@ -57,27 +36,78 @@ const EnigmatoGame: React.FC = () => {
                 }
             };
 
-
-
-            fetchParty();
-            fetchParticipants();
             fetchTodayBox();
         } else {
             console.error("id_party est indéfini");
         }
     }, [id_party, navigate]);
 
+    // Fetch responses and participants only if todayBox is available
+    useEffect(() => {
+        if (todayBox && id_party) {
+            const fetchResponseBox = async () => {
+                try {
+                    const boxResponse: IEnigmatoBoxResponse = await getBoxResponseByIdBoxAsync(todayBox?.id_box!, navigate);
+                    console.log("Box response:", boxResponse);
+                    if (boxResponse.cluse_used) {
+                        navigate(`/enigmato/parties/${id_party}/game/hint`);
+                    } else {
+                        const fetchParty = async () => {
+                            try {
+                                const fetchedParty = await getPartyAsync(parseInt(id_party), navigate);
+                                if (fetchedParty) {
+                                    setParty(fetchedParty);
+                                }
+                            } catch (error) {
+                                console.error("Erreur lors de la récupération des données de la partie :", error);
+                            }
+                        };
+
+                        const fetchParticipants = async () => {
+                            try {
+                                const participantsList = await fetchCompletedParticipantsAsync(parseInt(id_party), navigate);
+                                setParticipants(participantsList);
+                            } catch (error) {
+                                console.error("Erreur lors de la récupération des participants :", error);
+                            }
+                        };
+
+                        fetchParty();
+                        fetchParticipants();
+                    }
+                } catch (error) {
+                    console.error("Erreur lors de la récupération des réponses de la box :", error);
+                }
+            };
+
+            fetchResponseBox();
+        }
+    }, [todayBox, id_party, navigate]);
+
     const handleBack = () => {
         navigate(-1);
     };
 
-    const handleNeedHint = () => {
-        console.log("need hint");
+    const handleNeedHint = async () => {
+        const boxResponse: IEnigmatoBoxResponse = {
+            id_box: todayBox?.id_box!,
+            id_user: null,
+            id_user_response: null,
+            cluse_used: true
+        }
+        await createBoxResponseAsync(boxResponse, navigate);
+        navigate(`/enigmato/parties/${id_party}/game/hint`);
     };
 
-    const handleValidateChoice = () => {
+    const handleValidateChoice = async () => {
         if (selectedParticipant) {
-            alert(`Choix validé pour le participant: ${selectedParticipant}`);
+            const boxResponse: IEnigmatoBoxResponse = {
+                id_box: todayBox?.id_box!,
+                id_user: null,
+                id_user_response: selectedParticipant.id_user,
+                cluse_used: false
+            }
+            await createBoxResponseAsync(boxResponse, navigate);
             navigate(-1);
         } else {
             alert('Veuillez sélectionner un participant.');
@@ -88,9 +118,9 @@ const EnigmatoGame: React.FC = () => {
         console.log("input change");
     };
 
-    const handleOptionClick = (name: string) => {
-        setSelectedParticipant(name);
-        setInputValue(name);
+    const handleOptionClick = (participant: IEnigmatoParticipants) => {
+        setSelectedParticipant(participant);
+        setInputValue(participant.name);
         setIsDropdownOpen(false);
     };
 
@@ -134,52 +164,28 @@ const EnigmatoGame: React.FC = () => {
                 ) : (
                     <div>No image available</div>
                 )}
-
-                {!hintRequested && (
-                    <AutoCompleteContainer ref={dropdownRef}>
-                        <input
-                            type="text"
-                            value={inputValue}
-                            onClick={toggleDropdown}
-                            onChange={handleInputChange}
-                            placeholder="Sélectionner un participant"
-                        />
-                        {isDropdownOpen && participants!.length > 0 && (
-                            <ul style={{ listStyleType: 'none', padding: 0, maxHeight: '150px', overflowY: 'auto' }}>
-                                {participants!.map(participant => (
-                                    <li key={participant.id_user} onClick={() => handleOptionClick(participant.name)} style={{ cursor: 'pointer' }}>
-                                        {participant.name}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </AutoCompleteContainer>
-                )}
-
-                {!hintRequested && (
-                    <div>
-                        <ButtonStyle onClick={handleNeedHint}>Besoin d'indice</ButtonStyle>
-                        <Title2Style>Attention : l'indice fait perdre la moitié des points.</Title2Style>
-                    </div>
-                )}
-
-                {hintRequested && (
-                    <div>
-                        <h3>Participants proposés :</h3>
-                        {randomParticipants.length > 0 ? (
-                            randomParticipants.map(participant => (
-                                <button key={participant.id} style={{ margin: '5px 0' }}>
-                                    <span style={{ color: participant.name === selectedParticipant ? 'blue' : 'black' }}>
-                                        {participant.name}
-                                    </span>
-                                </button>
-                            ))
-                        ) : (
-                            <p>Aucun participant proposé.</p>
-                        )}
-                        <Title2Style>Utilisateur d'indice : {showHintUser?.name}</Title2Style>
-                    </div>
-                )}
+                <AutoCompleteContainer ref={dropdownRef}>
+                    <input
+                        type="text"
+                        value={inputValue}
+                        onClick={toggleDropdown}
+                        onChange={handleInputChange}
+                        placeholder="Sélectionner un participant"
+                    />
+                    {isDropdownOpen && participants!.length > 0 && (
+                        <ul style={{ listStyleType: 'none', padding: 0, maxHeight: '150px', overflowY: 'auto' }}>
+                            {participants!.map(participant => (
+                                <li key={participant.id_user} onClick={() => handleOptionClick(participant)} style={{ cursor: 'pointer' }}>
+                                    {participant.name}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </AutoCompleteContainer>
+                <div>
+                    <ButtonStyle onClick={handleNeedHint}>Besoin d'indice</ButtonStyle>
+                    <TextStyle>Attention : l'indice fait perdre la moitié des points.</TextStyle>
+                </div>
 
                 <ButtonStyle onClick={handleValidateChoice}>Valider mon choix</ButtonStyle>
             </Container>
