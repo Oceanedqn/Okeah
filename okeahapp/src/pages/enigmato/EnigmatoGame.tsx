@@ -11,16 +11,12 @@ import { createBoxResponseAsync, getBoxResponseByIdBoxAsync } from '../../servic
 const EnigmatoGame: React.FC = () => {
     const { id_party } = useParams<{ id_party: string }>();
     const navigate = useNavigate();
-
     const [participants, setParticipants] = useState<IEnigmatoParticipants[] | null>(null);
     const [todayBox, setTodayBox] = useState<IEnigmatoBoxGame | null>(null);
     const [party, setParty] = useState<IEnigmatoParty | null>(null);
-
     const [selectedParticipant, setSelectedParticipant] = useState<IEnigmatoParticipants | null>(null);
-
     const [inputValue, setInputValue] = useState('');
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [randomParticipants, setRandomParticipants] = useState<any[]>([]);
     const dropdownRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
@@ -42,7 +38,6 @@ const EnigmatoGame: React.FC = () => {
         }
     }, [id_party, navigate]);
 
-    // Fetch responses and participants only if todayBox is available
     useEffect(() => {
         if (todayBox && id_party) {
             const fetchResponseBox = async () => {
@@ -90,6 +85,7 @@ const EnigmatoGame: React.FC = () => {
 
     const handleNeedHint = async () => {
         const boxResponse: IEnigmatoBoxResponse = {
+            id_box_response: null,
             id_box: todayBox?.id_box!,
             id_user: null,
             id_user_response: null,
@@ -102,6 +98,7 @@ const EnigmatoGame: React.FC = () => {
     const handleValidateChoice = async () => {
         if (selectedParticipant) {
             const boxResponse: IEnigmatoBoxResponse = {
+                id_box_response: null,
                 id_box: todayBox?.id_box!,
                 id_user: null,
                 id_user_response: selectedParticipant.id_user,

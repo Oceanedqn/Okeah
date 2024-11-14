@@ -1,11 +1,10 @@
-from datetime import date, datetime, timedelta
-import random
+from datetime import date
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy import not_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from typing import List
-from models import EnigmatoBox, EnigmatoParty, EnigmatoProfil, User
+from models import EnigmatoParty, EnigmatoProfil, User
 from routers.authRouter import get_current_user_async
 from schemas import EnigmatoJoinPartySchema, EnigmatoParticipantsSchema, EnigmatoPartySchema, EnigmatoPartyCreateRequestSchema, EnigmatoProfilSchema, UserSchema
 from database import get_db_async
@@ -120,8 +119,6 @@ async def join_party(join_party: EnigmatoJoinPartySchema, db: AsyncSession = Dep
     return new_user_party
 
 
-
-
 # Récupére tous les participants d'une partie
 @router.get("/{id_party}/participants", response_model=List[EnigmatoParticipantsSchema])
 async def get_participants_async(id_party: int, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
@@ -157,27 +154,6 @@ async def get_participants_async(id_party: int, db: AsyncSession = Depends(get_d
     return participants_with_profile_status
 
 
-
-
-
-
-
-
-# Liste des parties que l'utilisateur a cree
-@router.get("/user", response_model=List[EnigmatoPartySchema])
-async def read_parties_created_by_user_async(db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
-    # Filtrer les parties créée par l'utilisateur actuel
-    result = await db.execute(
-        select(EnigmatoParty)
-        .filter(EnigmatoParty.id_user == current_user.id_user)
-    )
-    parties = result.scalars().all()
-    return parties
-
-
-
-
-
 # Retourne la partie en fonction de son id
 @router.get("/{party_id}", response_model=EnigmatoPartySchema)
 async def read_party_async(party_id: int, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
@@ -189,9 +165,7 @@ async def read_party_async(party_id: int, db: AsyncSession = Depends(get_db_asyn
     return party
 
 
-
-
-
+# Route pour récupérer tous les participants d'une partie ayant complété leur profil
 @router.get("/{id_party}/participants/completed", response_model=List[EnigmatoParticipantsSchema])
 async def get_participants_completed_async(id_party: int,
     db: AsyncSession = Depends(get_db_async),
@@ -227,65 +201,15 @@ async def get_participants_completed_async(id_party: int,
     return completed_participants
 
 
-
-# Route pour récupérer tous les participants d'une partie ayant complété leur profil
-
-async def get_random_participant_completed_async(
-    id_party: int,
+@router.get("/{id_party}/participants/completed/random", response_model=List[EnigmatoParticipantsSchema])
+async def get_participants_completed_random_async(id_party: int,
     db: AsyncSession = Depends(get_db_async),
-    current_user: User = Depends(get_current_user_async)
-):
-    completed_participants = await get_participants_completed_async(id_party, db, current_user)
+    current_user: User = Depends(get_current_user_async)):
 
-    # 3. Récupérer les participants déjà utilisés dans des boîtes pour cette `id_party`
-    result_used_participants = await db.execute(
-        select(EnigmatoBox.id_enigma_user).filter(EnigmatoBox.id_party == id_party)
-    )
-    used_participants = {row[0] for row in result_used_participants}  # Ensemble des IDs des utilisateurs déjà utilisés
-
-    # 4. Filtrer les participants pour ne garder que ceux qui n'ont pas encore été utilisés
-    available_participants = [p for p in completed_participants if p.id_user not in used_participants]
-
-    if not available_participants:
-        raise HTTPException(status_code=409, detail="Tous les participants ont déjà été utilisés pour cette partie.")
-
-    # 5. Sélectionner un participant aléatoire parmi ceux qui n'ont pas encore été utilisés
-    selected_participant = random.choice(available_participants)
-
-    return selected_participant
-
-
-
-@router.put("/{party_id}", response_model=EnigmatoPartySchema)
-async def update_party_async(party_id: int, party: EnigmatoPartySchema, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
-    result = await db.execute(select(EnigmatoParty).filter(EnigmatoParty.id_party == party_id))
-    db_party = result.scalar_one_or_none()
-    if db_party is None:
-        raise HTTPException(status_code=404, detail="Party not found")
-    for key, value in party.dict().items():
-        setattr(db_party, key, value)
-    await db.commit()
-    await db.refresh(db_party)
-    return db_party
-
-
-@router.delete("/{party_id}", response_model=EnigmatoPartySchema)
-async def delete_party_async(party_id: int, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
-    result = await db.execute(select(EnigmatoParty).filter(EnigmatoParty.id_party == party_id))
-    db_party = result.scalar_one_or_none()
-    if db_party is None:
-        raise HTTPException(status_code=404, detail="Party not found")
-    await db.delete(db_party)
-    await db.commit()
-    return db_party
-
-
-
-
-
-# @router.get("/", response_model=List[EnigmatoPartySchema])
-# async def read_parties_async(skip: int = 0, limit: int = 8, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
-#     result = await db.execute(select(EnigmatoParty).offset(skip).limit(limit))
-#     parties = result.scalars().all()
-
-#     return parties
+    from utils.utils import get_random_participants_completed_async  
+    
+    # Utilisez await pour obtenir la liste de participants
+    hint_participants = await get_random_participants_completed_async(id_party, db, current_user)
+    
+    # Retournez la liste des participants
+    return hint_participants

@@ -92,6 +92,22 @@ export const fetchCompletedParticipantsAsync = async (id_party: number, navigate
   }
 };
 
+export const fetchCompletedRandomParticipantsAsync = async (id_party: number, navigate: ReturnType<typeof useNavigate>) => {
+  const accessToken = checkCookie();
+
+  try {
+    const response = await axios.get(`${API_ENIGMATO_PARTIES_URL}/${id_party}/participants/completed/random`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    handleError(error, navigate);
+  }
+};
+
 
 export const createPartyAsync = async (party: IEnigmatoPartyCreateRequest, navigate: ReturnType<typeof useNavigate>) => {
   const accessToken = checkCookie();

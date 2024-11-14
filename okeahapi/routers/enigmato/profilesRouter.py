@@ -4,22 +4,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from typing import List
 from models import EnigmatoParty, EnigmatoProfil, User
-from routers.enigmato.partiesRouter import read_party_async
 from routers.authRouter import get_current_user_async
-from schemas import EnigmatoProfilSchema
+from schemas import EnigmatoParticipantsSchema, EnigmatoProfilSchema
 from database import get_db_async
 
 router = APIRouter(
     prefix="/enigmato/parties/profiles",
     tags=['Enigmato profiles']
 )
-
-# @router.get("/", response_model=List[EnigmatoProfilSchema])
-# async def read_profiles_async(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
-#     result = await db.execute(select(EnigmatoProfil).offset(skip).limit(limit))
-#     profiles = result.scalars().all()
-#     return profiles
-
 
 # [OK] Retourne un profil en fonction de l'id de la party et de l'id de l'user trouvé dans le token
 @router.get("/{id_party}", response_model=EnigmatoProfilSchema)
@@ -43,6 +35,8 @@ async def update_profile_async(
     db: AsyncSession = Depends(get_db_async), 
     current_user: User = Depends(get_current_user_async)
 ):
+    from routers.enigmato.partiesRouter import read_party_async
+
     # Recherche du profil dans la base de données en utilisant l'ID provenant de l'objet
     profile = await read_profile_async(enigmatoProfil.id_party, db, current_user)
     party = await read_party_async(enigmatoProfil.id_party, db, current_user)
@@ -86,6 +80,36 @@ async def update_profile_async(
             status_code=403, 
             detail="You cannot update your profile after the start date or if your profile is complete"
         )
+
+
+# [OK] Retourne un profil en fonction de l'id de la party et de l'id de l'user
+@router.get("/{id_party}/{id_user}", response_model=EnigmatoProfilSchema)
+async def read_profile_by_id_async(id_party: int, id_user: int, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
+    # Rechercher un profil en fonction de l'id_party et de l'id_user
+    result = await db.execute(
+        select(EnigmatoProfil)
+        .filter(EnigmatoProfil.id_party == id_party, EnigmatoProfil.id_user == id_user)
+    )
+    
+    profile = result.scalar_one_or_none()
+    if profile is None:
+        raise HTTPException(status_code=404, detail="Profile not found")
+
+    participant = EnigmatoParticipantsSchema(
+        id_user=current_user.id_user,  # Remplir avec les informations correctes
+        id_party=id_party,
+        id_profil=profile.id_profil,
+        name=current_user.name,
+        firstname=current_user.firstname,
+        gender=profile.gender,
+        picture2=profile.picture2,
+        is_complete=profile.is_complete
+    )
+
+    return participant
+
+
+
 
 
 

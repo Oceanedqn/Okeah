@@ -81,6 +81,13 @@ class EnigmatoBoxSchema(BaseModel):
     name: str
     date: datetime
 
+class EnigmatoBoxWithResponseSchema(BaseModel):
+    id_box: int
+    id_party: int
+    name: str
+    date: datetime
+    id_enigma_user: int
+
 
 class EnigmatoBoxGameSchema(BaseModel):
     id_box: int
@@ -120,3 +127,8 @@ class EnigmatoBoxResponseSchema(BaseModel):
     id_user_response: Optional[int] = None
     date: Optional[datetime] = Field(None, description="Automatically set to current datetime if not provided")
     cluse_used: bool
+
+
+class UpdateBoxResponseSchema(BaseModel):
+    id_user_response: int
+    date: Optional[datetime] = None 

@@ -93,6 +93,7 @@ export interface IEnigmatoBoxRightResponse {
 
 // Exemple d'une réponse à une case
 export interface IEnigmatoBoxResponse {
+  id_box_response: number | null;
   id_box: number;
   id_user: number | null;
   id_user_response: number | null;

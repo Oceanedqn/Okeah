@@ -55,15 +55,21 @@ export const getBoxResponseByIdBoxAsync = async (id_box: number, navigate: Retur
 };
 
 // Mettre à jour une réponse pour une case
-export const updateBoxResponseAsync = async (responseId: number, boxResponse: Partial<IEnigmatoBoxResponse>, navigate: ReturnType<typeof useNavigate>) => {
+export const updateBoxResponseAsync = async (id_box: number, id_enigmato_user: number, navigate: ReturnType<typeof useNavigate>) => {
     const accessToken = checkCookie();
     try {
-        const response = await axios.put(`${API_ENIGMATO_BOX_RESPONSES_URL}/${responseId}`, boxResponse, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
+        const response = await axios.put(
+            `${API_ENIGMATO_BOX_RESPONSES_URL}/${id_box}`,
+            {
+                id_user_response: id_enigmato_user
             },
-            withCredentials: true,
-        });
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+                withCredentials: true,
+            }
+        );
         return response.data;
     } catch (error) {
         handleError(error, navigate);

@@ -7,7 +7,7 @@ from sqlalchemy.future import select
 from typing import List
 from models import EnigmatoBox, EnigmatoParty, EnigmatoProfil, User
 from routers.authRouter import get_current_user_async
-from routers.enigmato.partiesRouter import get_random_participant_completed_async, read_party_async
+from utils.utils import get_random_participant_completed_to_create_box_async
 from schemas import EnigmatoBoxGameSchema, EnigmatoBoxRightResponseSchema, EnigmatoBoxSchema, EnigmatoPartyBoxesSchema
 from database import get_db_async
 
@@ -22,6 +22,8 @@ party_locks = {}
 
 @router.get("/{id_party}/today", response_model=EnigmatoBoxSchema)
 async def read_today_box_async(id_party: int, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
+    from routers.enigmato.partiesRouter import read_party_async
+
     # Assurez-vous que chaque partie a son propre verrou
     if id_party not in party_locks:
         party_locks[id_party] = asyncio.Lock()
@@ -50,10 +52,10 @@ async def read_today_box_async(id_party: int, db: AsyncSession = Depends(get_db_
     return box
 
 
-
 @router.get("/{id_party}/today/game", response_model=EnigmatoBoxGameSchema)
-async def read_today_box_game_async(id_party: int, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
-  
+async def read_today_box_in_game_async(id_party: int, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
+    from routers.enigmato.partiesRouter import read_party_async
+
     # Vérifiez la date de début de la partie
     party = await read_party_async(id_party, db, current_user)
     
@@ -61,7 +63,7 @@ async def read_today_box_game_async(id_party: int, db: AsyncSession = Depends(ge
     result = await db.execute(
         select(EnigmatoBox, EnigmatoProfil.picture1)
         .join(EnigmatoProfil, EnigmatoBox.id_enigma_user == EnigmatoProfil.id_user)
-        .where(EnigmatoBox.id_party == id_party)
+        .where(EnigmatoBox.id_party == id_party, EnigmatoBox.date == date.today())
     )
     
     box_with_picture = result.first()
@@ -79,7 +81,6 @@ async def read_today_box_game_async(id_party: int, db: AsyncSession = Depends(ge
         date=box.date,
         picture1=picture1
     )
-
 
 
 @router.get("/{id_party}/before", response_model=List[EnigmatoBoxRightResponseSchema])
@@ -151,7 +152,6 @@ async def read_before_box_async(
     return previous_boxes_data
 
 
-
 @router.post("/{id_party}/today", response_model=EnigmatoBoxSchema)
 async def create_box_async(id_party: int, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
     today_date = date.today()
@@ -172,7 +172,7 @@ async def create_box_async(id_party: int, db: AsyncSession = Depends(get_db_asyn
     )
 
     # 2. Récupérer tous les participants de la partie qui ont complété leur profil
-    selected_participant  = await get_random_participant_completed_async(id_party, db, current_user)
+    selected_participant  = await get_random_participant_completed_to_create_box_async(id_party, db, current_user)
 
     # 4. Créer la nouvelle box avec le participant sélectionné comme `id_enigma_user`
     new_box = EnigmatoBox(
