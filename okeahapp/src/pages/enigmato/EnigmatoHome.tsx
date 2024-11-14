@@ -64,7 +64,7 @@ const EnigmatoHome: React.FC = () => {
 
   return (
     <>
-      <HeaderTitleComponent title={t('welcomeenigmato')} onBackClick={() => navigate(-1)} />
+      <HeaderTitleComponent title={t('welcomeenigmato')} onBackClick={() => navigate("/home")} />
       <ContainerUnderTitleStyle>
         <EnigmatoContainerStyle>
           <Title2Style>{t('game_explanation')}</Title2Style>

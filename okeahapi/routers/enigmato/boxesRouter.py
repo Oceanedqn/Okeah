@@ -56,30 +56,36 @@ async def read_today_box_async(id_party: int, db: AsyncSession = Depends(get_db_
 async def read_today_box_in_game_async(id_party: int, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
     from routers.enigmato.partiesRouter import read_party_async
 
-    # Vérifiez la date de début de la partie
     party = await read_party_async(id_party, db, current_user)
-    
-    # Récupération de l'énigme d'aujourd'hui avec l'image de l'utilisateur
-    result = await db.execute(
-        select(EnigmatoBox, EnigmatoProfil.picture1)
-        .join(EnigmatoProfil, EnigmatoBox.id_enigma_user == EnigmatoProfil.id_user)
-        .where(EnigmatoBox.id_party == id_party, EnigmatoBox.date == date.today())
-    )
-    
-    box_with_picture = result.first()
 
-    if box_with_picture is None:
+    result_box = await db.execute(
+        select(EnigmatoBox)
+        .where(
+            EnigmatoBox.id_party == id_party,
+            EnigmatoBox.date == date.today()
+        )
+    )
+    box  = result_box.scalar_one_or_none()
+    if box  is None:
         raise HTTPException(status_code=404, detail="Box not found")
 
-    box, picture1 = box_with_picture
+    result_profile = await db.execute(
+        select(EnigmatoProfil)
+        .where(
+            EnigmatoProfil.id_user == box.id_enigma_user,
+            EnigmatoProfil.id_party == id_party 
+        )
+    )
+    profile = result_profile.scalar_one_or_none()
+    if profile is None:
+        raise HTTPException(status_code=404, detail="Profile image not found")
 
-    
     return EnigmatoBoxGameSchema(
         id_box=box.id_box,
         id_party=box.id_party,
         name=box.name,
         date=box.date,
-        picture1=picture1
+        picture1=profile.picture1
     )
 
 

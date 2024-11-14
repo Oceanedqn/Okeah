@@ -79,7 +79,7 @@ const EnigmatoGameHint: React.FC = () => {
 
 
     const handleBack = () => {
-        navigate(-1);
+        navigate(`enigmato/parties/${id_party}/game/info`);
     };
 
     const handleOptionClick = (participant: IEnigmatoParticipants) => {
