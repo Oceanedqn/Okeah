@@ -19,6 +19,38 @@ const GlobalStyles = createGlobalStyle`
     color: ${({ theme }) => theme.colors.text};
     transition: background-color 0.3s ease, color 0.3s ease;
   }
+
+
+  /* Généralement, ces styles affectent la barre de défilement de toute l'application */
+
+  /* Style pour la barre de défilement (background) */
+  ::-webkit-scrollbar {
+    width: 8px; /* Largeur de la barre de défilement */
+    height: 8px; /* Hauteur de la barre de défilement horizontale */
+  }
+
+  /* Style pour la partie "thumb" de la barre de défilement (la partie que l'on glisse) */
+  ::-webkit-scrollbar-thumb {
+    background-color: ${({ theme }) => theme.colors.primary}; /* Couleur du "thumb" */
+    border-radius: 10px; /* Coins arrondis */
+  }
+
+  /* Style pour la partie "track" de la barre de défilement (la partie sous le "thumb") */
+  ::-webkit-scrollbar-track {
+    background: ${({ theme }) => theme.colors.background_light}; /* Couleur de la piste */
+    border-radius: 10px; /* Coins arrondis */
+  }
+
+  /* Style pour la barre de défilement horizontale */
+  ::-webkit-scrollbar-horizontal {
+    height: 8px; /* Hauteur de la barre horizontale */
+  }
+
+  /* Optionnel : Ajout d'un effet de hover sur le "thumb" de la barre de défilement */
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: ${({ theme }) => theme.colors.secondary}; /* Couleur du "thumb" quand on survole */
+  }
+
 `;
 
 export default GlobalStyles;
@@ -28,7 +60,7 @@ export default GlobalStyles;
 export const ContainerStyle = styled.div`
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 66px); /* 100vh moins la hauteur de la navbar */
+  height: calc(100vh - 68px); /* 100vh moins la hauteur de la navbar */
   padding: 20px;
 
   @media (max-width: ${breakpoints.sm}) {
