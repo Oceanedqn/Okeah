@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
-import { Hamburger, Logo, Menu, MenuItem, NavbarContainerStyle } from '../../styles/NavbarStyles'; // MobileMenuButtonStyle, , NavbarContainerStyle, NavLinkStyle, SubMenuContainerStyle, SubMenuLinkStyle 
+import { Hamburger, Logo, Menu, MenuItem, NavbarContainerStyle } from '../../styles/NavbarStyles';
 import { ButtonStyle } from '../../styles/GlobalStyles';
 import { useTranslation } from 'react-i18next';
-import { logout_async } from '../../services/authentication/loginService'; // Import the logout function
-import { useNavigate } from 'react-router-dom';
+import { logout_async } from '../../services/authentication/loginService';
 
 const NavbarComponent: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
     const [isOpen, setIsOpen] = useState(false);
     const { t } = useTranslation();
-    const navigate = useNavigate();
 
     const handleLogout = async () => {
         try {

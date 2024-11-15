@@ -3,7 +3,6 @@ import Home from "./pages/Home";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import { ThemeProvider } from "styled-components";
-import { vintageTheme, futuristTheme, plexiglasOrangeTheme } from "./theme/theme";
 import GlobalStyles, { ContainerStyle } from "./styles/GlobalStyles";
 import Authentication from "./pages/Authentication";
 import PrivateRoute from "./components/PrivateRouteComponent";
@@ -18,12 +17,13 @@ import EnigmatoGame from "./pages/enigmato/EnigmatoGame";
 import Cookies from 'js-cookie';
 import EnigmatoCreateParty from "./pages/enigmato/EnigmatoCreateParty";
 import EnigmatoGameHint from "./pages/enigmato/EnigmatoGameHint";
+import { themeMap } from "./components/base/ThemeSwitcherComponent";
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(!!Cookies.get('access_token'));
   const [currentTheme, setCurrentTheme] = useState(() => {
     const savedTheme = localStorage.getItem("currentTheme");
-    return savedTheme ? JSON.parse(savedTheme) : "light";
+    return savedTheme ? JSON.parse(savedTheme) : "vintage";
   });
 
   // Utilisation de l'intervalle pour vérifier le cookie toutes les secondes
@@ -40,11 +40,7 @@ const App: React.FC = () => {
     localStorage.setItem("currentTheme", JSON.stringify(currentTheme));
   }, [currentTheme]);
 
-  const themeMap: { [key: string]: any } = {
-    light: vintageTheme,
-    dark: plexiglasOrangeTheme,
-    synthwave: futuristTheme,
-  };
+
 
   const [currentLanguage, setCurrentLanguage] = useState('fr');
 

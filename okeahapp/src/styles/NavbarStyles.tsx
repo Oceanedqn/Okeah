@@ -15,7 +15,7 @@ export const Logo = styled.a`
   font-size: 1.5rem;
   font-weight: bold;
   text-decoration: none;
-  color: ${({ theme }) => theme.colors.text};
+  color: ${({ theme }) => theme.colors.title_text};
 `;
 
 export const Hamburger = styled.div`
