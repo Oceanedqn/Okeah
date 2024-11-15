@@ -3,10 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ButtonStyle, ContainerUnderTitleStyle, Title2Style } from '../../styles/GlobalStyles';
 import { EnigmatoContainerStyle, ContainerBackgroundStyle } from '../../styles/EnigmatoStyles';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
-import { IEnigmatoBox, IEnigmatoBoxRightResponse, IEnigmatoParty, IEnigmatoProfil } from '../../interfaces/IEnigmato';
+import { IEnigmatoBox, IEnigmatoBoxResponse, IEnigmatoBoxRightResponse, IEnigmatoParty, IEnigmatoProfil } from '../../interfaces/IEnigmato';
 import { getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { fetchProfile } from '../../services/enigmato/enigmatoProfileService';
 import { getBeforeBoxAsync, getTodayBoxAsync } from '../../services/enigmato/enigmatoBoxesService';
+import { getBoxResponseByIdBoxAsync } from '../../services/enigmato/enigmatoBoxResponsesService';
 
 const EnigmatoGameInfo: React.FC = () => {
     const { id_party } = useParams<{ id_party: string }>();
@@ -15,6 +16,8 @@ const EnigmatoGameInfo: React.FC = () => {
     const [todayBox, setTodayBox] = useState<IEnigmatoBox | null>(null);
     const [userProfile, setUserProfile] = useState<IEnigmatoProfil | null>(null);
     const [beforeBoxes, setBeforeBoxes] = useState<IEnigmatoBoxRightResponse[] | null>(null);
+
+    const [boxResponse, setBoxResponse] = useState<IEnigmatoBoxResponse>();
 
     // Vérifie si une chaîne est en base64 pour les images
     const isBase64 = (str: string) => /^data:image\/[a-z]+;base64,/.test(str);
@@ -66,6 +69,7 @@ const EnigmatoGameInfo: React.FC = () => {
                 }
             };
 
+            // Appeler toutes les fonctions de récupération des données
             fetchParty();
             fetchUserProfile();
             fetchTodayBox();
@@ -74,6 +78,27 @@ const EnigmatoGameInfo: React.FC = () => {
             console.error("id_party est indéfini");
         }
     }, [id_party, navigate]);
+
+    // Deuxième useEffect pour vérifier si la réponse a été donnée, mais seulement lorsque todayBox est défini
+    useEffect(() => {
+        const checkIfResponse = async () => {
+            try {
+                if (todayBox?.id_box) {
+                    const boxResponse: IEnigmatoBoxResponse = await getBoxResponseByIdBoxAsync(todayBox.id_box, navigate);
+                    if (boxResponse.id_user_response) {
+                        setBoxResponse(boxResponse);
+                    }
+                }
+            } catch (error) {
+                console.error("Erreur lors de la récupération des anciennes boxes :", error);
+            }
+        };
+
+        // Vérifier si todayBox est défini avant d'effectuer la vérification
+        if (todayBox) {
+            checkIfResponse();
+        }
+    }, [todayBox, navigate]);
 
     const handleInfo = () => {
         if (id_party) {
@@ -101,18 +126,26 @@ const EnigmatoGameInfo: React.FC = () => {
             <HeaderTitleComponent title={party.name} onBackClick={handleBack} />
             <ContainerUnderTitleStyle>
                 <EnigmatoContainerStyle>
-                    <ButtonStyle onClick={handleInfo}>Information de la partie : {userProfile.id_user}</ButtonStyle>
+                    <ButtonStyle onClick={handleInfo}>
+                        Information de la partie : {userProfile.id_user}
+                    </ButtonStyle>
                     <ContainerBackgroundStyle>
-                        {todayBox ? (
-                            <div>
-                                <p>Box du jour: {todayBox.name}</p>
-                                <ButtonStyle onClick={handlePlay}>Jouer</ButtonStyle>
-                            </div>
+                        {boxResponse ? (
+                            <div>Tu as choisis cette reponse : {boxResponse.id_user_response}</div>
                         ) : (
-                            <p>Aucune box pour aujourd'hui.</p>
+                            todayBox ? (
+                                <div>
+                                    <p>Box du jour: {todayBox.name}</p>
+                                    <ButtonStyle onClick={handlePlay}>Jouer</ButtonStyle>
+                                </div>
+                            ) : (
+                                <p>Aucune box pour aujourd'hui.</p>
+                            )
                         )}
                     </ContainerBackgroundStyle>
+
                     <Title2Style>Autres jours</Title2Style>
+
                     <ContainerBackgroundStyle>
                         {beforeBoxes?.map((box) => (
                             <div key={box.id_box}>
@@ -124,15 +157,25 @@ const EnigmatoGameInfo: React.FC = () => {
                                     <img
                                         src={box.picture1}
                                         alt="Image 1"
-                                        style={{ width: '100px', height: '100px', objectFit: 'cover', marginRight: '10px' }}
+                                        style={{
+                                            width: '100px',
+                                            height: '100px',
+                                            objectFit: 'cover',
+                                            marginRight: '10px',
+                                        }}
                                     />
                                 )}
+
                                 {/* Affiche image si picture2 est en base64 */}
                                 {box.picture2 && isBase64(box.picture2) && (
                                     <img
                                         src={box.picture2}
                                         alt="Image 2"
-                                        style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                                        style={{
+                                            width: '100px',
+                                            height: '100px',
+                                            objectFit: 'cover',
+                                        }}
                                     />
                                 )}
                             </div>

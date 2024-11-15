@@ -35,7 +35,7 @@ async def read_box_response_async(id_box: int, db: AsyncSession = Depends(get_db
         # Exécution de la requête pour obtenir la réponse de la box par id_box et id_user
         result = await db.execute(
             select(EnigmatoBoxResponse)
-            .filter(EnigmatoBoxResponse.id_box == id_box)
+            .filter(EnigmatoBoxResponse.id_box == id_box, EnigmatoBoxResponse.id_user == current_user.id_user)
         )
         
         # Obtenir une seule réponse de box, ou None si elle n'existe pas

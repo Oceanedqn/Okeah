@@ -43,6 +43,9 @@ const EnigmatoGame: React.FC = () => {
             const fetchResponseBox = async () => {
                 try {
                     const boxResponse: IEnigmatoBoxResponse = await getBoxResponseByIdBoxAsync(todayBox?.id_box!, navigate);
+                    if (boxResponse.id_user_response) {
+                        navigate(`/enigmato/parties/${id_party}/game/info`);
+                    }
                     if (boxResponse.cluse_used) {
                         navigate(`/enigmato/parties/${id_party}/game/hint`);
                     }
