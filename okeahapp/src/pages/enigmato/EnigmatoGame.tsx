@@ -81,7 +81,7 @@ const EnigmatoGame: React.FC = () => {
     }, [todayBox, id_party, navigate]);
 
     const handleBack = () => {
-        navigate(`enigmato/parties/${id_party}/game/info`);
+        navigate(`/enigmato/parties/${id_party}/game/info`);
     };
 
     const handleNeedHint = async () => {
