@@ -1,3 +1,4 @@
+import { FaInfoCircle } from "react-icons/fa";
 import { createGlobalStyle } from "styled-components";
 import styled from "styled-components";
 
@@ -73,6 +74,7 @@ export const ContainerTitleStyle = styled.div`
   display: flex;
   flex-direction: column; /* Aligne horizontalement les éléments */
   align-items: center; /* Centre verticalement les éléments */
+  justify-content: center; /* Centre les éléments horizontalement */
   width: 100%; /* Prend toute la largeur */
   padding: 10px;
   position: relative;
@@ -82,6 +84,18 @@ export const ContainerTitleStyle = styled.div`
     padding: 5px; /* Réduire le padding sur mobile */
   }
 `;
+
+
+export const FaInfoCircleStyle = styled(FaInfoCircle)`
+  cursor: pointer;
+  font-size: 20px;
+  margin-left: 10px;
+  color: ${({ theme }) => theme.colors.secondary};
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.secondary_dark};
+  }
+`
 
 
 // Composant Select

@@ -58,25 +58,39 @@ const EnigmatoHome: React.FC = () => {
     userProfile?.is_complete ? navigate(`/enigmato/parties/${id}/game/info`) : fetchUserProfile(id);
   };
 
+  const returnGameExplanation = () => {
+    return <>
+      <Title2Style>{t('game_explanation')}</Title2Style>
+      <TextStyle>{t('game_description')}</TextStyle>
+      <SpaceStyle />
+    </>
+  }
+
+  const checkIfInfo = () => {
+    if (ongoingGames.length === 0) {
+      return null
+    } else {
+      return returnGameExplanation();
+    }
+  }
+
 
   if (loading) return <div>{t('loading')}</div>;
   if (error) return <div>{error}</div>;
 
   return (
     <>
-      <HeaderTitleComponent title={t('welcomeenigmato')} onBackClick={() => navigate("/home")} />
+      <HeaderTitleComponent title={t('welcomeenigmato')} onBackClick={() => navigate("/home")} info={checkIfInfo()} />
       <ContainerUnderTitleStyle>
         <EnigmatoContainerStyle>
           {ongoingGames.length === 0 ? (
-
-            <>
-              <Title2Style>{t('game_explanation')}</Title2Style>
-              <TextStyle>{t('game_description')}</TextStyle>
-              <SpaceStyle />
-            </>
+            returnGameExplanation()
           ) : null}
 
           <Title2Style>{t('ongoing_games')}</Title2Style>
+        </EnigmatoContainerStyle>
+
+        <EnigmatoContainerStyle>
           {ongoingGames.length === 0 ? (
             <TextStyle>{t('no_ongoing_games')}</TextStyle>
           ) : (

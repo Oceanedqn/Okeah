@@ -12,7 +12,6 @@ const NavbarComponent: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
         try {
             await logout_async();
             onLogout();
-            // navigate('/login');
         } catch (error) {
             console.error('Error during logout:', error);
         }
