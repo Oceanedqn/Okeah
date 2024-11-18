@@ -59,6 +59,24 @@ export const getUserPartiesAsync = async (navigate: ReturnType<typeof useNavigat
   }
 };
 
+// Service pour obtenir toutes les parties associées à un utilisateur
+export const getUserFinishedPartiesAsync = async (navigate: ReturnType<typeof useNavigate>): Promise<IEnigmatoParty[] | null> => {
+  const accessToken = checkCookie();
+
+  try {
+    const response = await axios.get(`${API_ENIGMATO_USER_PARTIES_URL}/parties/finished`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    handleError(error, navigate);
+    return null;
+  }
+};
+
 export const fetchParticipantsAsync = async (id_party: number, navigate: ReturnType<typeof useNavigate>) => {
   const accessToken = checkCookie();
 

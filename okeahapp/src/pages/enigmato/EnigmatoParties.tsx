@@ -105,7 +105,7 @@ const EnigmatoParties: React.FC = () => {
             <HeaderTitleComponent title='partiesList' onBackClick={handleBack} />
             <ContainerUnderTitleStyle>
                 {parties.length === 0 ? (
-                    <div>{t('noParties')}</div>
+                    <EnigmatoContainerStyle>{t('noParties')}</EnigmatoContainerStyle>
                 ) : (
                     <EnigmatoContainerStyle>
                         {parties.map((partie) => (
@@ -137,25 +137,26 @@ const EnigmatoParties: React.FC = () => {
                         </ModalContent>
                     </ModalOverlay>
                 )}
+                {parties.length >= 8 && (
+                    <EnigmatoContainerStyle>
+                        <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                            <ButtonStyle
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={currentPage === 1}
+                            >
+                                {t('<')}
+                            </ButtonStyle>
+                            <span>{t('Page')} {currentPage}</span>
+                            <ButtonStyle
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={!hasMore}
+                            >
+                                {t('>')}
+                            </ButtonStyle>
+                        </div>
+                    </EnigmatoContainerStyle>
+                )}
 
-                {/* Pagination */}
-                <EnigmatoContainerStyle>
-                    <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-                        <ButtonStyle
-                            onClick={() => handlePageChange(currentPage - 1)}
-                            disabled={currentPage === 1}
-                        >
-                            {t('<')}
-                        </ButtonStyle>
-                        <span>{t('Page')} {currentPage}</span>
-                        <ButtonStyle
-                            onClick={() => handlePageChange(currentPage + 1)}
-                            disabled={!hasMore}
-                        >
-                            {t('>')}
-                        </ButtonStyle>
-                    </div>
-                </EnigmatoContainerStyle>
 
             </ContainerUnderTitleStyle>
         </>

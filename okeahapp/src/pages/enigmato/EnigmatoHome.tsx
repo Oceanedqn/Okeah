@@ -1,19 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ButtonStyle, ContainerUnderTitleStyle, SpaceStyle, TextStyle, Title2Style } from '../../styles/GlobalStyles';
-import { EnigmatoContainerStyle, EnigmatoItemStyle } from '../../styles/EnigmatoStyles';
-import { getUserPartiesAsync } from '../../services/enigmato/enigmatoPartiesService';
+import { ButtonStyle, ContainerUnderTitleStyle, TextStyle, Title2Style } from '../../styles/GlobalStyles';
+import { EnigmatoContainerStyle } from '../../styles/EnigmatoStyles';
+import { getUserPartiesAsync, getUserFinishedPartiesAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { fetchProfile } from '../../services/enigmato/enigmatoProfileService'; // Importer la fonction pour récupérer le profil
 import { IEnigmatoParty, IEnigmatoProfil } from '../../interfaces/IEnigmato';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
-import { calculateGameStage } from '../../utils/utils';
+import EnigmatoItemComponent from '../../components/Enigmato/EnigmatoItemComponent';
 
 const EnigmatoHome: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [ongoingGames, setOngoingGames] = useState<IEnigmatoParty[]>([]);
+  const [finishedGames, setFinishedGames] = useState<IEnigmatoParty[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<IEnigmatoProfil | null>(null); // État pour le profil
@@ -33,7 +34,20 @@ const EnigmatoHome: React.FC = () => {
       }
     };
 
+    const fetchFinishedPartiesByUser = async () => {
+      try {
+        setLoading(true);
+        const games = await getUserFinishedPartiesAsync(navigate);
+        if (games?.length) setFinishedGames(games);
+      } catch {
+        setError(t('error_fetching_games'));
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchPartiesByUser();
+    fetchFinishedPartiesByUser();
   }, [navigate, t]);
 
 
@@ -62,7 +76,10 @@ const EnigmatoHome: React.FC = () => {
     return <>
       <Title2Style>{t('game_explanation')}</Title2Style>
       <TextStyle>{t('game_description')}</TextStyle>
-      <SpaceStyle />
+      {ongoingGames.length === 0 && (
+        <ButtonStyle style={{ width: "100%", marginTop: "16px" }} onClick={() => navigate('/enigmato/parties')}>{t('join_game')}</ButtonStyle>
+      )}
+
     </>
   }
 
@@ -81,29 +98,39 @@ const EnigmatoHome: React.FC = () => {
   return (
     <>
       <HeaderTitleComponent title={t('welcomeenigmato')} onBackClick={() => navigate("/home")} info={checkIfInfo()} />
+      {ongoingGames.length === 0 && (
+        <EnigmatoContainerStyle>
+          <img src="/assets/guess_who.jpg" alt="Guess Who" style={{ width: "50%", maxWidth: "400px", marginBottom: "16px", borderRadius: "32px" }} />
+        </EnigmatoContainerStyle>
+      )}
       <ContainerUnderTitleStyle>
-        <EnigmatoContainerStyle>
-          {ongoingGames.length === 0 ? (
-            returnGameExplanation()
-          ) : null}
+        <EnigmatoContainerStyle style={{ marginBottom: "32px" }}>{ongoingGames.length === 0 ? returnGameExplanation() : null}</EnigmatoContainerStyle>
 
-          <Title2Style>{t('ongoing_games')}</Title2Style>
-        </EnigmatoContainerStyle>
 
-        <EnigmatoContainerStyle>
-          {ongoingGames.length === 0 ? (
-            <TextStyle>{t('no_ongoing_games')}</TextStyle>
-          ) : (
-            ongoingGames.map((game) => (
-              <EnigmatoItemStyle key={game.id_party}>
-                <TextStyle>{game.name}</TextStyle>
-                {calculateGameStage(game, t)}
-                <ButtonStyle onClick={() => handleViewGame(game.id_party)}>{t('view')}</ButtonStyle>
-              </EnigmatoItemStyle>
-            ))
-          )}
-          <ButtonStyle style={{ width: '100%' }} onClick={() => navigate('/enigmato/parties')}>{t('join_game')}</ButtonStyle>
-        </EnigmatoContainerStyle>
+        {ongoingGames.length > 0 && (
+          <EnigmatoContainerStyle style={{ marginBottom: "15px" }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+              <Title2Style>{t('ongoing_games')}</Title2Style>
+              <ButtonStyle onClick={() => navigate('/enigmato/parties')}>{t('join_game')}</ButtonStyle>
+            </div>
+            {ongoingGames.map((game) => (
+              <EnigmatoItemComponent key={game.id_party} game={game} handleViewGame={handleViewGame} />
+            ))}
+          </EnigmatoContainerStyle>
+        )}
+
+
+        {finishedGames.length > 0 && (
+          <EnigmatoContainerStyle style={{ marginBottom: "16px", marginTop: "32px" }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+              <Title2Style>{t('finished_games')}</Title2Style>
+            </div>
+            {finishedGames.length === 0 ? (<TextStyle>{t('no_ongoing_games')}</TextStyle>
+            ) : (
+              finishedGames.map((game) => (<EnigmatoItemComponent key={game.id_party} game={game} handleViewGame={handleViewGame} />))
+            )}
+          </EnigmatoContainerStyle>
+        )}
       </ContainerUnderTitleStyle>
     </>
   );

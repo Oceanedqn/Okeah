@@ -1,3 +1,4 @@
+
 // Exemple d'une partie de jeu
 export interface IEnigmatoParty {
   id_party: number;
@@ -10,6 +11,7 @@ export interface IEnigmatoParty {
   number_of_box: number;
   include_weekends: boolean;
   set_password: boolean;
+  participants_number: number;
 }
 
 export interface IEnigmatoPartyBoxes {

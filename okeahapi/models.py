@@ -30,6 +30,8 @@ class EnigmatoParty(Base):
     name = Column(String, nullable=False)
     password = Column(String, nullable=True)
     date_start = Column(Date, nullable=False)
+    date_end = Column(Date, nullable=True)
+    is_finished = Column(Boolean, default=False)
     game_mode = Column(Integer, nullable=False)
     number_of_box = Column(Integer, nullable=False)
     id_user = Column(Integer, ForeignKey('users.id_user'), nullable=False)

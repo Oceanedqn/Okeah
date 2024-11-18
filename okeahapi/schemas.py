@@ -7,6 +7,35 @@ class LoginRequestSchema(BaseModel):
     email: str
     password: str
 
+
+
+# [OK] Modèle pour la création d'une partie
+class EnigmatoPartyCreateRequestSchema(BaseModel):
+    name: str
+    password: Optional[str]
+    date_start: date
+    game_mode: int
+    number_of_box: int
+    include_weekends: bool
+    set_password: bool
+
+# [OK] Modèle pour une partie de jeu Enigmato
+class EnigmatoPartySchema(BaseModel):
+    id_party: int
+    id_user: int
+    name: str
+    password: Optional[str]
+    date_start: date
+    date_creation: date
+    game_mode: int
+    number_of_box: int
+    include_weekends: bool
+    date_end: Optional[date]  # Ensure date_end is Optional
+    is_finished : bool
+    participants_number: int
+
+
+
 # [OK] Schéma pour l'utilisateur
 class UserSchema(BaseModel):
     id_user: int
@@ -20,28 +49,10 @@ class UserCreateSchema(BaseModel):
     mail: str
     password: str
 
-# [OK] Modèle pour une partie de jeu Enigmato
-class EnigmatoPartySchema(BaseModel):
-    id_party: int
-    name: str
-    password: Optional[str]
-    date_start: date
-    date_creation: date
-    game_mode: int
-    number_of_box: int
-    include_weekends: bool
-    id_user: int
-    set_password: bool
 
 
-class EnigmatoPartyCreateRequestSchema(BaseModel):
-    name: str
-    password: Optional[str]
-    date_start: date
-    game_mode: int
-    number_of_box: int
-    include_weekends: bool
-    set_password: bool
+
+
 
 # # Schéma pour les participants d'une partie avec vérification de profil
 class EnigmatoParticipantsSchema(BaseModel):

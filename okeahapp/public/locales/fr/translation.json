@@ -39,5 +39,7 @@
     "back": "Retour",
     "participantsList": "Liste des participants",
     "completeProfileMessage": "Merci de compléter le profil de jeu afin de pouvoir jouer",
-    "edit": "Modifier"
+    "edit": "Modifier",
+    "gameFinished": "Terminée",
+    "finished_games": "Parties terminées"
 }

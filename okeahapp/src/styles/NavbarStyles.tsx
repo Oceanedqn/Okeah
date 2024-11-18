@@ -36,7 +36,7 @@ export const Hamburger = styled.div`
   }
 `;
 
-export const Menu = styled.div<{ isOpen: boolean }>`
+export const Menu = styled.div<{ $isOpen: boolean }>`
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -50,7 +50,7 @@ export const Menu = styled.div<{ isOpen: boolean }>`
     background-color: ${({ theme }) => theme.colors.background_alternatif};
     padding: 1rem 0;
     transition: transform 0.2s ease-in-out;
-    transform: ${({ isOpen }) => (isOpen ? 'translateY(0)' : 'translateY(-200%)')};
+    transform: ${({ $isOpen }) => ($isOpen ? 'translateY(0)' : 'translateY(-200%)')};
     z-index: 100; /* Passe devant tout le reste */
   }
 `;

@@ -39,5 +39,7 @@
     "back": "Back",
     "participantsList": "List of participants",
     "completeProfileMessage": "Please complete your game profile to be able to play",
-    "edit": "Edit"
+    "edit": "Edit",
+    "gameFinished": "Finished",
+    "finished_games": "Finished games"
 }

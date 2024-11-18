@@ -25,7 +25,7 @@ const NavbarComponent: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                 <span />
                 <span />
             </Hamburger>
-            <Menu isOpen={isOpen}>
+            <Menu $isOpen={isOpen}>
                 <MenuItem to="/home">{t('home')}</MenuItem>
                 <MenuItem to="/about">{t('about')}</MenuItem>
                 <MenuItem to="/enigmato/home">Enigmato</MenuItem>
@@ -37,6 +37,5 @@ const NavbarComponent: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
         </NavbarContainerStyle>
     );
 };
-
 
 export default NavbarComponent;

@@ -39,7 +39,6 @@ export const EnigmatoItemStyle = styled.div`
     padding: 10px;
     background-color: ${({ theme }) => theme.colors.background_light};
     border-radius: 10px;
-    margin-bottom: 10px;
     
     @media (max-width: ${breakpoints.sm}) {
       flex-direction: column; /* Sur les petits écrans, empiler les éléments verticalement */
