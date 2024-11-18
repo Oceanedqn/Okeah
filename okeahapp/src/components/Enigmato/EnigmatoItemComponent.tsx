@@ -1,13 +1,13 @@
 import React from 'react';
 import { FaUser } from 'react-icons/fa';
 import { ButtonStyle, TextStyle } from '../../styles/GlobalStyles';
-import { IEnigmatoParty } from '../../interfaces/IEnigmato';
+import { IEnigmatoParty, IEnigmatoPartyParticipants } from '../../interfaces/IEnigmato';
 import { calculateGameStage } from '../../utils/utils';
 import { useTranslation } from 'react-i18next';
 import { EnigmatoItemStyle } from '../../styles/EnigmatoStyles';
 
 interface EnigmatoItemComponentProps {
-    game: IEnigmatoParty;
+    game: IEnigmatoPartyParticipants;
     handleViewGame: (id: number) => void;
 }
 

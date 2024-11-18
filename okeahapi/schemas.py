@@ -32,8 +32,20 @@ class EnigmatoPartySchema(BaseModel):
     include_weekends: bool
     date_end: Optional[date]  # Ensure date_end is Optional
     is_finished : bool
-    participants_number: int
-
+    
+class EnigmatoPartyParticipantsSchema(BaseModel):
+    id_party: int
+    id_user: int
+    name: str
+    password: Optional[str]
+    date_start: date
+    date_creation: date
+    game_mode: int
+    number_of_box: int
+    include_weekends: bool
+    date_end: Optional[date]  # Ensure date_end is Optional
+    is_finished : bool
+    participants_number: Optional[int] = None
 
 
 # [OK] Schéma pour l'utilisateur

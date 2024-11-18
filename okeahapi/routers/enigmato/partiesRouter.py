@@ -6,7 +6,7 @@ from sqlalchemy.future import select
 from typing import List
 from models import EnigmatoParty, EnigmatoProfil, User
 from routers.authRouter import get_current_user_async
-from schemas import EnigmatoJoinPartySchema, EnigmatoParticipantsSchema, EnigmatoPartySchema, EnigmatoPartyCreateRequestSchema, EnigmatoProfilSchema, UserSchema
+from schemas import EnigmatoJoinPartySchema, EnigmatoParticipantsSchema, EnigmatoPartyParticipantsSchema, EnigmatoPartySchema, EnigmatoPartyCreateRequestSchema, EnigmatoProfilSchema, UserSchema
 from database import get_db_async
 from utils.authUtils import hash_password, verify_password
 
@@ -33,10 +33,9 @@ async def create_party_async(party: EnigmatoPartyCreateRequestSchema,  db: Async
         number_of_box=party.number_of_box,
         include_weekends=party.include_weekends,
         set_password=party.set_password,
-        date_end=None,  # Explicitly set date_end to None if not provided
+        date_end=None,
         is_finished=False
     )
-
     # Ajouter la partie à la base de données
     db.add(db_party)
     await db.commit()
@@ -46,7 +45,7 @@ async def create_party_async(party: EnigmatoPartyCreateRequestSchema,  db: Async
     return db_party
 
 
-@router.get("/user/parties", response_model=List[EnigmatoPartySchema])
+@router.get("/user/parties", response_model=List[EnigmatoPartyParticipantsSchema])
 async def read_user_parties_async(db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
     # Sous-requête pour compter les participants par partie
     subquery = (
@@ -73,7 +72,7 @@ async def read_user_parties_async(db: AsyncSession = Depends(get_db_async), curr
     user_parties = result.all()
 
     user_parties_home = [
-        EnigmatoPartySchema(
+        EnigmatoPartyParticipantsSchema(
             id_party=party.id_party,
             date_creation=party.date_creation,
             name=party.name,
@@ -93,7 +92,7 @@ async def read_user_parties_async(db: AsyncSession = Depends(get_db_async), curr
     return user_parties_home
 
 
-@router.get("/user/parties/finished", response_model=List[EnigmatoPartySchema])
+@router.get("/user/parties/finished", response_model=List[EnigmatoPartyParticipantsSchema])
 async def read_user_parties_finished_async(db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
     # Sous-requête pour compter les participants par partie
     subquery = (
@@ -120,7 +119,7 @@ async def read_user_parties_finished_async(db: AsyncSession = Depends(get_db_asy
     user_parties = result.all()
 
     user_parties_home = [
-        EnigmatoPartySchema(
+        EnigmatoPartyParticipantsSchema(
             id_party=party.id_party,
             date_creation=party.date_creation,
             name=party.name,
@@ -141,37 +140,37 @@ async def read_user_parties_finished_async(db: AsyncSession = Depends(get_db_asy
 
 
 
-# [OK] Liste des parties sans celles que l'utilisateur à déjà rejoint avec pagination.
-@router.get("/", response_model=List[EnigmatoPartySchema])
+@router.get("/", response_model=List[EnigmatoPartyParticipantsSchema])
 async def read_parties_async(skip: int = 0, limit: int = 8, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
-    # Sous-requête pour obtenir les parties que l'utilisateur a rejoint
-    subquery = select(EnigmatoProfil.id_party).filter(EnigmatoProfil.id_user == current_user.id_user)
+    # Sous-requête pour récupérer les parties auxquelles l'utilisateur actuel n'a pas encore rejoint
+    subquery = select(EnigmatoProfil.id_party).filter(EnigmatoProfil.id_user == current_user.id_user).subquery()
 
-    # Sous-requête pour compter le nombre de participants par partie
-    participants_subquery = (
-        select(
-            EnigmatoProfil.id_party,
-            func.count(EnigmatoProfil.id_profil).label("participants_number")
-        )
-        .group_by(EnigmatoProfil.id_party)
-        .subquery()
-    )
-
-    # Requête principale pour obtenir les parties que l'utilisateur n'a pas rejoint, avec le nombre de participants
-    result = await db.execute(
-        select(EnigmatoParty, participants_subquery.c.participants_number)
-        .where(not_(EnigmatoParty.id_party.in_(subquery)))
-        .join(participants_subquery, EnigmatoParty.id_party == participants_subquery.c.id_party)
+    # Requête pour récupérer les parties auxquelles l'utilisateur n'a pas participé et qui ne sont pas terminées
+    query = (
+        select(EnigmatoParty)
+        .filter(EnigmatoParty.id_party.not_in(select(subquery)))  # Exclure les parties où l'utilisateur est déjà inscrit
+        .filter(EnigmatoParty.is_finished == False)  # Ne sélectionner que les parties non terminées
         .offset(skip)
         .limit(limit)
     )
 
-    # Récupérer les résultats
-    parties = result.all()
+    # Exécution de la requête pour récupérer les parties
+    result = await db.execute(query)
+    parties = result.scalars().all()
+
+    # Sous-requête pour compter le nombre de participants par partie
+    participants_query = select(
+        EnigmatoProfil.id_party,
+        func.count(EnigmatoProfil.id_profil).label("participants_number")
+    ).group_by(EnigmatoProfil.id_party)
+
+    # Exécution de la requête pour récupérer le nombre de participants par partie
+    participants_result = await db.execute(participants_query)
+    participants_count = {party_id: participants_number for party_id, participants_number in participants_result.all()}
 
     # Construction de la réponse avec le nombre de participants
     response = [
-        EnigmatoPartySchema(
+        EnigmatoPartyParticipantsSchema(
             id_party=party.id_party,
             date_creation=party.date_creation,
             name=party.name,
@@ -183,11 +182,11 @@ async def read_parties_async(skip: int = 0, limit: int = 8, db: AsyncSession = D
             number_of_box=party.number_of_box,
             id_user=party.id_user,
             include_weekends=party.include_weekends,
-            participants_number=participants_number  # Ajout du nombre de participants
+            participants_number=participants_count.get(party.id_party, 0)  # Nombre de participants ou 0 si aucun
         )
-        for party, participants_number in parties
+        for party in parties
     ]
-
+    
     return response
 
 

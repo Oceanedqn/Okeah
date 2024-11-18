@@ -1,12 +1,12 @@
 import axios from 'axios';
 import { API_ENIGMATO_JOIN_PARTIES_URL, API_ENIGMATO_PARTIES_URL, API_ENIGMATO_USER_PARTIES_URL } from '../../constants/constants';
-import { IEnigmatoJoinParty, IEnigmatoParty, IEnigmatoPartyCreateRequest } from '../../interfaces/IEnigmato';
+import { IEnigmatoJoinParty, IEnigmatoParty, IEnigmatoPartyCreateRequest, IEnigmatoPartyParticipants } from '../../interfaces/IEnigmato';
 import { checkCookie } from '../../utils/utils';
 import { handleError } from '../authentication/loginService';
 import { useNavigate } from 'react-router-dom';
 
 
-export const getPartiesAsync = async (page = 1, limit = 8, navigate: ReturnType<typeof useNavigate>): Promise<IEnigmatoParty[] | null> => {
+export const getPartiesAsync = async (page = 1, limit = 8, navigate: ReturnType<typeof useNavigate>): Promise<IEnigmatoPartyParticipants[] | null> => {
   const accessToken = checkCookie();
   const offset = (page - 1) * limit; // Calcule le décalage (offset) pour la pagination
 
@@ -42,7 +42,7 @@ export const getPartyAsync = async (id_party: number, navigate: ReturnType<typeo
 };
 
 // Service pour obtenir toutes les parties associées à un utilisateur
-export const getUserPartiesAsync = async (navigate: ReturnType<typeof useNavigate>): Promise<IEnigmatoParty[] | null> => {
+export const getUserPartiesAsync = async (navigate: ReturnType<typeof useNavigate>): Promise<IEnigmatoPartyParticipants[] | null> => {
   const accessToken = checkCookie();
 
   try {
@@ -60,7 +60,7 @@ export const getUserPartiesAsync = async (navigate: ReturnType<typeof useNavigat
 };
 
 // Service pour obtenir toutes les parties associées à un utilisateur
-export const getUserFinishedPartiesAsync = async (navigate: ReturnType<typeof useNavigate>): Promise<IEnigmatoParty[] | null> => {
+export const getUserFinishedPartiesAsync = async (navigate: ReturnType<typeof useNavigate>): Promise<IEnigmatoPartyParticipants[] | null> => {
   const accessToken = checkCookie();
 
   try {

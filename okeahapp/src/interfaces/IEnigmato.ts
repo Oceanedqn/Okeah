@@ -11,6 +11,19 @@ export interface IEnigmatoParty {
   number_of_box: number;
   include_weekends: boolean;
   set_password: boolean;
+}
+
+export interface IEnigmatoPartyParticipants {
+  id_party: number;
+  date_creation: string; // format ISO 8601
+  name: string;
+  password: string;
+  id_user: number;
+  date_start: string;
+  game_mode: number;
+  number_of_box: number;
+  include_weekends: boolean;
+  set_password: boolean;
   participants_number: number;
 }
 

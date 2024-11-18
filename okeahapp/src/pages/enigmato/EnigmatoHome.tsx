@@ -5,7 +5,7 @@ import { ButtonStyle, ContainerUnderTitleStyle, TextStyle, Title2Style } from '.
 import { EnigmatoContainerStyle } from '../../styles/EnigmatoStyles';
 import { getUserPartiesAsync, getUserFinishedPartiesAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { fetchProfile } from '../../services/enigmato/enigmatoProfileService'; // Importer la fonction pour récupérer le profil
-import { IEnigmatoParty, IEnigmatoProfil } from '../../interfaces/IEnigmato';
+import { IEnigmatoParty, IEnigmatoPartyParticipants, IEnigmatoProfil } from '../../interfaces/IEnigmato';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
 import EnigmatoItemComponent from '../../components/Enigmato/EnigmatoItemComponent';
 
@@ -13,8 +13,8 @@ const EnigmatoHome: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const [ongoingGames, setOngoingGames] = useState<IEnigmatoParty[]>([]);
-  const [finishedGames, setFinishedGames] = useState<IEnigmatoParty[]>([]);
+  const [ongoingGames, setOngoingGames] = useState<IEnigmatoPartyParticipants[]>([]);
+  const [finishedGames, setFinishedGames] = useState<IEnigmatoPartyParticipants[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<IEnigmatoProfil | null>(null); // État pour le profil
