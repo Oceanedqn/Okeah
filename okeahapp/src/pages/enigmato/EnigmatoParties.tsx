@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ButtonStyle, ContainerUnderTitleStyle, TextStyle } from '../../styles/GlobalStyles';
 import { EnigmatoContainerStyle, ModalContent, ModalOverlay, EnigmatoItemStyle } from '../../styles/EnigmatoStyles';
 import { getPartiesAsync, joinPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
-import { IEnigmatoJoinParty, IEnigmatoParty } from '../../interfaces/IEnigmato';
+import { IEnigmatoJoinParty, IEnigmatoParty, IEnigmatoPartyParticipants } from '../../interfaces/IEnigmato';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
 import { useTranslation } from 'react-i18next';
 import { calculateGameStage } from '../../utils/utils';
@@ -11,7 +11,7 @@ import { calculateGameStage } from '../../utils/utils';
 const EnigmatoParties: React.FC = () => {
     const navigate = useNavigate();
     const { t } = useTranslation();
-    const [parties, setParties] = useState<IEnigmatoParty[]>([]);
+    const [parties, setParties] = useState<IEnigmatoPartyParticipants[]>([]);
     const [selectedPartie, setSelectedPartie] = useState<IEnigmatoParty | null>(null);
     const [password, setPassword] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -46,7 +46,7 @@ const EnigmatoParties: React.FC = () => {
         navigate('/enigmato/home');
     };
 
-    const handleJoin = (partie: IEnigmatoParty) => {
+    const handleJoin = (partie: IEnigmatoPartyParticipants) => {
         if (partie.password) {
             setSelectedPartie(partie);
             setIsModalOpen(true);

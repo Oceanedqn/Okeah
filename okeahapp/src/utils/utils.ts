@@ -1,5 +1,5 @@
 import Cookies from "js-cookie";
-import { IEnigmatoParty } from "../interfaces/IEnigmato";
+import { IEnigmatoPartyParticipants } from "../interfaces/IEnigmato";
 
 export const checkCookie = (): string => {
     const accessToken = Cookies.get('access_token');
@@ -10,7 +10,7 @@ export const checkCookie = (): string => {
 };
 
 
-export const calculateGameStage = (party: IEnigmatoParty, t: Function) => {
+export const calculateGameStage = (party: IEnigmatoPartyParticipants, t: Function) => {
     const today = new Date();
     const dateStart = new Date(party.date_start);
     const formattedDateStart = dateStart.toLocaleDateString('fr-FR', {
@@ -32,7 +32,7 @@ export const calculateGameStage = (party: IEnigmatoParty, t: Function) => {
     const step = Math.floor(diffDays / (party.include_weekends ? 1 : 7)) + 1;
 
     // Vérification si l'étape dépasse le nombre de box (et donc, la partie est terminée)
-    if (step > party.number_of_box) {
+    if (party.is_finished) {
         return t('gameFinished'); // La partie est terminée
     }
 

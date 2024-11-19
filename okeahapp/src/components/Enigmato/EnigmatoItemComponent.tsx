@@ -8,11 +8,15 @@ import { EnigmatoItemStyle } from '../../styles/EnigmatoStyles';
 
 interface EnigmatoItemComponentProps {
     game: IEnigmatoPartyParticipants;
-    handleViewGame: (id: number) => void;
+    handleViewGame: (id: number, isFinished: boolean) => void;
 }
 
 const EnigmatoItemComponent: React.FC<EnigmatoItemComponentProps> = ({ game, handleViewGame }) => {
     const { t } = useTranslation();
+
+    // Texte du bouton et action en fonction de l'état 'is_finished'
+    const buttonText = game.is_finished ? t('viewScores') : t('view');
+    const handleClick = () => handleViewGame(game.id_party, game.is_finished);
 
     return (
         <EnigmatoItemStyle key={game.id_party}>
@@ -22,8 +26,8 @@ const EnigmatoItemComponent: React.FC<EnigmatoItemComponentProps> = ({ game, han
                 <FaUser size={16} color="#555" />
                 <TextStyle>{game.participants_number}</TextStyle>
             </div>
-            <ButtonStyle onClick={() => handleViewGame(game.id_party)}>
-                {t('view')}
+            <ButtonStyle onClick={handleClick}>
+                {buttonText}
             </ButtonStyle>
         </EnigmatoItemStyle>
     );
