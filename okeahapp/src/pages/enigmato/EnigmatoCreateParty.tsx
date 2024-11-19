@@ -43,7 +43,7 @@ const EnigmatoCreateParty: React.FC = () => {
         };
 
         try {
-            const response = await createPartyAsync(newParty, navigate); // Appel du service pour créer la partie
+            await createPartyAsync(newParty, navigate); // Appel du service pour créer la partie
             navigate(`/enigmato/parties`); // Redirige vers la page du jeu
         } catch (err: any) { // TypeScript demande de gérer le type de `err`
             setError(err?.message || 'Impossible de créer la partie.'); // Affiche l'erreur réelle retournée par l'API

@@ -36,7 +36,7 @@ const EnigmatoParties: React.FC = () => {
         };
 
         fetchParties();
-    }, [t, currentPage]);
+    }, [t, currentPage, navigate]);
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);

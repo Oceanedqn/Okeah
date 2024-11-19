@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaUser } from 'react-icons/fa';
 import { ButtonStyle, TextStyle } from '../../styles/GlobalStyles';
-import { IEnigmatoParty, IEnigmatoPartyParticipants } from '../../interfaces/IEnigmato';
+import { IEnigmatoPartyParticipants } from '../../interfaces/IEnigmato';
 import { calculateGameStage } from '../../utils/utils';
 import { useTranslation } from 'react-i18next';
 import { EnigmatoItemStyle } from '../../styles/EnigmatoStyles';

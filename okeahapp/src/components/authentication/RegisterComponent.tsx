@@ -1,8 +1,7 @@
 // RegisterComponent.tsx
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { CenteredElement, CustomRadioStyle, InputStyle, LabelStyle, RadioInputStyle, RadioLabelStyle } from '../../styles/AuthenticationStyles';
+import { CenteredElement, InputStyle, LabelStyle } from '../../styles/AuthenticationStyles';
 import { ButtonStyle, Title1Style } from '../../styles/GlobalStyles';
 import { useTranslation } from 'react-i18next';
 import { register_async } from '../../services/authentication/registerService';
@@ -12,9 +11,8 @@ const RegisterComponent: React.FC<{ onRegister: () => void; handleToggle: () => 
     const [firstname, setFirstname] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [gender, setGender] = useState<boolean>(true);
+    const [gender] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const navigate = useNavigate();
     const { t } = useTranslation();
 
     const handleRegister = async (event: React.FormEvent) => {

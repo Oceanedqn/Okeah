@@ -5,9 +5,10 @@ import { ButtonStyle, ContainerUnderTitleStyle, TextStyle, Title2Style } from '.
 import { EnigmatoContainerStyle } from '../../styles/EnigmatoStyles';
 import { getUserPartiesAsync, getUserFinishedPartiesAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { fetchProfile } from '../../services/enigmato/enigmatoProfileService'; // Importer la fonction pour récupérer le profil
-import { IEnigmatoParty, IEnigmatoPartyParticipants, IEnigmatoProfil } from '../../interfaces/IEnigmato';
+import { IEnigmatoPartyParticipants, IEnigmatoProfil } from '../../interfaces/IEnigmato';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
 import EnigmatoItemComponent from '../../components/Enigmato/EnigmatoItemComponent';
+import LoadingComponent from '../../components/base/LoadingComponent';
 
 const EnigmatoHome: React.FC = () => {
   const { t } = useTranslation();
@@ -92,7 +93,7 @@ const EnigmatoHome: React.FC = () => {
   }
 
 
-  if (loading) return <div>{t('loading')}</div>;
+  if (loading) return <LoadingComponent />
   if (error) return <div>{error}</div>;
 
   return (

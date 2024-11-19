@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ButtonStyle, TextStyle, Title1Style, Title2Style } from '../../styles/GlobalStyles';
+import { ButtonStyle, TextStyle, Title1Style } from '../../styles/GlobalStyles';
 import { AutoCompleteContainer } from '../../styles/EnigmatoStyles';
 import { Container } from '@mui/material';
 import { fetchCompletedParticipantsAsync, getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
@@ -156,7 +156,7 @@ const EnigmatoGame: React.FC = () => {
                 {todayBox?.picture1 && isBase64(todayBox.picture1) ? (
                     <img
                         src={todayBox.picture1}
-                        alt="Image du mystère"
+                        alt="mystère"
                         style={{ width: '150px', height: 'auto', objectFit: 'cover' }}
                     />
                 ) : (

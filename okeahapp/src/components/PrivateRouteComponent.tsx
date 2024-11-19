@@ -1,6 +1,6 @@
 // PrivateRoute.tsx
 import React from 'react';
-import { Route, Navigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import { PrivateRouteProps } from '../types';
 

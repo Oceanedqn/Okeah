@@ -2,7 +2,6 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { checkCookie } from '../../utils/utils';
 import { handleError } from '../authentication/loginService';
-import { IEnigmatoBox } from '../../interfaces/IEnigmato';
 import { API_ENIGMATO_BOXES_URL } from '../../constants/constants';
 
 

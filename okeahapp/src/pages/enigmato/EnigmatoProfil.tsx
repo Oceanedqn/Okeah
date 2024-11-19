@@ -45,7 +45,7 @@ const EnigmatoProfil: React.FC = () => {
         };
 
         loadDatas();
-    }, [id_party]);
+    }, [id_party, navigate]);
 
     const handleBack = () => {
         navigate(-1);
@@ -73,6 +73,10 @@ const EnigmatoProfil: React.FC = () => {
 
                 const currentUserProfile = await fetchProfile(parseInt(id_party, 10), navigate);
                 setCurrentUserProfile(currentUserProfile);
+
+                if (currentUserProfile?.is_complete === true) {
+                    navigate('/enigmato/game/info');  // Redirection vers la page souhaitée
+                }
             } catch (error) {
                 console.error("Erreur lors de la mise à jour du profil:", error);
             }
@@ -145,7 +149,7 @@ const EnigmatoProfil: React.FC = () => {
                                 {profil?.picture1 && isBase64(profil.picture1) ? (
                                     <img
                                         src={profil.picture1}
-                                        alt="Photo 1 Preview"
+                                        alt="1 Preview"
                                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                     />
                                 ) : null}
@@ -164,7 +168,7 @@ const EnigmatoProfil: React.FC = () => {
                                 {profil?.picture2 && isBase64(profil.picture2) ? (
                                     <img
                                         src={profil.picture2}
-                                        alt="Photo 2 Preview"
+                                        alt="2 Preview"
                                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                     />
                                 ) : null}
@@ -198,7 +202,7 @@ const EnigmatoProfil: React.FC = () => {
                                     {participant.picture2 && isBase64(participant.picture2) ? (
                                         <img
                                             src={participant.picture2}
-                                            alt={`${participant.name} ${participant.firstname} photo`}
+                                            alt={`${participant.name} ${participant.firstname}`}
                                             style={{
                                                 width: '40px',  // Taille de l'image
                                                 height: '40px',

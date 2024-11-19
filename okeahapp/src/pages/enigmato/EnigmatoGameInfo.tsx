@@ -156,7 +156,7 @@ const EnigmatoGameInfo: React.FC = () => {
                                 {box.picture1 && isBase64(box.picture1) && (
                                     <img
                                         src={box.picture1}
-                                        alt="Image 1"
+                                        alt="Bebe"
                                         style={{
                                             width: '100px',
                                             height: '100px',
@@ -170,7 +170,7 @@ const EnigmatoGameInfo: React.FC = () => {
                                 {box.picture2 && isBase64(box.picture2) && (
                                     <img
                                         src={box.picture2}
-                                        alt="Image 2"
+                                        alt="Adulte"
                                         style={{
                                             width: '100px',
                                             height: '100px',

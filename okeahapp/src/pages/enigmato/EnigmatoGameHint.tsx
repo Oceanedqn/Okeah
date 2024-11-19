@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ButtonStyle, Title1Style } from '../../styles/GlobalStyles';
 import { Container } from '@mui/material';
-import { fetchCompletedParticipantsAsync, fetchCompletedRandomParticipantsAsync, getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
+import { fetchCompletedRandomParticipantsAsync, getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { getTodayBoxGameAsync } from '../../services/enigmato/enigmatoBoxesService';
 import { IEnigmatoBoxGame, IEnigmatoBoxResponse, IEnigmatoParticipants, IEnigmatoParty } from '../../interfaces/IEnigmato';
 import { getBoxResponseByIdBoxAsync, updateBoxResponseAsync } from '../../services/enigmato/enigmatoBoxResponsesService';
@@ -40,9 +40,10 @@ const EnigmatoGameHint: React.FC = () => {
         if (todayBox && id_party) {
             const fetchResponseBox = async () => {
                 try {
-                    const boxResponse: IEnigmatoBoxResponse = await getBoxResponseByIdBoxAsync(todayBox?.id_box!, navigate);
+                    const response: IEnigmatoBoxResponse = await getBoxResponseByIdBoxAsync(todayBox?.id_box!, navigate);
+                    setBoxResponse(response);
 
-                    if (!boxResponse.cluse_used) {
+                    if (boxResponse && !boxResponse.cluse_used) {
                         navigate(`/enigmato/parties/${id_party}/game`);
                     } else {
                         const fetchParty = async () => {
@@ -74,7 +75,7 @@ const EnigmatoGameHint: React.FC = () => {
 
             fetchResponseBox();
         }
-    }, [todayBox, id_party, navigate]);
+    }, [todayBox, id_party, navigate, boxResponse]);
 
 
 
@@ -112,7 +113,7 @@ const EnigmatoGameHint: React.FC = () => {
                 {todayBox?.picture1 && isBase64(todayBox.picture1) ? (
                     <img
                         src={todayBox.picture1}
-                        alt="Image du mystère"
+                        alt="mystère"
                         style={{ width: '150px', height: 'auto', objectFit: 'cover' }}
                     />
                 ) : (

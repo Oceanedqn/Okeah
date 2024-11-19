@@ -1,5 +1,5 @@
 import { FaInfoCircle } from "react-icons/fa";
-import { createGlobalStyle } from "styled-components";
+import { createGlobalStyle, keyframes } from "styled-components";
 import styled from "styled-components";
 
 // Définition des breakpoints pour une meilleure gestion de la responsivité
@@ -55,6 +55,44 @@ const GlobalStyles = createGlobalStyle`
 `;
 
 export default GlobalStyles;
+
+
+const spin = keyframes`
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+`;
+
+// Styled Components pour le spinner
+export const LoadingSpinnerStyle = styled.div`
+  border: 4px solid ${({ theme }) => theme.colors.background_light};
+  border-top: 4px solid ${({ theme }) => theme.colors.primary};
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: ${spin} 1s linear infinite;
+  margin: 20px auto;
+`;
+
+export const LoadingTextStyle = styled.div`
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 10px;
+  color: ${({ theme }) => theme.colors.primary};
+`;
+
+// Conteneur centré pour le loader
+export const CenteredContainerLoadingStyle = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Prend toute la hauteur de la fenêtre */
+  flex-direction: column; /* Empile le spinner et le texte verticalement */
+`;
 
 
 // ---------------- Container pour la page ----------------

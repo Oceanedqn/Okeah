@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { getCurrentUser } from '../services/userService';
 import { Container, LinksContainer, StyledLink, WelcomeTitle } from '../styles/HomeStyles';
+import LoadingComponent from '../components/base/LoadingComponent';
+
 
 const Home: React.FC = () => {
   const [user, setUser] = useState<any>(null); // Garder l'utilisateur actif
@@ -24,7 +26,9 @@ const Home: React.FC = () => {
   }
 
   if (!user) {
-    return <div>Loading...</div>;
+    return (
+      <LoadingComponent />
+    );
   }
 
   return (
@@ -48,8 +52,3 @@ const Home: React.FC = () => {
 };
 
 export default Home;
-
-// Styled Components
-
-
-
