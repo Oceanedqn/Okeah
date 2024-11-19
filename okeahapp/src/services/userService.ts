@@ -5,13 +5,8 @@ import { checkCookie } from "../utils/utils";
 
 
 export const getCurrentUser = async (): Promise<IUser> => {
-    const accessToken = checkCookie();
-
     try {
         const response = await axios.get(`${API_USERS_URL}/me`, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-            },
             withCredentials: true,
         });
         return response.data;

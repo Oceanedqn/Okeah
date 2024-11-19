@@ -22,9 +22,10 @@ async def login_async(request: LoginRequestSchema, response: Response, db: Async
     # Validate user and password
     if user is None or not verify_password(request.password, user.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-
+    
      # Create the access token
-    access_token = create_access_token(data={"sub": user.id_user})
+    str_id = str(user.id_user)
+    access_token = create_access_token(data={"sub": str_id})
 
     # Set the access token as a cookie
     response.set_cookie(

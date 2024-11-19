@@ -51,7 +51,7 @@ async def read_users_async(
 
 
 @router.get("/me", response_model=UserSchema)
-async def get_me(current_user: str = Depends(get_current_user_async)):
+async def get_me(current_user: User = Depends(get_current_user_async)):
     # Récupérer l'utilisateur actuellement authentifié
     return current_user  # Retourne l'utilisateur actuel
 
