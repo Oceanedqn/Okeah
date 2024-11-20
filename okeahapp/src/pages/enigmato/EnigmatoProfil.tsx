@@ -75,7 +75,7 @@ const EnigmatoProfil: React.FC = () => {
                 setCurrentUserProfile(currentUserProfile);
 
                 if (currentUserProfile?.is_complete === true) {
-                    navigate('/enigmato/game/info');  // Redirection vers la page souhaitée
+                    navigate(`/enigmato/parties/${id_party}/game/info`);
                 }
             } catch (error) {
                 console.error("Erreur lors de la mise à jour du profil:", error);

@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ButtonStyle, Title1Style } from '../../styles/GlobalStyles';
+import { ButtonStyle, ContainerUnderTitleStyle, TextStyle, Title1Style } from '../../styles/GlobalStyles';
 import { Container } from '@mui/material';
 import { fetchCompletedRandomParticipantsAsync, getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { getTodayBoxGameAsync } from '../../services/enigmato/enigmatoBoxesService';
 import { IEnigmatoBoxGame, IEnigmatoBoxResponse, IEnigmatoParticipants, IEnigmatoParty } from '../../interfaces/IEnigmato';
 import { getBoxResponseByIdBoxAsync, updateBoxResponseAsync } from '../../services/enigmato/enigmatoBoxResponsesService';
+import { useTranslation } from 'react-i18next';
+import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
+import { ContainerBackgroundStyle, EnigmatoContainerStyle } from '../../styles/EnigmatoStyles';
+import LoadingComponent from '../../components/base/LoadingComponent';
 
 const EnigmatoGameHint: React.FC = () => {
+    const { t } = useTranslation();
     const { id_party } = useParams<{ id_party: string }>();
     const navigate = useNavigate();
     const [participants, setParticipants] = useState<IEnigmatoParticipants[] | null>(null);
@@ -43,7 +48,12 @@ const EnigmatoGameHint: React.FC = () => {
                     const response: IEnigmatoBoxResponse = await getBoxResponseByIdBoxAsync(todayBox?.id_box!, navigate);
                     setBoxResponse(response);
 
-                    if (boxResponse && !boxResponse.cluse_used) {
+                    if (response && response.id_user_response) {
+                        handleBack();  // Redirection si un id_user_response existe déjà
+                        return;  // On arrête l'exécution du code suivant
+                    }
+
+                    if (response && !response.cluse_used) {
                         navigate(`/enigmato/parties/${id_party}/game`);
                     } else {
                         const fetchParty = async () => {
@@ -75,7 +85,7 @@ const EnigmatoGameHint: React.FC = () => {
 
             fetchResponseBox();
         }
-    }, [todayBox, id_party, navigate, boxResponse]);
+    }, [todayBox, id_party, navigate]);
 
 
 
@@ -84,15 +94,18 @@ const EnigmatoGameHint: React.FC = () => {
     };
 
     const handleOptionClick = (participant: IEnigmatoParticipants) => {
+        console.log(participant)
         setSelectedParticipant(participant);  // Mettre à jour le participant sélectionné
     };
 
     const handleValidateChoice = async () => {
-        if (selectedParticipant && todayBox) {
-            await updateBoxResponseAsync(todayBox?.id_box, selectedParticipant.id_user, navigate);
-            navigate(-1);
+        console.log(selectedParticipant)
+        console.log(boxResponse)
+        if (selectedParticipant && boxResponse && boxResponse.id_box_response) {
+            await updateBoxResponseAsync(boxResponse.id_box_response, selectedParticipant.id_user, navigate);
+            handleBack();
         } else {
-            alert('Veuillez sélectionner un participant.');
+            alert('Veuillez sélectionner un participant.'); // todo griser le bouton si personne de selectionnee
         }
     };
 
@@ -101,51 +114,59 @@ const EnigmatoGameHint: React.FC = () => {
         return regex.test(str);
     };
 
+    if (!party) return <LoadingComponent />
+
     return (
-        <Container>
-            <ButtonStyle onClick={handleBack}>Retour</ButtonStyle>
-            <Title1Style>Information de la partie {party?.name}</Title1Style>
+        <>
+            <HeaderTitleComponent title={t("infoGame") + " " + party.name} onBackClick={handleBack} />
+            <ContainerUnderTitleStyle>
+                <EnigmatoContainerStyle>
+                    <ContainerBackgroundStyle>
+                        <h2>{todayBox?.name}</h2>
 
-            <Container>
-                <h2>{todayBox?.name}</h2>
+                        {/* Render image if it's a valid base64 string */}
+                        {todayBox?.picture1 && isBase64(todayBox.picture1) ? (
+                            <img
+                                src={todayBox.picture1}
+                                alt="mystère"
+                                style={{ width: '150px', height: 'auto', objectFit: 'cover' }}
+                            />
+                        ) : (
+                            <div>No image available</div>
+                        )}
 
-                {/* Render image if it's a valid base64 string */}
-                {todayBox?.picture1 && isBase64(todayBox.picture1) ? (
-                    <img
-                        src={todayBox.picture1}
-                        alt="mystère"
-                        style={{ width: '150px', height: 'auto', objectFit: 'cover' }}
-                    />
-                ) : (
-                    <div>No image available</div>
-                )}
 
-                <div>
-                    <h3>Participants proposés :</h3>
-                    {participants && participants.length > 0 ? (
-                        participants.map(participant => (
-                            <button
-                                key={participant.id_user}
-                                style={{
-                                    margin: '5px 0',
-                                    backgroundColor: selectedParticipant?.id_user === participant.id_user ? 'blue' : 'transparent',
-                                    color: selectedParticipant?.id_user === participant.id_user ? 'white' : 'black',
-                                    cursor: 'pointer',
-                                    padding: '5px 10px',
-                                }}
-                                onClick={() => handleOptionClick(participant)}
-                            >
-                                {participant.name}
-                            </button>
-                        ))
-                    ) : (
-                        <p>Aucun participant proposé.</p>
-                    )}
-                </div>
+                        <div>
+                            <TextStyle style={{ marginTop: "20px" }}>Participants proposés :</TextStyle>
+                            {participants && participants.length > 0 ? (
+                                participants.map(participant => (
+                                    <button
+                                        key={participant.id_user}
+                                        style={{
+                                            margin: '5px 0',
+                                            backgroundColor: selectedParticipant?.id_user === participant.id_user ? 'blue' : 'transparent',
+                                            color: selectedParticipant?.id_user === participant.id_user ? 'white' : 'black',
+                                            cursor: 'pointer',
+                                            padding: '5px 10px',
+                                        }}
+                                        onClick={() => handleOptionClick(participant)}
+                                    >
+                                        {participant.name}
+                                    </button>
+                                ))
+                            ) : (
+                                <p>Aucun participant proposé.</p>
+                            )}
+                        </div>
 
-                <ButtonStyle onClick={handleValidateChoice}>Valider mon choix</ButtonStyle>
-            </Container>
-        </Container>
+                        <ButtonStyle onClick={handleValidateChoice}>Valider mon choix</ButtonStyle>
+                    </ContainerBackgroundStyle>
+
+
+                </EnigmatoContainerStyle>
+            </ContainerUnderTitleStyle>
+        </>
+
     );
 };
 

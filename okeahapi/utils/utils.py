@@ -45,8 +45,8 @@ from typing import List
 
 async def get_random_participants_completed_async(
     id_party: int,
-    db: AsyncSession = Depends(get_db_async),
-    current_user: User = Depends(get_current_user_async)
+    db: AsyncSession,
+    current_user: User
 ):
     # Étape 1 : Récupérer tous les participants complets pour la partie
     completed_participants = await get_participants_completed_async(id_party, db, current_user)
@@ -56,19 +56,14 @@ async def get_random_participants_completed_async(
 
     today_box = await read_today_box_in_game_with_response_async(id_party, db, current_user)
     correct_profil = await read_profile_by_id_async(id_party, today_box.id_enigma_user, db, current_user)
-    
-    # Étape 3 : Sélectionner 6 participants
-    # Diviser les participants par genre
-    same_gender_participants = [p for p in completed_participants if p.gender == correct_profil.gender]
-    other_gender_participants = [p for p in completed_participants if p.gender != correct_profil.gender]
 
-    # Retirer le participant correct des listes
-    same_gender_participants = [p for p in same_gender_participants if p != correct_profil]
-    other_gender_participants = [p for p in other_gender_participants if p != correct_profil]
+    # Étape 3 : Diviser les participants par genre
+    same_gender_participants = [p for p in completed_participants if p.gender == correct_profil.gender and p.id_user != correct_profil.id_user]
+    other_gender_participants = [p for p in completed_participants if p.gender != correct_profil.gender and p.id_user != correct_profil.id_user]
 
-    # Sélectionner aléatoirement les participants, en privilégiant le même genre
+    # Étape 4 : Ajouter le participant correct
     chosen_participants = [correct_profil]
-    
+
     # Sélectionner du même genre si suffisamment de participants
     if len(same_gender_participants) >= 3:
         chosen_participants += random.sample(same_gender_participants, 3)
@@ -79,16 +74,19 @@ async def get_random_participants_completed_async(
         # Vérifier que remaining_needed ne dépasse pas la taille de other_gender_participants
         remaining_needed = min(remaining_needed, len(other_gender_participants))
 
-        # Sélectionner les participants restants du genre opposé
         if remaining_needed > 0:
             chosen_participants += random.sample(other_gender_participants, remaining_needed)
 
-    # Si il n'y a pas assez de participants, afficher simplement tous ceux disponibles
-    if len(chosen_participants) < 6:
-        return chosen_participants
+    # Étape 5 : Supprimer les doublons basés sur id_user
+    unique_participants = []
+    seen_ids = set()
 
-    # Retourner la liste finale de participants choisis (6 en tout)
-    return chosen_participants
+    for participant in chosen_participants:
+        if participant.id_user not in seen_ids:
+            unique_participants.append(participant)
+            seen_ids.add(participant.id_user)
+
+    return unique_participants
 
 
 # Retourne la box complete avec la reponse du participant

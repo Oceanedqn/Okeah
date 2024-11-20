@@ -1,14 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ButtonStyle, TextStyle, Title1Style } from '../../styles/GlobalStyles';
-import { AutoCompleteContainer } from '../../styles/EnigmatoStyles';
-import { Container } from '@mui/material';
+import { ButtonStyle, ContainerUnderTitleStyle, TextAlertStyle, TextStyle, Title1Style } from '../../styles/GlobalStyles';
+import { AutoCompleteContainer, ContainerBackgroundStyle, EnigmatoContainerStyle } from '../../styles/EnigmatoStyles';
+import { Box, Container, Modal } from '@mui/material';
 import { fetchCompletedParticipantsAsync, getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { getTodayBoxGameAsync } from '../../services/enigmato/enigmatoBoxesService';
 import { IEnigmatoBoxGame, IEnigmatoBoxResponse, IEnigmatoParticipants, IEnigmatoParty } from '../../interfaces/IEnigmato';
 import { createBoxResponseAsync, getBoxResponseByIdBoxAsync } from '../../services/enigmato/enigmatoBoxResponsesService';
+import { useTranslation } from 'react-i18next';
+import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
+import LoadingComponent from '../../components/base/LoadingComponent';
 
 const EnigmatoGame: React.FC = () => {
+    const { t } = useTranslation();
     const { id_party } = useParams<{ id_party: string }>();
     const navigate = useNavigate();
     const [participants, setParticipants] = useState<IEnigmatoParticipants[] | null>(null);
@@ -17,7 +21,10 @@ const EnigmatoGame: React.FC = () => {
     const [selectedParticipant, setSelectedParticipant] = useState<IEnigmatoParticipants | null>(null);
     const [inputValue, setInputValue] = useState('');
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false); // State for modal
     const dropdownRef = useRef<HTMLDivElement | null>(null);
+    const handleOpenModal = () => setIsModalOpen(true);
+    const handleCloseModal = () => setIsModalOpen(false);
 
     useEffect(() => {
         if (id_party) {
@@ -92,8 +99,19 @@ const EnigmatoGame: React.FC = () => {
             id_user_response: null,
             cluse_used: true
         }
-        await createBoxResponseAsync(boxResponse, navigate);
-        navigate(`/enigmato/parties/${id_party}/game/hint`);
+        try {
+            const createdResponse = await createBoxResponseAsync(boxResponse, navigate);
+            if (createdResponse && createdResponse.id_box_response) {
+                navigate(`/enigmato/parties/${id_party}/game/hint`);
+            } else {
+                alert("Failed to create a box response. Please try again.");
+            }
+        } catch (error) {
+            console.error("An error occurred while creating the box response:", error);
+            alert("An unexpected error occurred. Please try again.");
+        }
+
+
     };
 
     const handleValidateChoice = async () => {
@@ -144,50 +162,87 @@ const EnigmatoGame: React.FC = () => {
         };
     }, []);
 
+
+    if (!party || !todayBox) {
+        return <LoadingComponent />
+    }
+
+
     return (
-        <Container>
-            <ButtonStyle onClick={handleBack}>Retour</ButtonStyle>
-            <Title1Style>Information de la partie {party?.name}</Title1Style>
+        <>
+            <HeaderTitleComponent title={t("infoGame") + " " + party.name} onBackClick={handleBack} />
 
-            <Container>
-                <h2>{todayBox?.name}</h2>
+            <ContainerUnderTitleStyle>
+                <EnigmatoContainerStyle>
+                    <ContainerBackgroundStyle>
+                        <TextStyle>{todayBox?.name}</TextStyle>
+                        {todayBox.picture1 && isBase64(todayBox.picture1) && (
+                            <img
+                                src={todayBox.picture1}
+                                alt="mystère"
+                                style={{ width: '150px', height: 'auto', objectFit: 'cover', borderRadius: '32px', marginTop: '8px' }}
+                            />
+                        )}
 
-                {/* Render image if it's a valid base64 string */}
-                {todayBox?.picture1 && isBase64(todayBox.picture1) ? (
-                    <img
-                        src={todayBox.picture1}
-                        alt="mystère"
-                        style={{ width: '150px', height: 'auto', objectFit: 'cover' }}
-                    />
-                ) : (
-                    <div>No image available</div>
-                )}
-                <AutoCompleteContainer ref={dropdownRef}>
-                    <input
-                        type="text"
-                        value={inputValue}
-                        onClick={toggleDropdown}
-                        onChange={handleInputChange}
-                        placeholder="Sélectionner un participant"
-                    />
-                    {isDropdownOpen && participants!.length > 0 && (
-                        <ul style={{ listStyleType: 'none', padding: 0, maxHeight: '150px', overflowY: 'auto' }}>
-                            {participants!.map(participant => (
-                                <li key={participant.id_user} onClick={() => handleOptionClick(participant)} style={{ cursor: 'pointer' }}>
-                                    {participant.name}
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </AutoCompleteContainer>
-                <div>
-                    <ButtonStyle onClick={handleNeedHint}>Besoin d'indice</ButtonStyle>
-                    <TextStyle>Attention : l'indice fait perdre la moitié des points.</TextStyle>
-                </div>
+                        <AutoCompleteContainer ref={dropdownRef}>
+                            <input
+                                style={{ borderRadius: '16px' }}
+                                type="text"
+                                value={inputValue}
+                                onClick={toggleDropdown}
+                                onChange={handleInputChange}
+                                placeholder={t("choise_response")}
+                            />
+                            {isDropdownOpen && participants!.length > 0 && (
+                                <ul style={{ listStyleType: 'none', padding: 0, maxHeight: '150px', overflowY: 'auto' }}>
+                                    {participants!.map(participant => (
+                                        <li key={participant.id_user} onClick={() => handleOptionClick(participant)} style={{ cursor: 'pointer' }}>
+                                            {participant.name}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </AutoCompleteContainer>
 
-                <ButtonStyle onClick={handleValidateChoice}>Valider mon choix</ButtonStyle>
-            </Container>
-        </Container>
+                    </ContainerBackgroundStyle>
+                    <ContainerBackgroundStyle style={{
+                        display: "flex", // Utiliser "flex" pour une meilleure prise en charge
+                        justifyContent: "center", // Centrer horizontalement (si nécessaire)
+                        alignItems: "center", // Aligner verticalement
+                        gap: "8px", // Espacement minimal entre les boutons
+                    }}>
+                        <ButtonStyle onClick={handleOpenModal}>{t("need_help")}</ButtonStyle>
+                        <ButtonStyle onClick={handleValidateChoice}>{t("validate_choice")}</ButtonStyle>
+                    </ContainerBackgroundStyle>
+
+                </EnigmatoContainerStyle>
+            </ContainerUnderTitleStyle>
+
+
+            <Modal open={isModalOpen} onClose={handleCloseModal}>
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: 300,
+                        bgcolor: 'background.paper',
+                        borderRadius: '16px',
+                        boxShadow: 24,
+                        p: 4,
+                        textAlign: 'center'
+                    }}
+                >
+                    <TextAlertStyle>{t("continue_help")}</TextAlertStyle>
+                    <div style={{ marginTop: '16px' }}>
+                        <ButtonStyle onClick={handleNeedHint} style={{ marginRight: '8px' }}>{t("yes")}</ButtonStyle>
+                        <ButtonStyle onClick={handleCloseModal}>{t("no")}</ButtonStyle>
+                    </div>
+                </Box>
+            </Modal>
+        </>
+
     );
 };
 

@@ -41,7 +41,6 @@ export const getBoxResponsesAsync = async (navigate: ReturnType<typeof useNaviga
 export const getBoxResponseByIdBoxAsync = async (id_box: number, navigate: ReturnType<typeof useNavigate>) => {
     const accessToken = checkCookie();
     try {
-        console.log("getBoxResponseByIdBoxAsync");
         const response = await axios.get(`${API_ENIGMATO_BOX_RESPONSES_URL}/box/${id_box}`, {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -55,11 +54,11 @@ export const getBoxResponseByIdBoxAsync = async (id_box: number, navigate: Retur
 };
 
 // Mettre à jour une réponse pour une case
-export const updateBoxResponseAsync = async (id_box: number, id_enigmato_user: number, navigate: ReturnType<typeof useNavigate>) => {
+export const updateBoxResponseAsync = async (id_box_response: number, id_enigmato_user: number, navigate: ReturnType<typeof useNavigate>) => {
     const accessToken = checkCookie();
     try {
         const response = await axios.put(
-            `${API_ENIGMATO_BOX_RESPONSES_URL}/${id_box}`,
+            `${API_ENIGMATO_BOX_RESPONSES_URL}/${id_box_response}`,
             {
                 id_user_response: id_enigmato_user
             },

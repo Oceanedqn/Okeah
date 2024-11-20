@@ -229,6 +229,16 @@ export const TextStyle = styled.p`
   }
 `;
 
+export const TextAlertStyle = styled.p`
+  font-size: 19px;
+  line-height: 19px;
+  color: ${({ theme }) => theme.colors.secondary_dark};
+
+  @media (max-width: ${breakpoints.sm}) {
+    font-size: 16px; /* Réduire la taille du texte sur mobile */
+  }
+`;
+
 // Style pour le bouton "Retour"
 export const ButtonBackStyle = styled.button`
   padding: 5px 10px;

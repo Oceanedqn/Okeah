@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ButtonStyle, ContainerUnderTitleStyle, Title2Style } from '../../styles/GlobalStyles';
+import { ButtonStyle, ContainerUnderTitleStyle, TextStyle, Title2Style } from '../../styles/GlobalStyles';
 import { EnigmatoContainerStyle, ContainerBackgroundStyle } from '../../styles/EnigmatoStyles';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
 import { IEnigmatoBox, IEnigmatoBoxResponse, IEnigmatoBoxRightResponse, IEnigmatoParty, IEnigmatoProfil } from '../../interfaces/IEnigmato';
@@ -8,8 +8,11 @@ import { getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { fetchProfile } from '../../services/enigmato/enigmatoProfileService';
 import { getBeforeBoxAsync, getTodayBoxAsync } from '../../services/enigmato/enigmatoBoxesService';
 import { getBoxResponseByIdBoxAsync } from '../../services/enigmato/enigmatoBoxResponsesService';
+import { useTranslation } from 'react-i18next';
+import LoadingComponent from '../../components/base/LoadingComponent';
 
 const EnigmatoGameInfo: React.FC = () => {
+    const { t } = useTranslation();
     const { id_party } = useParams<{ id_party: string }>();
     const navigate = useNavigate();
     const [party, setParty] = useState<IEnigmatoParty | null>(null);
@@ -118,7 +121,7 @@ const EnigmatoGameInfo: React.FC = () => {
     };
 
     if (!party || !userProfile) {
-        return <p>Chargement des informations...</p>;
+        return <LoadingComponent />
     }
 
     return (
@@ -127,30 +130,33 @@ const EnigmatoGameInfo: React.FC = () => {
             <ContainerUnderTitleStyle>
                 <EnigmatoContainerStyle>
                     <ButtonStyle onClick={handleInfo}>
-                        Information de la partie : {userProfile.id_user}
+                        {t("infoGame")}
                     </ButtonStyle>
                     <ContainerBackgroundStyle>
                         {boxResponse ? (
-                            <div>Tu as choisis cette reponse : {boxResponse.id_user_response}</div>
+                            <div>
+                                <TextStyle>{t("response")}</TextStyle>
+                                <TextStyle>{t("choosen_response")} {boxResponse.id_user_response}</TextStyle>
+                            </div>
                         ) : (
                             todayBox ? (
                                 <div>
-                                    <p>Box du jour: {todayBox.name}</p>
-                                    <ButtonStyle onClick={handlePlay}>Jouer</ButtonStyle>
+                                    <TextStyle>{todayBox.name}</TextStyle>
+                                    <ButtonStyle onClick={handlePlay}>{t("view")}</ButtonStyle>
                                 </div>
                             ) : (
-                                <p>Aucune box pour aujourd'hui.</p>
+                                <TextStyle>{t("nothing_box")}</TextStyle>
                             )
                         )}
                     </ContainerBackgroundStyle>
 
-                    <Title2Style>Autres jours</Title2Style>
+                    <Title2Style>{t("other_days")}</Title2Style>
 
                     <ContainerBackgroundStyle>
                         {beforeBoxes?.map((box) => (
                             <div key={box.id_box}>
                                 <p>{box.name_box} - {new Date(box.date).toLocaleDateString()}</p>
-                                <p>Nom de l'utilisateur: {box.name} {box.firstname}</p>
+                                <p>{t("user_name")} {box.name} {box.firstname}</p>
 
                                 {/* Affiche image si picture1 est en base64 */}
                                 {box.picture1 && isBase64(box.picture1) && (

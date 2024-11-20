@@ -145,6 +145,7 @@ class EnigmatoPartyBoxesSchema(BaseModel):
 
 # Modèle la réponse d'une personne par rapport à une case du calendrier
 class EnigmatoBoxResponseSchema(BaseModel):
+    id_box_response: Optional[int]
     id_box: int
     id_user: Optional[int] = None
     id_user_response: Optional[int] = None

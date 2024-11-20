@@ -109,7 +109,7 @@ async def read_before_box_async(
     previous_boxes = result.scalars().all()  # Utilisez scalars() pour récupérer uniquement les objets
 
     if not previous_boxes:
-        raise HTTPException(status_code=404, detail="No previous boxes found")
+        return []
 
     # Étape 2 : Pour chaque boîte, récupérer les informations de profil et d'utilisateur
     previous_boxes_data = []

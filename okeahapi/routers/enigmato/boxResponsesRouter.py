@@ -29,7 +29,7 @@ async def create_box_response_async(box_response: EnigmatoBoxResponseSchema, db:
     return db_box_response
 
 
-@router.get("/box/{id_box}", response_model=EnigmatoBoxResponseSchema)
+@router.get("/box/{id_box}", response_model=EnigmatoBoxResponseSchema | None)
 async def read_box_response_async(id_box: int, db: AsyncSession = Depends(get_db_async), current_user: User = Depends(get_current_user_async)):
     try:
         # Exécution de la requête pour obtenir la réponse de la box par id_box et id_user
@@ -40,10 +40,6 @@ async def read_box_response_async(id_box: int, db: AsyncSession = Depends(get_db
         
         # Obtenir une seule réponse de box, ou None si elle n'existe pas
         box_response = result.scalar_one_or_none()
-
-        # Vérifier si la réponse de box est inexistante
-        if box_response is None:
-            raise HTTPException(status_code=404, detail="Box response not found")
         
         # Si la réponse est trouvée, la retourner
         return box_response
@@ -52,24 +48,35 @@ async def read_box_response_async(id_box: int, db: AsyncSession = Depends(get_db
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
 
-@router.put("/{id_box}", response_model=EnigmatoBoxResponseSchema)
+@router.put("/{id_box_response}", response_model=EnigmatoBoxResponseSchema)
 async def update_box_response_async(
-    id_box: int, 
+    id_box_response: int, 
     update_data: UpdateBoxResponseSchema,  # Utilisation du modèle pour le corps de la requête
     db: AsyncSession = Depends(get_db_async), 
     current_user: User = Depends(get_current_user_async)
 ):
     # Recherche de la box response dans la base de données
-    result = await db.execute(select(EnigmatoBoxResponse).filter(EnigmatoBoxResponse.id_box == id_box))
+    result = await db.execute(select(EnigmatoBoxResponse).filter(EnigmatoBoxResponse.id_box_response == id_box_response, EnigmatoBoxResponse.id_user == current_user.id_user))
     db_box_response = result.scalar_one_or_none()
-    
+
     if db_box_response is None:
         raise HTTPException(status_code=404, detail="Box response not found")
-    
-    # Mise à jour des champs spécifiques
-    db_box_response.id_user_response = update_data.id_user_response  # Mise à jour de l'id_user_response
-    db_box_response.date = update_data.date or datetime.now(timezone.utc)  # Mise à jour de la date si fournie, sinon utilise l'heure actuelle
-    
+
+    # Si id_user_response est déjà défini dans la base de données (non None), on empêche toute mise à jour
+    if db_box_response.id_user_response is not None:
+        raise HTTPException(status_code=400, detail="Cannot update, id_user_response is already set")
+
+    # Si id_user_response est None dans la base de données, on peut procéder à la mise à jour
+    if update_data.id_user_response is not None:
+        # Nous mettons à jour ici
+        db_box_response.id_user_response = update_data.id_user_response
+
+    # Mise à jour des autres champs (comme la date si fournie)
+    if update_data.date:
+        db_box_response.date = update_data.date
+    else:
+        db_box_response.date = datetime.now(timezone.utc)  # Définit la date à l'heure actuelle si elle n'est pas fournie
+
     # Commit des modifications dans la base de données
     await db.commit()
     await db.refresh(db_box_response)

@@ -41,5 +41,17 @@
     "completeProfileMessage": "Please complete your game profile to be able to play",
     "edit": "Edit",
     "gameFinished": "Finished",
-    "finished_games": "Finished games"
+    "finished_games": "Finished games",
+    "infoGame": "Party information",
+    "choosen_response ": "You chose this answer:",
+    "response": "Response",
+    "nothing_box": "No box for today.",
+    "other_days": "Other days",
+    "user_name": "User name:",
+    "choise_response": "Choose an answer",
+    "need_help": "Need a hint",
+    "validate_choice": "Validate my choice",
+    "continue_help": "The hint will cost you half of the points. Do you want to continue?",
+    "yes": "Yes",
+    "no": "No"
 }

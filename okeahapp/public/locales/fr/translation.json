@@ -41,5 +41,17 @@
     "completeProfileMessage": "Merci de compléter le profil de jeu afin de pouvoir jouer",
     "edit": "Modifier",
     "gameFinished": "Terminée",
-    "finished_games": "Parties terminées"
+    "finished_games": "Parties terminées",
+    "infoGame": "Information de la partie",
+    "choosen_response": "Tu as choisis cette reponse :",
+    "response": "Réponse",
+    "nothing_box": "Aucune box pour aujourd'hui.",
+    "other_days": "Autres jours",
+    "user_name": "Nom de l'utilisateur :",
+    "choise_response": "Choisir une réponse",
+    "need_help": "Besoin d'indice",
+    "validate_choice": "Valider mon choix",
+    "continue_help": "L'indice fait perdre la moitié des points. Voulez-vous continuer ?",
+    "yes": "Oui",
+    "no": "Non"
 }
