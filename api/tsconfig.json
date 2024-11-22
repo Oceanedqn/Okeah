@@ -20,7 +20,8 @@
     "src/**/*",
     "src/**/*.ts", // Assurez-vous que tous vos fichiers TypeScript sont inclus
     "src/types/*.d.ts",
-    "src/types/**/*"
+    "src/types/**/*",
+    "src/controllers/auth.controller.ts"
   ],
   "exclude": [
     "node_modules",

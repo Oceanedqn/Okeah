@@ -5,8 +5,7 @@ const BASE_URL = 'http://localhost:8000';
 
 // Connexion et Inscription d'un utilisateur
 export const API_USERS_URL = `${BASE_URL}/api/users`;
-export const API_LOGIN_URL = `${BASE_URL}/api/auth/login`;
-export const API_LOGOUT_URL = `${BASE_URL}/api/auth/logout`;
+export const API_AUTH_URL = `${BASE_URL}/api/auth`;
 
 // Enigmato
 export const API_ENIGMATO_PARTIES_URL = `${BASE_URL}/api/whois/parties`;
