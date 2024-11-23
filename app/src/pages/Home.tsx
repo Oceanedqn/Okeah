@@ -11,7 +11,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const userData = localStorage.getItem('user');
+        const userData = sessionStorage.getItem('user');
         if (userData) {
           const parsedUser: IUserLocalstorage = JSON.parse(userData);
           setUser(parsedUser);

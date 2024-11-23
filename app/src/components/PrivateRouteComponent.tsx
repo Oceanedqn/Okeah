@@ -19,7 +19,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
       try {
         const currentUser = await getCurrentUser();
         setUser(currentUser);
-        localStorage.setItem('user', JSON.stringify(currentUser));
+        sessionStorage.setItem('user', JSON.stringify(currentUser));
       } catch (err) {
         setError('Pas autorisé, veuillez vous reconnecter');
       } finally {
