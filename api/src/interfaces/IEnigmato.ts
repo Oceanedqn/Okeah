@@ -24,7 +24,6 @@ export interface IEnigmatoPartyParticipants {
   game_mode: number;
   number_of_box: number;
   include_weekends: boolean;
-  set_password: boolean;
   participants_number: number;
   is_finished: boolean
 }

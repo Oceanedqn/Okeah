@@ -41,7 +41,7 @@ const EnigmatoHome: React.FC = () => {
         const games = await getUserFinishedPartiesAsync(navigate);
         if (games?.length) setFinishedGames(games);
       } catch {
-        setError(t('error_fetching_games'));
+        setError(t('error_fetching_games_finished'));
       } finally {
         setLoading(false);
       }

@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { Request, Response, NextFunction } from 'express';
-import { createAccessToken } from '../utils/auth.utils';
+import { createAccessToken, hashPassword } from '../utils/auth.utils';
 import { getUserByEmail } from './users.controller';
 import { IUserLogin } from '../interfaces/IUser';
 import { IRegisterData } from '../interfaces/IRegister';
@@ -62,7 +62,7 @@ export const register = async (req: Request, res: Response) => {
                 res.status(409).json({ message: 'Cet email est déjà utilisé.' });
             } else {
                 // Hacher le mot de passe avant insertion
-                const hashedPassword = await bcrypt.hash(password, 10);
+                const hashedPassword = hashPassword(password);
 
                 // Insérez un nouvel utilisateur
                 const result = await pool.query(

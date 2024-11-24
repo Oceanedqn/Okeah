@@ -3,10 +3,8 @@ import { Router } from 'express';
 
 import { authRoutes } from './auth.routes';
 import { usersRoutes } from './users.routes';
-import { profilesRoutes } from './whois/profiles.routes';
-import { partiesRoutes } from './whois/parties.routes';
-import { boxResponsesRoutes } from './whois/boxResponses.routes';
-import { boxesRoutes } from './whois/boxes.routes';
+import { whoisRoutes } from './whois.routes';
+
 
 const router = Router();
 
@@ -17,9 +15,6 @@ router.use('/auth', authRoutes);
 router.use('/users', usersRoutes);
 
 // Router pour WHOIS
-router.use('/whois/profiles', profilesRoutes);
-router.use('/whois/parties', partiesRoutes);
-router.use('/whois/boxResponses', boxResponsesRoutes);
-router.use('/whois/boxes', boxesRoutes);
+router.use('/whois', whoisRoutes);
 
 export default router;

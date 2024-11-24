@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
+import bcrypt from 'bcryptjs';
 
 dotenv.config();
 
@@ -28,6 +29,16 @@ export const createAccessToken = (id_user: number): string => {
 
     // Génération du token
     return jwt.sign(payload, SECRET_KEY, { algorithm: ALGORITHM as jwt.Algorithm });
+};
+
+
+
+export const hashPassword = (password: string): string => {
+    return bcrypt.hashSync(password, SECRET_KEY); // Hachage du mot de passe avec un salt de 12 tours
+};
+
+export const verifyPassword = (password: string, hashedPassword: string): boolean => {
+    return bcrypt.compareSync(password, hashedPassword);
 };
 
 
