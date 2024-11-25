@@ -35,6 +35,11 @@ const EnigmatoHome: React.FC = () => {
       }
     };
 
+    fetchPartiesByUser();
+  }, [navigate, t]);
+
+
+  useEffect(() => {
     const fetchFinishedPartiesByUser = async () => {
       try {
         setLoading(true);
@@ -47,9 +52,8 @@ const EnigmatoHome: React.FC = () => {
       }
     };
 
-    fetchPartiesByUser();
     fetchFinishedPartiesByUser();
-  }, [navigate, t]);
+  }, [ongoingGames]);
 
 
   const fetchUserProfile = useCallback(async (id_party: number) => {

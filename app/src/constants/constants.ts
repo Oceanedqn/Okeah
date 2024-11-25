@@ -1,7 +1,7 @@
 // src/constants/constants.ts
 
 // Définir la racine de l'API une seule fois
-const BASE_URL = 'http://localhost:8000';
+const BASE_URL = process.env.SERVER_URL;
 
 // Connexion et Inscription d'un utilisateur
 export const API_USERS_URL = `${BASE_URL}/api/users`;

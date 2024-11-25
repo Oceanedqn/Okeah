@@ -1,5 +1,6 @@
 import Cookies from "js-cookie";
 import { IEnigmatoPartyParticipants } from "../interfaces/IEnigmato";
+import imageCompression from "browser-image-compression";
 
 export const checkCookie = (): string => {
     const accessToken = Cookies.get('access_token');
@@ -38,4 +39,17 @@ export const calculateGameStage = (party: IEnigmatoPartyParticipants, t: Functio
 
     // Retourne l'étape actuelle avec le nombre total de box
     return `${t('step')} ${step}/${party.number_of_box}`;
+};
+
+
+// Utilitaire pour convertir une Base64 en Blob
+export const dataURItoBlob = (dataURI: string) => {
+    const byteString = atob(dataURI.split(',')[1]);
+    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([ab], { type: mimeString });
 };

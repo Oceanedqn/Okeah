@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import { IUser } from '../../interfaces/IUser';
 import { IEnigmatoProfil, IEnigmatoParticipants } from '../../interfaces/IEnigmato';
 import pool from '../../config/database';
+import sharp from 'sharp'; // Pour compresser les images après l'upload
+import { compressImage } from '../../middlewares/multer.middleware';
 
 const router = Router();
 
@@ -27,12 +29,20 @@ export const get_profile = async (req: Request, res: Response) => {
     }
 };
 
+
+
+
+
+
 // [OK] Met à jour le profil de l'utilisateur
 export const update_profile = async (req: Request, res: Response) => {
-    const { id_party, gender, picture1, picture2 } = req.body as IEnigmatoProfil;
+    console.log('Request body size:', req.headers['content-length']);
+
+    const { id_party, gender } = req.body;
     const currentUser = req.user as IUser;
 
     try {
+        // Vérifier l'existence du profil
         const profileResult = await pool.query(
             'SELECT * FROM enigmato_profiles WHERE id_party = $1 AND id_user = $2',
             [id_party, currentUser.id_user]
@@ -44,7 +54,7 @@ export const update_profile = async (req: Request, res: Response) => {
 
         const profile = profileResult.rows[0];
 
-        // Vérifie si la partie a commencé
+        // Vérifier si la partie a commencé
         const partyResult = await pool.query('SELECT date_start FROM enigmato_parties WHERE id_party = $1', [id_party]);
         const party = partyResult.rows[0];
         const currentDate = new Date();
@@ -53,31 +63,38 @@ export const update_profile = async (req: Request, res: Response) => {
             res.status(403).json({ message: 'You cannot update your profile after the start date or if your profile is complete' });
         }
 
-        // Prépare les mises à jour
-        const updates: Partial<IEnigmatoProfil> = {};
-        if (gender !== undefined) updates.gender = gender;
-        if (picture1) updates.picture1 = picture1;
-        if (picture2) updates.picture2 = picture2;
+        // Compresser et convertir les images avec Sharp (si elles sont envoyées)
+        const updates: Partial<IEnigmatoProfil> = { gender };
 
-        updates.is_complete = !!(picture1 && picture2);
+        // Vérification et compression des fichiers picture1 et picture2
+        if (req.files) {
+            if (req.files['picture1'] && Array.isArray(req.files['picture1'])) {
+                updates.picture1 = await compressImage(req.files['picture1'][0]);
+            }
 
-        // Mise à jour de la base de données
+            if (req.files['picture2'] && Array.isArray(req.files['picture2'])) {
+                updates.picture2 = await compressImage(req.files['picture2'][0]);
+            }
+        }
+
+        // Vérifier si le profil est complet
+        updates.is_complete = !!(updates.picture1 || profile.picture1) && !!(updates.picture2 || profile.picture2);
+
+        // Mettre à jour dans la base de données
         const updateQuery = `
-            UPDATE enigmato_profiles
-            SET gender = $1, picture1 = $2, picture2 = $3, is_complete = $4
-            WHERE id_party = $5 AND id_user = $6
-            RETURNING *`;
+      UPDATE enigmato_profiles
+      SET gender = $1, picture1 = $2, picture2 = $3, is_complete = $4
+      WHERE id_party = $5 AND id_user = $6
+      RETURNING *`;
 
-        const updateValues = [
+        const updatedProfile = await pool.query(updateQuery, [
             updates.gender || profile.gender,
             updates.picture1 || profile.picture1,
             updates.picture2 || profile.picture2,
             updates.is_complete,
             id_party,
-            currentUser.id_user
-        ];
-
-        const updatedProfile = await pool.query(updateQuery, updateValues);
+            currentUser.id_user,
+        ]);
 
         res.json(updatedProfile.rows[0]);
     } catch (err) {
