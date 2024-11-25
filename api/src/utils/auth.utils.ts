@@ -4,9 +4,11 @@ import bcrypt from 'bcryptjs';
 
 dotenv.config();
 
-const SECRET_KEY = process.env.SECRET_KEY;
-const ACCESS_TOKEN_EXPIRE_MINUTES = parseInt(process.env.ACCESS_TOKEN_EXPIRE_MINUTES!); // Durée d'expiration du jeton
-const ALGORITHM = process.env.ALGORITHM;
+interface JwtPayload {
+    sub: number;
+    exp: number;
+    iat: number;
+}
 
 /**
  * Crée un access token
@@ -14,17 +16,23 @@ const ALGORITHM = process.env.ALGORITHM;
  * @returns Le token JWT encodé
  */
 export const createAccessToken = (id_user: number): string => {
+    // Vérification des variables d'environnement
+    const SECRET_KEY = process.env.SECRET_KEY;
+    const ALGORITHM = process.env.ALGORITHM;
+    const ACCESS_TOKEN_EXPIRE_MINUTES = Number(process.env.ACCESS_TOKEN_EXPIRE_MINUTES);
+
     if (!SECRET_KEY || !ALGORITHM || isNaN(ACCESS_TOKEN_EXPIRE_MINUTES)) {
         throw new Error('Les variables nécessaires (SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES) ne sont pas correctement définies');
     }
+
     const now = Math.floor(Date.now() / 1000); // Timestamp actuel en secondes
-    const expire = now + ACCESS_TOKEN_EXPIRE_MINUTES! * 60; // Expiration en secondes
+    const expire = now + ACCESS_TOKEN_EXPIRE_MINUTES * 60; // Expiration en secondes
 
     // Payload du JWT
-    const payload = {
+    const payload: JwtPayload = {
         sub: id_user,
         exp: expire, // Date d'expiration
-        iat: now, // Date de création
+        iat: now,    // Date de création
     };
 
     // Génération du token
