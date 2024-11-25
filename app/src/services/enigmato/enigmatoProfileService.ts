@@ -1,10 +1,8 @@
 // services/enigmato/enigmatoProfilService.ts
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { checkCookie } from '../../utils/utils';
 import { handleError } from '../authentication/loginService';
 import { API_ENIGMATO_PROFILES_URL } from '../../constants/constants';
-import { IEnigmatoProfil } from '../../interfaces/IEnigmato';
 
 
 export const fetchProfile = async (id_party: number, navigate: ReturnType<typeof useNavigate>) => {

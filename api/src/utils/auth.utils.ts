@@ -34,11 +34,12 @@ export const createAccessToken = (id_user: number): string => {
 
 
 export const hashPassword = (password: string): string => {
-    return bcrypt.hashSync(password, SECRET_KEY); // Hachage du mot de passe avec un salt de 12 tours
+    const salt = bcrypt.genSaltSync(12); // Génère un salt avec 12 tours
+    return bcrypt.hashSync(password, salt); // Hachage du mot de passe avec le salt
 };
 
 export const verifyPassword = (password: string, hashedPassword: string): boolean => {
-    return bcrypt.compareSync(password, hashedPassword);
+    return bcrypt.compareSync(password, hashedPassword); // Compare le mot de passe brut et le haché
 };
 
 

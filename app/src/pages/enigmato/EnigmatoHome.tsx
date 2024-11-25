@@ -53,7 +53,7 @@ const EnigmatoHome: React.FC = () => {
     };
 
     fetchFinishedPartiesByUser();
-  }, [ongoingGames]);
+  }, [ongoingGames, navigate, t]);
 
 
   const fetchUserProfile = useCallback(async (id_party: number) => {

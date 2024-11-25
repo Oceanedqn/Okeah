@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ButtonStyle, ContainerUnderTitleStyle, TextStyle, Title1Style } from '../../styles/GlobalStyles';
-import { Container } from '@mui/material';
+import { ButtonStyle, ContainerUnderTitleStyle, TextStyle } from '../../styles/GlobalStyles';
 import { fetchCompletedRandomParticipantsAsync, getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { getTodayBoxGameAsync } from '../../services/enigmato/enigmatoBoxesService';
 import { IEnigmatoBoxGame, IEnigmatoBoxResponse, IEnigmatoParticipants, IEnigmatoParty } from '../../interfaces/IEnigmato';
@@ -41,6 +40,10 @@ const EnigmatoGameHint: React.FC = () => {
     }, [id_party, navigate]);
 
 
+    const handleBack = useCallback(() => {
+        navigate(`/enigmato/parties/${id_party}/game/info`);
+    }, [navigate, id_party]);
+
     useEffect(() => {
         if (todayBox && id_party) {
             const fetchResponseBox = async () => {
@@ -49,8 +52,8 @@ const EnigmatoGameHint: React.FC = () => {
                     setBoxResponse(response);
 
                     if (response && response.id_user_response) {
-                        handleBack();  // Redirection si un id_user_response existe déjà
-                        return;  // On arrête l'exécution du code suivant
+                        handleBack(); // Redirect if an id_user_response exists
+                        return; // Stop further execution
                     }
 
                     if (response && !response.cluse_used) {
@@ -63,7 +66,7 @@ const EnigmatoGameHint: React.FC = () => {
                                     setParty(fetchedParty);
                                 }
                             } catch (error) {
-                                console.error("Erreur lors de la récupération des données de la partie :", error);
+                                console.error("Error fetching party data:", error);
                             }
                         };
 
@@ -72,26 +75,24 @@ const EnigmatoGameHint: React.FC = () => {
                                 const participantsList = await fetchCompletedRandomParticipantsAsync(parseInt(id_party), navigate);
                                 setParticipants(participantsList);
                             } catch (error) {
-                                console.error("Erreur lors de la récupération des participants :", error);
+                                console.error("Error fetching participants:", error);
                             }
                         };
                         fetchParty();
                         fetchParticipants();
                     }
                 } catch (error) {
-                    console.error("Erreur lors de la récupération des réponses de la box :", error);
+                    console.error("Error fetching box response:", error);
                 }
             };
 
             fetchResponseBox();
         }
-    }, [todayBox, id_party, navigate]);
+    }, [todayBox, id_party, navigate, handleBack]); // Add handleBack
 
 
 
-    const handleBack = () => {
-        navigate(`/enigmato/parties/${id_party}/game/info`);
-    };
+
 
     const handleOptionClick = (participant: IEnigmatoParticipants) => {
         console.log(participant)

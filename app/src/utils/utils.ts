@@ -1,14 +1,4 @@
-import Cookies from "js-cookie";
 import { IEnigmatoPartyParticipants } from "../interfaces/IEnigmato";
-import imageCompression from "browser-image-compression";
-
-export const checkCookie = (): string => {
-    const accessToken = Cookies.get('access_token');
-    if (!accessToken) {
-        throw new Error('No access token found');
-    }
-    return accessToken;
-};
 
 
 export const calculateGameStage = (party: IEnigmatoPartyParticipants, t: Function) => {
