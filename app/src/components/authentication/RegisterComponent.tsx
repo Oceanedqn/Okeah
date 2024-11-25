@@ -5,15 +5,18 @@ import { CenteredElement, InputStyle, LabelStyle } from '../../styles/Authentica
 import { ButtonStyle, Title1Style } from '../../styles/GlobalStyles';
 import { useTranslation } from 'react-i18next';
 import { register_async } from '../../services/authentication/registerService';
+import { RadioContainer, RadioInput, RadioLabel } from 'src/styles/EnigmatoStyles';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const RegisterComponent: React.FC<{ onRegister: () => void; handleToggle: () => void; isLogin: boolean }> = ({ onRegister, handleToggle, isLogin }) => {
     const [name, setName] = useState('');
     const [firstname, setFirstname] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [gender] = useState<boolean>(true);
+    const [gender, setGender] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const { t } = useTranslation();
+    const [showPassword, setShowPassword] = useState<boolean>(false);  // Etat pour afficher/masquer le mot de passe
 
     const handleRegister = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -53,7 +56,33 @@ const RegisterComponent: React.FC<{ onRegister: () => void; handleToggle: () => 
                             required
                         />
                     </div>
+                    {/* Boutons radio pour le genre */}
                     <div>
+                        <LabelStyle>{t('gender')}</LabelStyle>
+                        <RadioContainer>
+                            <RadioLabel>
+                                <RadioInput
+                                    type="radio"
+                                    name="gender"
+                                    value="female"
+                                    checked={gender === true}
+                                    onChange={() => setGender(true)}
+                                />
+                                {t('female')}
+                            </RadioLabel>
+                            <RadioLabel>
+                                <RadioInput
+                                    type="radio"
+                                    name="gender"
+                                    value="male"
+                                    checked={gender === false}
+                                    onChange={() => setGender(false)}
+                                />
+                                {t('male')}
+                            </RadioLabel>
+                        </RadioContainer>
+                    </div>
+                    <div style={{ marginTop: '10px' }}>
                         <LabelStyle htmlFor="email">{t('mail')}</LabelStyle>
                         <InputStyle
                             type="email"
@@ -65,13 +94,28 @@ const RegisterComponent: React.FC<{ onRegister: () => void; handleToggle: () => 
                     </div>
                     <div>
                         <LabelStyle htmlFor="password">{t('password')}</LabelStyle>
-                        <InputStyle
-                            type="password"
-                            id="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
+                        <div style={{ position: 'relative' }}>
+                            <InputStyle
+                                type={showPassword ? 'text' : 'password'}  // Affiche ou masque le mot de passe en fonction de l'état
+                                id="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
+                            {/* Icône pour afficher/masquer le mot de passe */}
+                            <div
+                                onClick={() => setShowPassword(!showPassword)}  // Bascule entre afficher/masquer
+                                style={{
+                                    position: 'absolute',
+                                    top: '40%',
+                                    right: '20px',
+                                    transform: 'translateY(-50%)',
+                                    cursor: 'pointer',
+                                }}
+                            >
+                                {showPassword ? <FaEyeSlash size={20} /> : <FaEye size={20} />}
+                            </div>
+                        </div>
                     </div>
                     <ButtonStyle type="submit" style={{ float: 'right' }}>{t('registerAction')}</ButtonStyle>
                     {error && <p style={{ color: 'red' }}>{error}</p>}

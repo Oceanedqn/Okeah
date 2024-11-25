@@ -11,4 +11,5 @@ export interface IRegisterData {
     firstname: string;
     mail: string;
     password: string;
+    gender: boolean;
 }

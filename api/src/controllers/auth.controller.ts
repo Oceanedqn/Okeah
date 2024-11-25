@@ -50,7 +50,7 @@ export const logout = (req: Request, res: Response) => {
 
 export const register = async (req: Request, res: Response) => {
     try {
-        const { name, firstname, mail, password }: IRegisterData = req.body;
+        const { name, firstname, mail, password, gender }: IRegisterData = req.body;
 
         // Validation des données
         if (!name || !firstname || !mail || !password) {
@@ -66,8 +66,8 @@ export const register = async (req: Request, res: Response) => {
 
                 // Insérez un nouvel utilisateur
                 const result = await pool.query(
-                    'INSERT INTO users (name, firstname, mail, password) VALUES ($1, $2, $3, $4) RETURNING *',
-                    [name, firstname, mail, hashedPassword]
+                    'INSERT INTO users (name, firstname, mail, password, gender) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+                    [name, firstname, mail, hashedPassword, gender]
                 );
 
                 // Retourner les informations de l'utilisateur créé

@@ -1,20 +1,21 @@
 import pool from '../config/database';
 
 const createTables = async () => {
-    const queries = [
-        // Table users
-        `
+  const queries = [
+    // Table users
+    `
     CREATE TABLE IF NOT EXISTS users (
       id_user SERIAL PRIMARY KEY,
       name VARCHAR(100) NOT NULL,
       firstname VARCHAR(100) NOT NULL,
       mail VARCHAR(255) UNIQUE NOT NULL,
-      password VARCHAR(255) NOT NULL
+      password VARCHAR(255) NOT NULL,
+      gender BOOLEAN DEFAULT FALSE
     );
     `,
 
-        // Table enigmato_parties
-        `
+    // Table enigmato_parties
+    `
     CREATE TABLE IF NOT EXISTS enigmato_parties (
       id_party SERIAL PRIMARY KEY,
       date_creation DATE NOT NULL,
@@ -31,13 +32,12 @@ const createTables = async () => {
     );
     `,
 
-        // Table enigmato_profiles
-        `
+    // Table enigmato_profiles
+    `
     CREATE TABLE IF NOT EXISTS enigmato_profiles (
       id_profil SERIAL PRIMARY KEY,
       id_user INTEGER NOT NULL REFERENCES users(id_user),
       id_party INTEGER NOT NULL REFERENCES enigmato_parties(id_party),
-      gender BOOLEAN DEFAULT FALSE,
       picture1 VARCHAR(255),
       picture2 VARCHAR(255),
       date_joined_at DATE NOT NULL,
@@ -45,8 +45,8 @@ const createTables = async () => {
     );
     `,
 
-        // Table enigmato_boxes
-        `
+    // Table enigmato_boxes
+    `
     CREATE TABLE IF NOT EXISTS enigmato_boxes (
       id_box SERIAL PRIMARY KEY,
       id_party INTEGER NOT NULL REFERENCES enigmato_parties(id_party),
@@ -56,8 +56,8 @@ const createTables = async () => {
     );
     `,
 
-        // Table enigmato_box_responses
-        `
+    // Table enigmato_box_responses
+    `
     CREATE TABLE IF NOT EXISTS enigmato_box_responses (
       id_box_response SERIAL PRIMARY KEY,
       id_box INTEGER NOT NULL REFERENCES enigmato_boxes(id_box),
@@ -67,18 +67,18 @@ const createTables = async () => {
       cluse_used BOOLEAN DEFAULT FALSE
     );
     `,
-    ];
+  ];
 
-    try {
-        for (const query of queries) {
-            await pool.query(query);
-            console.log('Table créée avec succès.');
-        }
-    } catch (error) {
-        console.error('Erreur lors de la création des tables :', error);
-    } finally {
-        pool.end();
+  try {
+    for (const query of queries) {
+      await pool.query(query);
+      console.log('Table créée avec succès.');
     }
+  } catch (error) {
+    console.error('Erreur lors de la création des tables :', error);
+  } finally {
+    pool.end();
+  }
 };
 
 createTables();
