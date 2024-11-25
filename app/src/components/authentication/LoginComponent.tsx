@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
 import { login_async } from '../../services/authentication/loginService';
 import { CenteredElement, InputStyle, LabelStyle } from '../../styles/AuthenticationStyles';
 import { ButtonStyle, Title1Style } from '../../styles/GlobalStyles';

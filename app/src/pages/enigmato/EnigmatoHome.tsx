@@ -35,21 +35,25 @@ const EnigmatoHome: React.FC = () => {
       }
     };
 
+    fetchPartiesByUser();
+  }, [navigate, t]);
+
+
+  useEffect(() => {
     const fetchFinishedPartiesByUser = async () => {
       try {
         setLoading(true);
         const games = await getUserFinishedPartiesAsync(navigate);
         if (games?.length) setFinishedGames(games);
       } catch {
-        setError(t('error_fetching_games'));
+        setError(t('error_fetching_games_finished'));
       } finally {
         setLoading(false);
       }
     };
 
-    fetchPartiesByUser();
     fetchFinishedPartiesByUser();
-  }, [navigate, t]);
+  }, [ongoingGames, navigate, t]);
 
 
   const fetchUserProfile = useCallback(async (id_party: number) => {

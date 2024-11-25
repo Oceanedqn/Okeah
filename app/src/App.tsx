@@ -20,19 +20,19 @@ import EnigmatoGameHint from "./pages/enigmato/EnigmatoGameHint";
 import { themeMap } from "./components/base/ThemeSwitcherComponent";
 
 const App: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(!!Cookies.get('access_token'));
+  const [isAuthenticated, setIsAuthenticated] = useState(() => { return !!sessionStorage.getItem("user"); });
   const [currentTheme, setCurrentTheme] = useState(() => {
     const savedTheme = localStorage.getItem("currentTheme");
     return savedTheme ? JSON.parse(savedTheme) : "vintage";
   });
 
-  // Utilisation de l'intervalle pour vérifier le cookie toutes les secondes
   useEffect(() => {
-    const interval = setInterval(() => {
-      setIsAuthenticated(!!Cookies.get('access_token'));
-    }, 1000); // Vérifie toutes les secondes
-
-    return () => clearInterval(interval);
+    // Mettre à jour l'état d'authentification si sessionStorage change
+    const handleAuthChange = () => {
+      setIsAuthenticated(!!sessionStorage.getItem("user"));
+    };
+    window.addEventListener("storage", handleAuthChange);
+    return () => window.removeEventListener("storage", handleAuthChange);
   }, []);
 
   // Sauvegarder le thème actuel dans le localStorage

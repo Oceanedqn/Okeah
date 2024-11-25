@@ -2,15 +2,6 @@ import { Request, Response } from 'express';
 import pool from '../config/database';
 import { IUser } from '../interfaces/IUser';
 
-// export const getUsers = async (req: Request, res: Response) => {
-//     try {
-//         const result = await pool.query('SELECT * FROM users');
-//         res.json(result.rows);
-//     } catch (err) {
-//         console.error('Erreur lors de la récupération des utilisateurs :', err);
-//         res.status(500).send('Erreur interne du serveur');
-//     }
-// };
 
 export const getMe = async (req: Request, res: Response) => {
     if (req.user) {
@@ -21,7 +12,8 @@ export const getMe = async (req: Request, res: Response) => {
     }
 };
 
-
+// Methode pour récupérer un user par son email
+// Utile lors de l'inscription
 export const getUserByEmail = async (email: string) => {
     try {
         const result = await pool.query('SELECT * FROM users WHERE mail = $1', [email]);
@@ -38,6 +30,7 @@ export const getUserByEmail = async (email: string) => {
 };
 
 
+// Recupere l'utilisateur par son id
 export const getUserById = async (id_user: number): Promise<IUser | null> => {
     try {
         const result = await pool.query('SELECT * FROM users WHERE id_user = $1', [id_user]);

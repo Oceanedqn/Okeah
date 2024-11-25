@@ -223,3 +223,52 @@ export const AutoCompleteContainer = styled.div`
         }
     }
 `;
+
+
+// [OK] Style du conteneur pour les boutons radio
+export const RadioContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    gap: 50px; // Espacement entre les options
+`;
+
+// [OK] Style du label pour les boutons radio
+export const RadioLabel = styled.label`
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    cursor: pointer;
+`;
+
+// [OK] 
+export const RadioInput = styled.input`
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: ${({ theme }) => theme.colors.background_light};
+    border: 2px solid transparent;
+    margin-right: 10px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.3s, border 0.3s;
+
+    &:checked {
+        background-color: ${({ theme }) => theme.colors.background_light};
+    }
+
+    &:checked::after {
+        content: "";
+        position: absolute;
+        top: 2px; /* Ajuster pour centrer le rond blanc à l'intérieur */
+        left: 2px; /* Ajuster pour centrer le rond blanc à l'intérieur */
+        width: 12px;
+        height: 12px;
+        background-color: ${({ theme }) => theme.colors.primary};
+        border-radius: 50%;
+    }
+
+    &:hover {
+        border: 2px solid ${({ theme }) => theme.colors.primary};
+    }
+`;

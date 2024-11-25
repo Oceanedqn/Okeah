@@ -1,7 +1,6 @@
 import axios from "axios";
 import { IUser, IUserCreate } from "../interfaces/IUser"; // Assurez-vous d'avoir défini les types User et UserCreate dans un fichier types.ts
 import { API_USERS_URL } from "../constants/constants";
-import { checkCookie } from "../utils/utils";
 
 
 export const getCurrentUser = async (): Promise<IUser> => {
@@ -18,13 +17,8 @@ export const getCurrentUser = async (): Promise<IUser> => {
 
 // Récupère tous les utilisateurs
 export const fetchUsers = async (): Promise<IUser[]> => {
-    const accessToken = checkCookie();
-
     try {
         const response = await axios.get<IUser[]>(`${API_USERS_URL}/`, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-            },
             withCredentials: true,
         });
         return response.data;
@@ -36,12 +30,8 @@ export const fetchUsers = async (): Promise<IUser[]> => {
 
 // Récupère un utilisateur spécifique par ID
 export const fetchUserById = async (userId: number): Promise<IUser> => {
-    const accessToken = checkCookie();
     try {
         const response = await axios.get<IUser>(`${API_USERS_URL}/${userId}`, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-            },
             withCredentials: true,
         });
         return response.data;
@@ -53,12 +43,8 @@ export const fetchUserById = async (userId: number): Promise<IUser> => {
 
 // Met à jour les informations d'un utilisateur
 export const updateUser = async (userId: number, user: IUserCreate): Promise<IUser> => {
-    const accessToken = checkCookie();
     try {
         const response = await axios.put<IUser>(`${API_USERS_URL}/${userId}`, user, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-            },
             withCredentials: true,
         });
         return response.data;
@@ -70,12 +56,8 @@ export const updateUser = async (userId: number, user: IUserCreate): Promise<IUs
 
 // Supprime un utilisateur
 export const deleteUser = async (userId: number): Promise<IUser> => {
-    const accessToken = checkCookie();
     try {
         const response = await axios.delete<IUser>(`${API_USERS_URL}/${userId}`, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-            },
             withCredentials: true,
         });
         return response.data;

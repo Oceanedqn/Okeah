@@ -1,7 +1,6 @@
 // PrivateRoute.tsx
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
 import { getCurrentUser } from 'src/services/userService';
 import LoadingComponent from './base/LoadingComponent';
 
@@ -19,7 +18,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
       try {
         const currentUser = await getCurrentUser();
         setUser(currentUser);
-        localStorage.setItem('user', JSON.stringify(currentUser));
+        sessionStorage.setItem('user', JSON.stringify(currentUser));
       } catch (err) {
         setError('Pas autorisé, veuillez vous reconnecter');
       } finally {

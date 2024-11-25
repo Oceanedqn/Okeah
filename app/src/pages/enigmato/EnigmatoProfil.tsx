@@ -7,6 +7,8 @@ import { useTranslation } from 'react-i18next';
 import { fetchParticipantsAsync, getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { fetchProfile, updateProfile } from '../../services/enigmato/enigmatoProfileService';
 import { IEnigmatoParticipants, IEnigmatoParty, IEnigmatoProfil } from '../../interfaces/IEnigmato';
+import imageCompression from 'browser-image-compression';
+import { dataURItoBlob } from 'src/utils/utils';
 
 const EnigmatoProfil: React.FC = () => {
     const { id_party } = useParams<{ id_party: string }>();
@@ -51,23 +53,51 @@ const EnigmatoProfil: React.FC = () => {
         navigate(-1);
     };
 
-    const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>, photoField: 'picture1' | 'picture2') => {
+    const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>, photoField: 'picture1' | 'picture2') => {
         if (e.target.files && e.target.files[0] && profil) {
             const file = e.target.files[0];
 
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const base64String = reader.result as string;
-                setCurrentUserProfile({ ...profil, [photoField]: base64String });
-            };
-            reader.readAsDataURL(file);
+            try {
+                // Compresser l'image
+                const compressedFile = await imageCompression(file, {
+                    maxSizeMB: 1, // Taille maximale : 1 Mo
+                    maxWidthOrHeight: 1024, // Redimensionne si nécessaire
+                    useWebWorker: true, // Utilise les Web Workers pour optimiser
+                });
+
+                // Convertir l'image compressée en Base64
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    const base64String = reader.result as string;
+                    setCurrentUserProfile({ ...profil, [photoField]: base64String });
+                };
+                reader.readAsDataURL(compressedFile);
+            } catch (error) {
+                console.error('Erreur lors de la compression de l\'image :', error);
+            }
         }
     };
 
     const handleSubmitProfile = async () => {
         if (profil && id_party) {
             try {
-                await updateProfile(profil, navigate);
+                const formData = new FormData();
+                formData.append('id_party', id_party);
+                formData.append('gender', profil.gender ? 'true' : 'false');
+
+                // Ajoutez les fichiers directement, sans conversion Base64
+                if (profil.picture1) {
+                    const blob1 = dataURItoBlob(profil.picture1);  // Conversion seulement si nécessaire
+                    formData.append('picture1', blob1, 'picture1.jpg');  // Nom du fichier peut être modifié selon le besoin
+                }
+                if (profil.picture2) {
+                    const blob2 = dataURItoBlob(profil.picture2);  // Conversion seulement si nécessaire
+                    formData.append('picture2', blob2, 'picture2.jpg');  // Nom du fichier peut être modifié selon le besoin
+                }
+
+                await updateProfile(formData, navigate);
+
+                // Recharger les données
                 const updatedParticipants = await fetchParticipantsAsync(parseInt(id_party, 10), navigate);
                 setParticipants(updatedParticipants);
 
