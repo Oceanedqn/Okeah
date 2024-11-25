@@ -38,8 +38,8 @@ const createTables = async () => {
       id_profil SERIAL PRIMARY KEY,
       id_user INTEGER NOT NULL REFERENCES users(id_user),
       id_party INTEGER NOT NULL REFERENCES enigmato_parties(id_party),
-      picture1 VARCHAR(255),
-      picture2 VARCHAR(255),
+      picture1 bytea,
+      picture2 bytea,
       date_joined_at DATE NOT NULL,
       is_complete BOOLEAN DEFAULT FALSE
     );

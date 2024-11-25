@@ -53,5 +53,7 @@
     "validate_choice": "Validate my choice",
     "continue_help": "The hint will cost you half of the points. Do you want to continue?",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "photoYoung": "Young photo",
+    "photoNow": "Current photo"
 }

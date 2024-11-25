@@ -12,12 +12,12 @@ const pool = new Pool({
 });
 
 
-pool.on('connect', () => {
-    console.log('Connexion réussie à la base de données PostgreSQL');
-});
+// pool.on('connect', () => {
+//     console.log('Connexion réussie à la base de données PostgreSQL');
+// });
 
-pool.on('error', (err) => {
-    console.error('Erreur de connexion à PostgreSQL :', err);
-});
+// pool.on('error', (err) => {
+//     console.error('Erreur de connexion à PostgreSQL :', err);
+// });
 
 export default pool;

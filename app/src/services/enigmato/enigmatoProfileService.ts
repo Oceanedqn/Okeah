@@ -18,9 +18,7 @@ export const fetchProfile = async (id_party: number, navigate: ReturnType<typeof
 
 export const updateProfile = async (enigmatoProfil: any, navigate: ReturnType<typeof useNavigate>) => {
     try {
-        // Envoi des données sous la forme d'un objet JSON, et non plus via FormData
         const response = await axios.put(`${API_ENIGMATO_PROFILES_URL}`, enigmatoProfil, {
-            headers: { 'Content-Type': 'multipart/form-data' },
             withCredentials: true,
         });
 
