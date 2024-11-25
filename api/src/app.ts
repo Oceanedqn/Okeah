@@ -20,7 +20,7 @@ const upload = multer({
 app.use(express.json({ limit: '50mb' }));  // Limite de taille des données JSON
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));  // Limite de taille des données URL encodées
 app.use(cookieParser());  // Pour gérer les cookies
-app.use(cors({ origin: ['http://localhost:3000', 'okeah.vercel.app'], credentials: true }));  // Configuration CORS pour autoriser l'accès depuis le front-end
+app.use(cors({ origin: ['http://localhost:3000', 'https://okeah.vercel.app'], credentials: true }));  // Configuration CORS pour autoriser l'accès depuis le front-end
 
 // Routes
 app.use('/api', routes);
