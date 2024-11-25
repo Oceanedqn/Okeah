@@ -53,11 +53,10 @@ export function base64ToBuffer(base64: string): Buffer {
     return Buffer.from(base64Data, 'base64');
 }
 
-export const bufferToBase64 = (buffer: Buffer | null | undefined, mimeType: string = 'image/png'): string | null => {
+export const bufferToBase64 = (buffer: Buffer | null | undefined, mimeType: string = 'image/png' // MIME Type par défaut
+): string | null => {
     if (!buffer) {
-        return null;  // Retourner null si le buffer est invalide
+        return null; // Retourner null si le buffer est invalide
     }
-
-    // Ajouter le préfixe de type MIME (par défaut 'image/png', tu peux aussi le passer en paramètre)
     return `data:${mimeType};base64,${buffer.toString('base64')}`;
 };
