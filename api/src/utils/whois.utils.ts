@@ -45,3 +45,19 @@ export const checkAndUpdatePartyStatus = async (party: any): Promise<any> => {
 
     return party;
 };
+
+
+export function base64ToBuffer(base64: string): Buffer {
+    // Retirer le préfixe Base64 si présent (ex. "data:image/png;base64,")
+    const base64Data = base64.replace(/^data:image\/[a-z]+;base64,/, '');
+    return Buffer.from(base64Data, 'base64');
+}
+
+export const bufferToBase64 = (buffer: Buffer | null | undefined, mimeType: string = 'image/png'): string | null => {
+    if (!buffer) {
+        return null;  // Retourner null si le buffer est invalide
+    }
+
+    // Ajouter le préfixe de type MIME (par défaut 'image/png', tu peux aussi le passer en paramètre)
+    return `data:${mimeType};base64,${buffer.toString('base64')}`;
+};

@@ -3,7 +3,7 @@ import pool from '../../config/database';
 import { Request, Response, Router } from 'express';
 import { IEnigmatoParticipants, IEnigmatoParty, IEnigmatoPartyParticipants } from '../../interfaces/IEnigmato';
 import { hashPassword, verifyPassword } from '../../utils/auth.utils';
-import { checkAndUpdatePartyStatus } from '../../utils/whois.utils';
+import { bufferToBase64, checkAndUpdatePartyStatus } from '../../utils/whois.utils';
 
 const router = Router();
 
@@ -341,8 +341,8 @@ export const get_participants_async = async (req: Request, res: Response) => {
         try {
             // Vérification si la partie existe
             const partyQuery = await pool.query(
-                'SELECT * FROM enigmato_parties WHERE id_party = $1 AND id_user = $2',
-                [id_party, user.id_user]
+                'SELECT * FROM enigmato_parties WHERE id_party = $1',
+                [id_party]
             );
 
             if (partyQuery.rows.length === 0) {
@@ -351,10 +351,10 @@ export const get_participants_async = async (req: Request, res: Response) => {
 
             // Récupérer les participants de la partie avec leur profil
             const participantsQuery = await pool.query(
-                `SELECT u.id_user, u.name, u.firstname, p.id_profil, p.gender, p.picture1, p.picture2
-       FROM users u
-       JOIN enigmato_profiles p ON p.id_user = u.id_user
-       WHERE p.id_party = $1`,
+                `SELECT u.id_user, u.gender, u.name, u.firstname, p.id_profil, p.picture1, p.picture2
+                FROM users u
+                JOIN enigmato_profiles p ON p.id_user = u.id_user
+                WHERE p.id_party = $1`,
                 [id_party]
             );
 
@@ -373,7 +373,7 @@ export const get_participants_async = async (req: Request, res: Response) => {
                     name: participant.name,
                     firstname: participant.firstname,
                     gender: participant.gender,
-                    picture2: participant.picture2,
+                    picture2: participant.picture2 ? bufferToBase64(participant.picture2) : null,
                     is_complete: !!(participant.picture1 && participant.picture2),
                 };
             });

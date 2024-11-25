@@ -44,10 +44,9 @@ export interface IEnigmatoProfil {
   id_profil: number;
   id_user: number;
   id_party: number;
-  picture1?: string;
-  picture2?: string;
+  picture1?: Buffer;
+  picture2?: Buffer;
   is_complete: boolean;
-  gender: boolean;
 }
 
 export interface IEnigmatoParticipants {
@@ -56,9 +55,8 @@ export interface IEnigmatoParticipants {
   id_profil: number
   name: string
   firstname: string
-  gender: boolean
   is_complete: boolean
-  picture2: string
+  picture2: string | null
 }
 
 export interface IEnigmatoPartyCreateRequest {

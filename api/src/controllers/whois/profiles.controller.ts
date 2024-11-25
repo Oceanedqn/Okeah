@@ -2,8 +2,7 @@ import { Router, Request, Response } from 'express';
 import { IUser } from '../../interfaces/IUser';
 import { IEnigmatoProfil, IEnigmatoParticipants } from '../../interfaces/IEnigmato';
 import pool from '../../config/database';
-import sharp from 'sharp'; // Pour compresser les images après l'upload
-import { compressImage } from '../../middlewares/multer.middleware';
+import { base64ToBuffer, bufferToBase64 } from '../../utils/whois.utils';
 
 const router = Router();
 
@@ -22,7 +21,17 @@ export const get_profile = async (req: Request, res: Response) => {
             res.status(404).json({ message: 'Profile not found' });
         }
 
-        res.json(result.rows[0]);
+        const profile = result.rows[0];
+
+        // Utilisation de la fonction `bufferToBase64` pour les images
+        const picture1Base64 = profile.picture1 ? bufferToBase64(profile.picture1) : null;
+        const picture2Base64 = profile.picture2 ? bufferToBase64(profile.picture2) : null;
+
+        res.json({
+            ...profile,
+            picture1: picture1Base64,
+            picture2: picture2Base64,
+        });
     } catch (err) {
         console.error('Error fetching profile:', err);
         res.status(500).send('Internal server error');
@@ -31,14 +40,9 @@ export const get_profile = async (req: Request, res: Response) => {
 
 
 
-
-
-
 // [OK] Met à jour le profil de l'utilisateur
 export const update_profile = async (req: Request, res: Response) => {
-    console.log('Request body size:', req.headers['content-length']);
-
-    const { id_party, gender } = req.body;
+    const { id_party, picture1, picture2 } = req.body;
     const currentUser = req.user as IUser;
 
     try {
@@ -60,43 +64,41 @@ export const update_profile = async (req: Request, res: Response) => {
         const currentDate = new Date();
 
         if (new Date(party.date_start) <= currentDate && profile.is_complete) {
-            res.status(403).json({ message: 'You cannot update your profile after the start date or if your profile is complete' });
+            res.status(403).json({
+                message: 'You cannot update your profile after the start date or if your profile is complete',
+            });
         }
 
-        // Compresser et convertir les images avec Sharp (si elles sont envoyées)
-        const updates: Partial<IEnigmatoProfil> = { gender };
+        // Préparer les mises à jour
+        const updates: Partial<IEnigmatoProfil> = {};
 
-        // Vérification et compression des fichiers picture1 et picture2
-        if (req.files) {
-            if (req.files['picture1'] && Array.isArray(req.files['picture1'])) {
-                updates.picture1 = await compressImage(req.files['picture1'][0]);
-            }
-
-            if (req.files['picture2'] && Array.isArray(req.files['picture2'])) {
-                updates.picture2 = await compressImage(req.files['picture2'][0]);
-            }
+        //Convertir et traiter les images en Base64 si elles existent
+        if (picture1) {
+            updates.picture1 = base64ToBuffer(picture1);
+        }
+        if (picture2) {
+            updates.picture2 = base64ToBuffer(picture2);
         }
 
         // Vérifier si le profil est complet
-        updates.is_complete = !!(updates.picture1 || profile.picture1) && !!(updates.picture2 || profile.picture2);
+        updates.is_complete = !!updates.picture1 && !!updates.picture2;
 
         // Mettre à jour dans la base de données
         const updateQuery = `
-      UPDATE enigmato_profiles
-      SET gender = $1, picture1 = $2, picture2 = $3, is_complete = $4
-      WHERE id_party = $5 AND id_user = $6
-      RETURNING *`;
+            UPDATE enigmato_profiles
+            SET picture1 = $1, picture2 = $2, is_complete = $3
+            WHERE id_party = $4 AND id_user = $5
+            RETURNING *`;
 
-        const updatedProfile = await pool.query(updateQuery, [
-            updates.gender || profile.gender,
-            updates.picture1 || profile.picture1,
-            updates.picture2 || profile.picture2,
+        await pool.query(updateQuery, [
+            updates.picture1,
+            updates.picture2,
             updates.is_complete,
             id_party,
             currentUser.id_user,
         ]);
 
-        res.json(updatedProfile.rows[0]);
+        res.status(201).send('Profil mis à jour');
     } catch (err) {
         console.error('Error updating profile:', err);
         res.status(500).send('Internal server error');
@@ -127,9 +129,10 @@ export const get_profil_by_id = async (req: Request, res: Response) => {
             id_profil: profile.id_profil,
             name: user.name,
             firstname: user.firstname,
-            gender: profile.gender,
-            picture2: profile.picture2,
-            is_complete: profile.is_complete
+            picture2: profile.picture2
+                ? `data:image/png;base64,${profile.picture2.toString('base64')}`
+                : '', // Convert null to an empty string
+            is_complete: profile.is_complete,
         };
 
         res.json(participant);

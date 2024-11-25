@@ -53,5 +53,7 @@
     "validate_choice": "Valider mon choix",
     "continue_help": "L'indice fait perdre la moitié des points. Voulez-vous continuer ?",
     "yes": "Oui",
-    "no": "Non"
+    "no": "Non",
+    "photoYoung": "Photo jeune",
+    "photoNow": "Photo maintenant"
 }
