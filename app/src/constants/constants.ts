@@ -1,7 +1,9 @@
 // src/constants/constants.ts
 
 // Définir la racine de l'API une seule fois
-const BASE_URL = process.env.SERVER_URL;
+const BASE_URL = process.env.REACT_APP_SERVER_URL;
+
+console.log(BASE_URL)
 
 // Connexion et Inscription d'un utilisateur
 export const API_USERS_URL = `${BASE_URL}/api/users`;
