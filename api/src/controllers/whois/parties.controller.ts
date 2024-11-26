@@ -359,4 +359,30 @@ export const get_party_by_id_async = async (req: Request, res: Response) => {
     }
 };
 
+
+export const get_party_name_by_id_async = async (req: Request, res: Response) => {
+    const { id_party } = req.params;
+
+    if (!req.user) {
+        res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    try {
+        const idPartyNumber = parseInt(id_party, 10);
+        if (isNaN(idPartyNumber)) {
+            res.status(400).json({ message: 'Invalid id_party parameter. It must be a number.' });
+        }
+
+        const party = await fetchParty(idPartyNumber);
+        res.json(party.name);
+    } catch (err: any) {
+        if (err.message === 'Party not found') {
+            res.status(404).json({ message: 'Party not found' });
+        }
+
+        console.error(err);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
 export default router;

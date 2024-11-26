@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ButtonStyle, ContainerUnderTitleStyle, TextAlertStyle, TextStyle } from '../../styles/GlobalStyles';
 import { AutoCompleteContainer, ContainerBackgroundStyle, EnigmatoContainerStyle } from '../../styles/EnigmatoStyles';
 import { Box, Modal } from '@mui/material';
-import { fetchCompletedParticipantsAsync, getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
+import { fetchCompletedParticipantsAsync, getPartyNameAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { getTodayBoxGameAsync } from '../../services/enigmato/enigmatoBoxesService';
 import { IEnigmatoBoxGame, IEnigmatoBoxResponse, IEnigmatoParticipants, IEnigmatoParty } from '../../interfaces/IEnigmato';
 import { createBoxResponseAsync, getBoxResponseByIdBoxAsync } from '../../services/enigmato/enigmatoBoxResponsesService';
@@ -17,7 +17,7 @@ const EnigmatoGame: React.FC = () => {
     const navigate = useNavigate();
     const [participants, setParticipants] = useState<IEnigmatoParticipants[] | null>(null);
     const [todayBox, setTodayBox] = useState<IEnigmatoBoxGame | null>(null);
-    const [party, setParty] = useState<IEnigmatoParty | null>(null);
+    const [partyName, setPartyName] = useState<IEnigmatoParty | null>(null);
     const [selectedParticipant, setSelectedParticipant] = useState<IEnigmatoParticipants | null>(null);
     const [inputValue, setInputValue] = useState('');
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -61,9 +61,9 @@ const EnigmatoGame: React.FC = () => {
                 }
                 const fetchParty = async () => {
                     try {
-                        const fetchedParty = await getPartyAsync(parseInt(id_party), navigate);
-                        if (fetchedParty) {
-                            setParty(fetchedParty);
+                        const fetchedPartyName = await getPartyNameAsync(parseInt(id_party), navigate);
+                        if (fetchedPartyName) {
+                            setPartyName(fetchedPartyName);
                         }
                     } catch (error) {
                         console.error("Erreur lors de la récupération des données de la partie :", error);
@@ -163,14 +163,14 @@ const EnigmatoGame: React.FC = () => {
     }, []);
 
 
-    if (!party || !todayBox) {
+    if (!partyName || !todayBox) {
         return <LoadingComponent />
     }
 
 
     return (
         <>
-            <HeaderTitleComponent title={t("infoGame") + " " + party.name} onBackClick={handleBack} />
+            <HeaderTitleComponent title={t("infoGame") + " " + partyName} onBackClick={handleBack} />
 
             <ContainerUnderTitleStyle>
                 <EnigmatoContainerStyle>

@@ -80,7 +80,7 @@ export const fetchParty = async (id_party: number): Promise<IEnigmatoParty> => {
 
 
 
-export const get_participants_completed_async = async (id_party: number) => {
+export const fetch_participants_completed_async = async (id_party: number): Promise<IEnigmatoParticipants[] | { message: string }> => {
     try {
         // Vérification si la partie existe
         const partyQuery = await pool.query(
@@ -127,7 +127,6 @@ export const get_participants_completed_async = async (id_party: number) => {
         console.error(err);
         return { message: 'Internal Server Error' };
     }
-
 };
 
 

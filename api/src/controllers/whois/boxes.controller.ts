@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { IUser } from '../../interfaces/IUser';
 import { IEnigmatoBoxGame, IEnigmatoBoxRightResponse } from '../../interfaces/IEnigmato';
 import pool from '../../config/database';
-import { create_box_async, fetchParty } from '../../utils/whois.utils';
+import { bufferToBase64, create_box_async, fetchParty } from '../../utils/whois.utils';
 
 const router = Router();
 const partyLocks: Record<number, boolean> = {};
@@ -97,7 +97,7 @@ export const get_today_box_in_game_async = async (req: Request, res: Response) =
             id_party: box.id_party,
             name: box.name,
             date: box.date,
-            picture1: profile.picture1,
+            picture1: bufferToBase64(profile.picture1)!,
         };
 
         res.json(gameData);

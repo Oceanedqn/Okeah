@@ -1,7 +1,7 @@
 import pool from '../../config/database';
 import { Request, Response } from 'express';
 import { IEnigmatoBoxEnigmaUser, IEnigmatoParticipants } from '../../interfaces/IEnigmato';
-import { bufferToBase64, get_participants_completed_async } from '../../utils/whois.utils';
+import { bufferToBase64, fetch_participants_completed_async } from '../../utils/whois.utils';
 
 // [OK] Récupère les participants d'une partie
 export const get_participants_async = async (req: Request, res: Response) => {
@@ -58,11 +58,36 @@ export const get_participants_async = async (req: Request, res: Response) => {
     }
 }
 
+export const get_participants_completed_async = async (req: Request, res: Response) => {
+    const { id_party } = req.params; // Récupération de l'id de la partie depuis les paramètres de la requête
+
+    try {
+        // Appel de la fonction utilitaire pour récupérer les participants complets
+        const participants = await fetch_participants_completed_async(Number(id_party));
+
+        // Vérifier si participants est un objet avec un message d'erreur
+        if ('message' in participants) {
+            res.status(404).json({ message: participants.message }); // Envoie un message d'erreur si la partie n'existe pas
+        }
+
+        // Vérifier si participants est un tableau et qu'il contient des éléments
+        if (Array.isArray(participants) && participants.length === 0) {
+            res.status(200).json([]); // Aucun participant complet trouvé, renvoie un tableau vide
+        }
+
+        // Si les participants existent et sont un tableau, on les renvoie
+        res.status(200).json(participants);
+    } catch (err) {
+        console.error('Error fetching participants completed:', err);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
 
 export const get_random_participant_completed_async = async (id_party: number): Promise<IEnigmatoParticipants> => {
     try {
         // 1. Récupérer les participants ayant complété leur profil
-        const completed_participants = await get_participants_completed_async(id_party);
+        const completed_participants = await fetch_participants_completed_async(id_party);
 
         if (!Array.isArray(completed_participants) || completed_participants.length === 0) {
             throw new Error(`No completed participants found`);

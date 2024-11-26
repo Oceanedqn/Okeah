@@ -6,7 +6,8 @@ import {
     get_finished_parties_by_user_async,
     get_unjoined_parties_async,
     get_party_by_id_async,
-    join_party_async
+    join_party_async,
+    get_party_name_by_id_async
 } from "../../controllers/whois/parties.controller";
 
 
@@ -19,5 +20,6 @@ router.get('/user/parties/finished', authenticate, get_finished_parties_by_user_
 router.get('/', authenticate, get_unjoined_parties_async)
 router.post('/join', authenticate, join_party_async)
 router.get('/:id_party', authenticate, get_party_by_id_async)
+router.get('/:id_party/name', authenticate, get_party_name_by_id_async)
 
 export { router as partiesRoutes };

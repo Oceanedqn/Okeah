@@ -31,6 +31,18 @@ export const getPartyAsync = async (id_party: number, navigate: ReturnType<typeo
   }
 };
 
+export const getPartyNameAsync = async (id_party: number, navigate: ReturnType<typeof useNavigate>): Promise<IEnigmatoParty | null> => {
+  try {
+    const response = await axios.get(`${API_ENIGMATO_PARTIES_URL}/${id_party}/name`, {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    handleError(error, navigate);
+    return null;
+  }
+};
+
 // Service pour obtenir toutes les parties associées à un utilisateur
 export const getUserPartiesAsync = async (navigate: ReturnType<typeof useNavigate>): Promise<IEnigmatoPartyParticipants[] | null> => {
 
