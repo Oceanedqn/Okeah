@@ -9,7 +9,7 @@ const router = Router();
 
 router.use('/profiles', profilesRoutes);
 router.use('/parties', partiesRoutes);
-router.use('/boxResponses', boxResponsesRoutes);
+router.use('/responses', boxResponsesRoutes);
 router.use('/boxes', boxesRoutes);
 router.use('/participants', participantsRoutes);
 
