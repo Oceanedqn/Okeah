@@ -1,8 +1,8 @@
 import { Router, Request, Response } from 'express';
 import { IUser } from '../../interfaces/IUser';
-import { IEnigmatoProfil, IEnigmatoParticipants } from '../../interfaces/IEnigmato';
+import { IEnigmatoProfil } from '../../interfaces/IEnigmato';
 import pool from '../../config/database';
-import { base64ToBuffer, bufferToBase64 } from '../../utils/whois.utils';
+import { base64ToBuffer, bufferToBase64, get_profile_by_id_from_db } from '../../utils/whois.utils';
 
 const router = Router();
 
@@ -110,31 +110,14 @@ export const get_profil_by_id = async (req: Request, res: Response) => {
     const { id_party, id_user } = req.params;
 
     try {
-        const result = await pool.query(
-            'SELECT * FROM enigmato_profiles WHERE id_party = $1 AND id_user = $2',
-            [id_party, id_user]
-        );
+        // Fetch the profile using the database function
+        const participant = await get_profile_by_id_from_db(Number(id_party), Number(id_user));
 
-        if (result.rows.length === 0) {
+        if (!participant) {
             res.status(404).json({ message: 'Profile not found' });
         }
 
-        const profile = result.rows[0];
-        const userResult = await pool.query('SELECT * FROM users WHERE id_user = $1', [id_user]);
-        const user = userResult.rows[0];
-
-        const participant: IEnigmatoParticipants = {
-            id_user: user.id_user,
-            id_party: Number(id_party),
-            id_profil: profile.id_profil,
-            name: user.name,
-            firstname: user.firstname,
-            picture2: profile.picture2
-                ? `data:image/png;base64,${profile.picture2.toString('base64')}`
-                : '', // Convert null to an empty string
-            is_complete: profile.is_complete,
-        };
-
+        // Send the participant data as the response
         res.json(participant);
     } catch (err) {
         console.error('Error fetching profile by ID:', err);

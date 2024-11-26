@@ -54,6 +54,7 @@ export interface IEnigmatoParticipants {
   id_party: number
   id_profil: number
   name: string
+  gender: boolean
   firstname: string
   is_complete: boolean
   picture2: string | null
@@ -74,12 +75,21 @@ export interface IEnigmatoJoinParty {
   password?: string;
 }
 
-// Exemple d'une case du calendrier
+//[OK]
 export interface IEnigmatoBox {
   id_box: number;
   id_party: number;
   name: string;
   date?: string;
+}
+
+//[OK]
+export interface IEnigmatoBoxEnigmaUser {
+  id_box: number;
+  id_party: number;
+  name: string;
+  date?: string;
+  id_enigma_user: number;
 }
 
 export interface IEnigmatoBoxGame {

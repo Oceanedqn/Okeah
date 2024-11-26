@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { fetchParticipantsAsync, getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { fetchProfile, updateProfile } from '../../services/enigmato/enigmatoProfileService';
 import { IEnigmatoParticipants, IEnigmatoParty, IEnigmatoProfil } from '../../interfaces/IEnigmato';
+import imageCompression from 'browser-image-compression';
 
 const EnigmatoProfil: React.FC = () => {
     const { id_party } = useParams<{ id_party: string }>();
@@ -51,16 +52,27 @@ const EnigmatoProfil: React.FC = () => {
         navigate(-1);
     };
 
-    const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>, photoField: 'picture1' | 'picture2') => {
+    const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>, photoField: 'picture1' | 'picture2') => {
         if (e.target.files && e.target.files[0] && profil) {
             const file = e.target.files[0];
 
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const base64String = reader.result as string;
-                setCurrentUserProfile({ ...profil, [photoField]: base64String });
+            // Compression settings
+            const options = {
+                maxSizeMB: 1, // Adjust size to balance quality and file size
+                maxWidthOrHeight: 1024, // Prevent excessive downscaling
+                useWebWorker: true,
             };
-            reader.readAsDataURL(file);
+
+            try {
+                // Compress image
+                const compressedFile = await imageCompression(file, options);
+                const base64String = await imageCompression.getDataUrlFromFile(compressedFile);
+
+                // Update the profile with the compressed base64 image
+                setCurrentUserProfile({ ...profil, [photoField]: base64String });
+            } catch (error) {
+                console.error('Error compressing image:', error);
+            }
         }
     };
 
@@ -68,8 +80,6 @@ const EnigmatoProfil: React.FC = () => {
         if (profil && id_party) {
             try {
                 await updateProfile(profil, navigate);
-
-                // Recharger les données
                 const updatedParticipants = await fetchParticipantsAsync(parseInt(id_party, 10), navigate);
                 setParticipants(updatedParticipants);
 
@@ -87,10 +97,12 @@ const EnigmatoProfil: React.FC = () => {
         }
     };
 
+
     const handleClickPhoto = (e: React.MouseEvent<HTMLDivElement>, photoField: 'picture1' | 'picture2') => {
         const input = e.currentTarget.querySelector('input');
         if (input) input.click();
     };
+
 
     const isBase64 = (str: string) => {
         const regex = /^data:image\/[a-z]+;base64,/;
@@ -113,14 +125,14 @@ const EnigmatoProfil: React.FC = () => {
                             <div style={{ textAlign: 'center', marginBottom: '10px' }}>
                                 <p style={{ marginBottom: '5px' }}>{t('photoYoung')}</p>
                                 <div
-                                    style={{ position: 'relative', width: '100px', height: '100px', backgroundColor: 'white', border: '1px solid #ccc' }}
+                                    style={{ position: 'relative', width: '150px', height: '150px', backgroundColor: 'white', border: '1px solid #ccc' }}
                                     onClick={(e) => handleClickPhoto(e, 'picture1')}
                                 >
                                     {profil?.picture1 && isBase64(profil.picture1) ? (
                                         <img
                                             src={profil.picture1}
                                             alt="1 Preview"
-                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                                         />
                                     ) : null}
                                     <input
@@ -136,14 +148,14 @@ const EnigmatoProfil: React.FC = () => {
                             <div style={{ textAlign: 'center', marginBottom: '10px' }}>
                                 <p style={{ marginBottom: '5px' }}>{t('photoNow')}</p>
                                 <div
-                                    style={{ position: 'relative', width: '100px', height: '100px', backgroundColor: 'white', border: '1px solid #ccc' }}
+                                    style={{ position: 'relative', width: '150px', height: '150px', backgroundColor: 'white', border: '1px solid #ccc' }}
                                     onClick={(e) => handleClickPhoto(e, 'picture2')}
                                 >
                                     {profil?.picture2 && isBase64(profil.picture2) ? (
                                         <img
                                             src={profil.picture2}
                                             alt="2 Preview"
-                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                                         />
                                     ) : null}
                                     <input

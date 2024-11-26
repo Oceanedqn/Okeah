@@ -11,7 +11,7 @@ export const API_AUTH_URL = `${BASE_URL}/api/auth`;
 export const API_ENIGMATO_PARTIES_URL = `${BASE_URL}/api/whois/parties`;
 export const API_ENIGMATO_USER_PARTIES_URL = `${BASE_URL}/api/whois/parties/user`;
 export const API_ENIGMATO_JOIN_PARTIES_URL = `${BASE_URL}/api/whois/parties/join`;
-export const API_ENIGMATO_PROFILES_URL = `${BASE_URL}/api/whois/parties/profiles`;
-
+export const API_ENIGMATO_PROFILES_URL = `${BASE_URL}/api/whois/profiles`;
+export const API_ENIGMATO_PARTICIPANTS_URL = `${BASE_URL}/api/whois/participants`;
 export const API_ENIGMATO_BOXES_URL = `${BASE_URL}/api/whois/boxes`;
 export const API_ENIGMATO_BOX_RESPONSES_URL = `${BASE_URL}/api/whois/responses`;

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ButtonStyle, ContainerUnderTitleStyle, TextAlertStyle, TextStyle } from '../../styles/GlobalStyles';
 import { AutoCompleteContainer, ContainerBackgroundStyle, EnigmatoContainerStyle } from '../../styles/EnigmatoStyles';
 import { Box, Modal } from '@mui/material';
-import { fetchCompletedParticipantsAsync, getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
+import { fetchCompletedParticipantsAsync, getPartyNameAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { getTodayBoxGameAsync } from '../../services/enigmato/enigmatoBoxesService';
 import { IEnigmatoBoxGame, IEnigmatoBoxResponse, IEnigmatoParticipants, IEnigmatoParty } from '../../interfaces/IEnigmato';
 import { createBoxResponseAsync, getBoxResponseByIdBoxAsync } from '../../services/enigmato/enigmatoBoxResponsesService';
@@ -17,7 +17,7 @@ const EnigmatoGame: React.FC = () => {
     const navigate = useNavigate();
     const [participants, setParticipants] = useState<IEnigmatoParticipants[] | null>(null);
     const [todayBox, setTodayBox] = useState<IEnigmatoBoxGame | null>(null);
-    const [party, setParty] = useState<IEnigmatoParty | null>(null);
+    const [partyName, setPartyName] = useState<IEnigmatoParty | null>(null);
     const [selectedParticipant, setSelectedParticipant] = useState<IEnigmatoParticipants | null>(null);
     const [inputValue, setInputValue] = useState('');
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -61,9 +61,9 @@ const EnigmatoGame: React.FC = () => {
                 }
                 const fetchParty = async () => {
                     try {
-                        const fetchedParty = await getPartyAsync(parseInt(id_party), navigate);
-                        if (fetchedParty) {
-                            setParty(fetchedParty);
+                        const fetchedPartyName = await getPartyNameAsync(parseInt(id_party), navigate);
+                        if (fetchedPartyName) {
+                            setPartyName(fetchedPartyName);
                         }
                     } catch (error) {
                         console.error("Erreur lors de la récupération des données de la partie :", error);
@@ -98,20 +98,18 @@ const EnigmatoGame: React.FC = () => {
             id_user: null,
             id_user_response: null,
             cluse_used: true
-        }
-        try {
-            const createdResponse = await createBoxResponseAsync(boxResponse, navigate);
-            if (createdResponse && createdResponse.id_box_response) {
-                navigate(`/enigmato/parties/${id_party}/game/hint`);
-            } else {
-                alert("Failed to create a box response. Please try again.");
-            }
-        } catch (error) {
-            console.error("An error occurred while creating the box response:", error);
-            alert("An unexpected error occurred. Please try again.");
-        }
-
-
+        };
+        // try {
+        //     const createdResponse = await createBoxResponseAsync(boxResponse, navigate);
+        //     if (createdResponse && createdResponse.id_box_response) {
+        //         navigate(`/enigmato/parties/${id_party}/game/hint`);
+        //     } else {
+        //         alert("Failed to create a box response. Please try again.");
+        //     }
+        // } catch (error) {
+        //     console.error("An error occurred while creating the box response:", error);
+        //     alert("An unexpected error occurred. Please try again.");
+        // }
     };
 
     const handleValidateChoice = async () => {
@@ -122,16 +120,17 @@ const EnigmatoGame: React.FC = () => {
                 id_user: null,
                 id_user_response: selectedParticipant.id_user,
                 cluse_used: false
-            }
-            await createBoxResponseAsync(boxResponse, navigate);
-            navigate(-1);
+            };
+            // await createBoxResponseAsync(boxResponse, navigate);
+            // navigate(-1);
         } else {
             alert('Veuillez sélectionner un participant.');
         }
     };
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        console.log("input change");
+        setInputValue(event.target.value);
+        setIsDropdownOpen(true); // Ouvre le dropdown dès que l'utilisateur tape quelque chose
     };
 
     const handleOptionClick = (participant: IEnigmatoParticipants) => {
@@ -139,6 +138,11 @@ const EnigmatoGame: React.FC = () => {
         setInputValue(participant.name);
         setIsDropdownOpen(false);
     };
+
+    const filteredParticipants = participants?.filter((participant) =>
+        participant.name.toLowerCase().includes(inputValue.toLowerCase()) ||
+        participant.firstname.toLowerCase().includes(inputValue.toLowerCase())
+    );
 
     const toggleDropdown = () => {
         setIsDropdownOpen(prev => !prev);
@@ -163,14 +167,14 @@ const EnigmatoGame: React.FC = () => {
     }, []);
 
 
-    if (!party || !todayBox) {
-        return <LoadingComponent />
+    if (!partyName || !todayBox) {
+        return <LoadingComponent />;
     }
 
 
     return (
         <>
-            <HeaderTitleComponent title={t("infoGame") + " " + party.name} onBackClick={handleBack} />
+            <HeaderTitleComponent title={t("infoGame") + " " + partyName} onBackClick={handleBack} />
 
             <ContainerUnderTitleStyle>
                 <EnigmatoContainerStyle>
@@ -189,15 +193,34 @@ const EnigmatoGame: React.FC = () => {
                                 style={{ borderRadius: '16px' }}
                                 type="text"
                                 value={inputValue}
-                                onClick={toggleDropdown}
+                                onFocus={() => setIsDropdownOpen(true)}  // Open dropdown on focus
                                 onChange={handleInputChange}
                                 placeholder={t("choise_response")}
                             />
-                            {isDropdownOpen && participants!.length > 0 && (
+                            {isDropdownOpen && filteredParticipants && filteredParticipants.length > 0 && (
                                 <ul style={{ listStyleType: 'none', padding: 0, maxHeight: '150px', overflowY: 'auto' }}>
-                                    {participants!.map(participant => (
-                                        <li key={participant.id_user} onClick={() => handleOptionClick(participant)} style={{ cursor: 'pointer' }}>
-                                            {participant.name}
+                                    {filteredParticipants.map(participant => (
+                                        <li
+                                            key={participant.id_user}
+                                            onClick={() => handleOptionClick(participant)}
+                                            style={{
+                                                cursor: 'pointer',
+                                                display: 'flex',          // Utilisation de flexbox pour aligner les éléments en ligne
+                                                alignItems: 'center',     // Centrer verticalement les éléments (image, nom, prénom)
+                                                gap: '10px',              // Ajouter un petit espace entre l'image et le texte
+                                            }}
+                                        >
+                                            <img
+                                                src={participant.picture2}
+                                                alt="mystère"
+                                                style={{
+                                                    width: '40px',           // Taille de l'image
+                                                    height: '40px',          // Taille de l'image
+                                                    objectFit: 'cover',      // Maintenir l'image dans un carré sans la déformer
+                                                    borderRadius: '50%',     // Rendre l'image circulaire
+                                                }}
+                                            />
+                                            <span>{participant.name} {participant.firstname}</span>
                                         </li>
                                     ))}
                                 </ul>
@@ -206,18 +229,17 @@ const EnigmatoGame: React.FC = () => {
 
                     </ContainerBackgroundStyle>
                     <ContainerBackgroundStyle style={{
-                        display: "flex", // Utiliser "flex" pour une meilleure prise en charge
-                        justifyContent: "center", // Centrer horizontalement (si nécessaire)
-                        alignItems: "center", // Aligner verticalement
-                        gap: "8px", // Espacement minimal entre les boutons
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        gap: "8px",
                     }}>
                         <ButtonStyle onClick={handleOpenModal}>{t("need_help")}</ButtonStyle>
-                        <ButtonStyle onClick={handleValidateChoice}>{t("validate_choice")}</ButtonStyle>
+                        <ButtonStyle onClick={handleValidateChoice} disabled={!selectedParticipant}>{t("validate_choice")}</ButtonStyle>
                     </ContainerBackgroundStyle>
 
                 </EnigmatoContainerStyle>
             </ContainerUnderTitleStyle>
-
 
             <Modal open={isModalOpen} onClose={handleCloseModal}>
                 <Box
@@ -242,7 +264,6 @@ const EnigmatoGame: React.FC = () => {
                 </Box>
             </Modal>
         </>
-
     );
 };
 
