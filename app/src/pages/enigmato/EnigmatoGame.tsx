@@ -99,17 +99,17 @@ const EnigmatoGame: React.FC = () => {
             id_user_response: null,
             cluse_used: true
         };
-        try {
-            const createdResponse = await createBoxResponseAsync(boxResponse, navigate);
-            if (createdResponse && createdResponse.id_box_response) {
-                navigate(`/enigmato/parties/${id_party}/game/hint`);
-            } else {
-                alert("Failed to create a box response. Please try again.");
-            }
-        } catch (error) {
-            console.error("An error occurred while creating the box response:", error);
-            alert("An unexpected error occurred. Please try again.");
-        }
+        // try {
+        //     const createdResponse = await createBoxResponseAsync(boxResponse, navigate);
+        //     if (createdResponse && createdResponse.id_box_response) {
+        //         navigate(`/enigmato/parties/${id_party}/game/hint`);
+        //     } else {
+        //         alert("Failed to create a box response. Please try again.");
+        //     }
+        // } catch (error) {
+        //     console.error("An error occurred while creating the box response:", error);
+        //     alert("An unexpected error occurred. Please try again.");
+        // }
     };
 
     const handleValidateChoice = async () => {
@@ -121,8 +121,8 @@ const EnigmatoGame: React.FC = () => {
                 id_user_response: selectedParticipant.id_user,
                 cluse_used: false
             };
-            await createBoxResponseAsync(boxResponse, navigate);
-            navigate(-1);
+            // await createBoxResponseAsync(boxResponse, navigate);
+            // navigate(-1);
         } else {
             alert('Veuillez sélectionner un participant.');
         }
@@ -235,7 +235,7 @@ const EnigmatoGame: React.FC = () => {
                         gap: "8px",
                     }}>
                         <ButtonStyle onClick={handleOpenModal}>{t("need_help")}</ButtonStyle>
-                        <ButtonStyle onClick={handleValidateChoice}>{t("validate_choice")}</ButtonStyle>
+                        <ButtonStyle onClick={handleValidateChoice} disabled={!selectedParticipant}>{t("validate_choice")}</ButtonStyle>
                     </ContainerBackgroundStyle>
 
                 </EnigmatoContainerStyle>
