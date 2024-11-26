@@ -10,8 +10,6 @@ const partyLocks: Record<number, boolean> = {};
 // [GET] Récupère la boîte du jour pour une partie
 export const get_today_box_async = async (req: Request, res: Response) => {
     const { id_party } = req.params;
-    const currentUser = req.user as IUser;
-
     const idPartyNumber = parseInt(id_party, 10);
 
     // Verrouillage de la partie pour éviter les conflits
@@ -22,29 +20,39 @@ export const get_today_box_async = async (req: Request, res: Response) => {
         const party = await fetchParty(idPartyNumber);
         const todayDate = new Date().toISOString().split('T')[0]; // Date actuelle au format YYYY-MM-DD
 
-        // Vérifier si la partie a déjà commencé
-        if (new Date(todayDate) < new Date(party.date_start)) {
-            res.status(400).json({ message: "La partie n'a pas encore commencé." });
+        // Vérifier si la partie est terminée
+        if (party.is_finished) {
+            if (!res.headersSent) {
+                res.status(204).json({ message: "La partie est terminée." });
+            }
+        } else {
+            // Vérifier si la partie a déjà commencé
+            if (new Date(todayDate) < new Date(party.date_start)) {
+                if (!res.headersSent) {
+                    res.status(202).json({ message: "La partie n'a pas encore commencé." });
+                }
+            } else {
+                // Vérifiez si la boîte du jour existe déjà
+                const boxExistQuery = await pool.query(
+                    'SELECT * FROM enigmato_boxes WHERE id_party = $1 AND date = $2',
+                    [idPartyNumber, todayDate]
+                );
+
+                let box = boxExistQuery.rows[0];
+
+                // Si la boîte n'existe pas, créez-la
+                if (!box) {
+                    box = await create_box_async(idPartyNumber);
+                }
+
+                // Exclure `id_enigma_user` de la boîte avant de l'envoyer
+                const { id_enigma_user, ...sanitizedBox } = box;
+
+                if (!res.headersSent) {
+                    res.json(sanitizedBox);
+                }
+            }
         }
-
-
-        // Vérifiez si la boîte du jour existe déjà
-        const boxExistQuery = await pool.query(
-            'SELECT * FROM enigmato_boxes WHERE id_party = $1 AND date = $2',
-            [idPartyNumber, todayDate]
-        );
-
-        let box = boxExistQuery.rows[0];
-
-        // Si la boîte n'existe pas, créez-la
-        if (!box) {
-            box = await create_box_async(idPartyNumber);
-        }
-
-        // Exclure `id_enigma_user` de la boîte avant de l'envoyer
-        const { id_enigma_user, ...sanitizedBox } = box;
-
-        res.json(sanitizedBox);
     } catch (err) {
         console.error('Error fetching today’s box:', err);
         // Assurez-vous de ne pas envoyer deux réponses dans le bloc catch
@@ -56,7 +64,6 @@ export const get_today_box_async = async (req: Request, res: Response) => {
         partyLocks[idPartyNumber] = false;
     }
 };
-
 
 // [GET] Récupère les détails de la boîte du jour pour le jeu
 export const get_today_box_in_game_async = async (req: Request, res: Response) => {
@@ -117,7 +124,7 @@ export const get_past_boxes_in_game_async = async (req: Request, res: Response) 
         const boxes = boxesQuery.rows;
 
         if (boxes.length === 0) {
-            res.status(404).json({ message: 'No past boxes found' });
+            res.status(204).json({ message: 'No past boxes found' });
             responseSent = true; // Mark response as sent
         }
 
@@ -133,20 +140,25 @@ export const get_past_boxes_in_game_async = async (req: Request, res: Response) 
                     [box.id_enigma_user, id_party]
                 );
 
+                const userQuery = await pool.query(
+                    'SELECT id_user, name, firstname FROM users WHERE id_user = $1',
+                    [box.id_enigma_user]
+                )
+
                 const profile = profileQuery.rows[0];
-                if (!profile) continue; // Skip if profile is missing
+                const user = userQuery.rows[0];
 
                 pastBoxesWithProfiles.push({
                     id_box: box.id_box,
                     id_party: box.id_party,
-                    name: box.name,
+                    name: user.name,
                     date: box.date,
                     picture1: profile.picture1,
                     picture2: profile.picture2,
-                    name_box: '',
-                    id_user: 0,
-                    id_profil: 0,
-                    firstname: '',
+                    name_box: box.name,
+                    id_user: user.id_user,
+                    id_profil: profile.id_profil,
+                    firstname: user.firstname,
                 });
             } catch (innerErr) {
                 console.error(`Error processing box ${box.id_box}:`, innerErr);
