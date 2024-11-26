@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_ENIGMATO_JOIN_PARTIES_URL, API_ENIGMATO_PARTIES_URL, API_ENIGMATO_USER_PARTIES_URL } from '../../constants/constants';
+import { API_ENIGMATO_JOIN_PARTIES_URL, API_ENIGMATO_PARTICIPANTS_URL, API_ENIGMATO_PARTIES_URL, API_ENIGMATO_USER_PARTIES_URL } from '../../constants/constants';
 import { IEnigmatoJoinParty, IEnigmatoParty, IEnigmatoPartyCreateRequest, IEnigmatoPartyParticipants } from '../../interfaces/IEnigmato';
 import { handleError } from '../authentication/loginService';
 import { useNavigate } from 'react-router-dom';
@@ -60,7 +60,7 @@ export const getUserFinishedPartiesAsync = async (navigate: ReturnType<typeof us
 
 export const fetchParticipantsAsync = async (id_party: number, navigate: ReturnType<typeof useNavigate>) => {
   try {
-    const response = await axios.get(`${API_ENIGMATO_PARTIES_URL}/${id_party}/participants`, {
+    const response = await axios.get(`${API_ENIGMATO_PARTICIPANTS_URL}/${id_party}`, {
       withCredentials: true,
     });
     return response.data;
@@ -72,7 +72,7 @@ export const fetchParticipantsAsync = async (id_party: number, navigate: ReturnT
 
 export const fetchCompletedParticipantsAsync = async (id_party: number, navigate: ReturnType<typeof useNavigate>) => {
   try {
-    const response = await axios.get(`${API_ENIGMATO_PARTIES_URL}/${id_party}/participants/completed`, {
+    const response = await axios.get(`${API_ENIGMATO_PARTICIPANTS_URL}/${id_party}/completed`, {
       withCredentials: true,
     });
     return response.data;
@@ -83,7 +83,7 @@ export const fetchCompletedParticipantsAsync = async (id_party: number, navigate
 
 export const fetchCompletedRandomParticipantsAsync = async (id_party: number, navigate: ReturnType<typeof useNavigate>) => {
   try {
-    const response = await axios.get(`${API_ENIGMATO_PARTIES_URL}/${id_party}/participants/completed/random`, {
+    const response = await axios.get(`${API_ENIGMATO_PARTICIPANTS_URL}/${id_party}/completed/random`, {
       withCredentials: true,
     });
     return response.data;

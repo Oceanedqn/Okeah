@@ -25,12 +25,11 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
             } else {
                 // Création du token d'accès
                 const token = createAccessToken(user.id_user);
-
                 // Définition du cookie avec le token
                 res.cookie('access_token', token, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === 'production',
-                    sameSite: 'none',
+                    sameSite: process.env.SAME_SITE as "strict" | "none",
                 });
 
                 // Retour de la réponse

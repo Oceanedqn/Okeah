@@ -1,14 +1,13 @@
 import { IUser } from '../../interfaces/IUser';
 import pool from '../../config/database';
 import { Request, Response, Router } from 'express';
-import { IEnigmatoParticipants, IEnigmatoParty, IEnigmatoPartyParticipants } from '../../interfaces/IEnigmato';
 import { hashPassword, verifyPassword } from '../../utils/auth.utils';
-import { bufferToBase64, checkAndUpdatePartyStatus } from '../../utils/whois.utils';
+import { checkAndUpdatePartyStatus, fetchParty } from '../../utils/whois.utils';
 
 const router = Router();
 
-// GET /user/parties
-export const get_user_parties_async = async (req: Request, res: Response) => {
+// [OK] Récupère les parties d'un utilisateur
+export const get_parties_by_user_async = async (req: Request, res: Response) => {
     try {
         const currentUser = req.user; // Auth middleware injects user dans la requête
         const userId = currentUser!.id_user;
@@ -76,7 +75,8 @@ export const get_user_parties_async = async (req: Request, res: Response) => {
     }
 };
 
-export const get_user_parties_finished_async = async (req: Request, res: Response) => {
+// [OK] Récupère les parties finies d'un utilisateur
+export const get_finished_parties_by_user_async = async (req: Request, res: Response) => {
     try {
         const currentUser = req.user; // Auth middleware injects user into request
         const userId = currentUser!.id_user;
@@ -131,8 +131,8 @@ export const get_user_parties_finished_async = async (req: Request, res: Respons
     }
 };
 
-
-export const get_parties_async = async (req: Request, res: Response) => {
+// [OK] Récupère les parties disponible sans celles que l'utilisateur a déjà rejoint
+export const get_unjoined_parties_async = async (req: Request, res: Response) => {
     const skip = parseInt(req.query.skip as string) || 0;
     const limit = parseInt(req.query.limit as string) || 8;
     const currentUser: IUser | undefined = req.user;
@@ -213,7 +213,7 @@ export const get_parties_async = async (req: Request, res: Response) => {
     }
 };
 
-
+// [OK] Crée une partie
 export const create_party_async = async (req: Request, res: Response) => {
     try {
         const party = req.body; // On suppose que les données sont envoyées dans le corps de la requête
@@ -268,6 +268,7 @@ export const create_party_async = async (req: Request, res: Response) => {
 
 }
 
+// [OK] Rejoindre une partie
 export const join_party_async = async (req: Request, res: Response) => {
     const { id_party, password } = req.body; // Données envoyées dans le corps de la requête
     const currentUser: IUser | undefined = req.user;
@@ -333,100 +334,29 @@ VALUES ($1, $2, $3, $4) RETURNING *
 
 }
 
-export const get_participants_async = async (req: Request, res: Response) => {
+export const get_party_by_id_async = async (req: Request, res: Response) => {
     const { id_party } = req.params;
-    const { user } = req; // Utilisateur actuel de la requête (généralement venant d'un middleware d'auth)
 
-    if (user) {
-        try {
-            // Vérification si la partie existe
-            const partyQuery = await pool.query(
-                'SELECT * FROM enigmato_parties WHERE id_party = $1',
-                [id_party]
-            );
-
-            if (partyQuery.rows.length === 0) {
-                res.status(404).json({ message: 'No such party found' });
-            }
-
-            // Récupérer les participants de la partie avec leur profil
-            const participantsQuery = await pool.query(
-                `SELECT u.id_user, u.gender, u.name, u.firstname, p.id_profil, p.picture1, p.picture2
-                FROM users u
-                JOIN enigmato_profiles p ON p.id_user = u.id_user
-                WHERE p.id_party = $1`,
-                [id_party]
-            );
-
-            const participants = participantsQuery.rows;
-
-            if (participants.length === 0) {
-                res.status(404).json({ message: 'No participants found for this party' });
-            }
-
-            // Préparer la liste des participants avec leur statut `is_complete`
-            const participantsWithStatus: IEnigmatoParticipants[] = participants.map((participant) => {
-                return {
-                    id_user: participant.id_user,
-                    id_party: Number(id_party),
-                    id_profil: participant.id_profil,
-                    name: participant.name,
-                    firstname: participant.firstname,
-                    gender: participant.gender,
-                    picture2: participant.picture2 ? bufferToBase64(participant.picture2) : null,
-                    is_complete: !!(participant.picture1 && participant.picture2),
-                };
-            });
-
-            res.json(participantsWithStatus);
-
-        } catch (err) {
-            console.error(err);
-            res.status(500).json({ message: 'Internal Server Error' });
-        }
-    }
-}
-
-
-export const get_party_async = async (req: Request, res: Response) => {
-    const { id_party } = req.params;
-    const { user } = req;  // Utilisateur actuel de la requête (généralement venant d'un middleware d'auth)
-
-    // Si l'utilisateur n'est pas authentifié, renvoyer une erreur 401
-    if (!user) {
+    if (!req.user) {
         res.status(401).json({ message: 'Unauthorized' });
     }
 
     try {
-        // Vérification si la partie existe
-        const partyQuery = await pool.query(
-            'SELECT * FROM enigmato_parties WHERE id_party = $1',
-            [parseInt(id_party)]
-        );
+        const idPartyNumber = parseInt(id_party, 10);
+        if (isNaN(idPartyNumber)) {
+            res.status(400).json({ message: 'Invalid id_party parameter. It must be a number.' });
+        }
 
-        // Si aucune partie n'est trouvée, retourner 404
-        if (partyQuery.rows.length === 0) {
+        const party = await fetchParty(idPartyNumber);
+        res.json(party);
+    } catch (err: any) {
+        if (err.message === 'Party not found') {
             res.status(404).json({ message: 'Party not found' });
         }
 
-        // Récupérer la première ligne de la réponse (la partie trouvée)
-        const party = partyQuery.rows[0];
-
-        // Vérification si la partie existe avant d'y accéder
-        if (!party || !party.id_party) {
-            res.status(404).json({ message: 'Party not found' });
-        }
-
-
-        // Envoyer la réponse avec les informations de la partie
-        res.json(party); // Utiliser return pour éviter des réponses multiples
-
-    } catch (err) {
-        // Gérer l'erreur et retourner une erreur serveur interne
         console.error(err);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
-
 
 export default router;
