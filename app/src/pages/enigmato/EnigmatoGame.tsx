@@ -98,7 +98,7 @@ const EnigmatoGame: React.FC = () => {
             id_user: null,
             id_user_response: null,
             cluse_used: true
-        }
+        };
         try {
             const createdResponse = await createBoxResponseAsync(boxResponse, navigate);
             if (createdResponse && createdResponse.id_box_response) {
@@ -110,8 +110,6 @@ const EnigmatoGame: React.FC = () => {
             console.error("An error occurred while creating the box response:", error);
             alert("An unexpected error occurred. Please try again.");
         }
-
-
     };
 
     const handleValidateChoice = async () => {
@@ -122,7 +120,7 @@ const EnigmatoGame: React.FC = () => {
                 id_user: null,
                 id_user_response: selectedParticipant.id_user,
                 cluse_used: false
-            }
+            };
             await createBoxResponseAsync(boxResponse, navigate);
             navigate(-1);
         } else {
@@ -131,7 +129,8 @@ const EnigmatoGame: React.FC = () => {
     };
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        console.log("input change");
+        setInputValue(event.target.value);
+        setIsDropdownOpen(true); // Ouvre le dropdown dès que l'utilisateur tape quelque chose
     };
 
     const handleOptionClick = (participant: IEnigmatoParticipants) => {
@@ -139,6 +138,11 @@ const EnigmatoGame: React.FC = () => {
         setInputValue(participant.name);
         setIsDropdownOpen(false);
     };
+
+    const filteredParticipants = participants?.filter((participant) =>
+        participant.name.toLowerCase().includes(inputValue.toLowerCase()) ||
+        participant.firstname.toLowerCase().includes(inputValue.toLowerCase())
+    );
 
     const toggleDropdown = () => {
         setIsDropdownOpen(prev => !prev);
@@ -164,7 +168,7 @@ const EnigmatoGame: React.FC = () => {
 
 
     if (!partyName || !todayBox) {
-        return <LoadingComponent />
+        return <LoadingComponent />;
     }
 
 
@@ -189,15 +193,34 @@ const EnigmatoGame: React.FC = () => {
                                 style={{ borderRadius: '16px' }}
                                 type="text"
                                 value={inputValue}
-                                onClick={toggleDropdown}
+                                onFocus={() => setIsDropdownOpen(true)}  // Open dropdown on focus
                                 onChange={handleInputChange}
                                 placeholder={t("choise_response")}
                             />
-                            {isDropdownOpen && participants!.length > 0 && (
+                            {isDropdownOpen && filteredParticipants && filteredParticipants.length > 0 && (
                                 <ul style={{ listStyleType: 'none', padding: 0, maxHeight: '150px', overflowY: 'auto' }}>
-                                    {participants!.map(participant => (
-                                        <li key={participant.id_user} onClick={() => handleOptionClick(participant)} style={{ cursor: 'pointer' }}>
-                                            {participant.name}
+                                    {filteredParticipants.map(participant => (
+                                        <li
+                                            key={participant.id_user}
+                                            onClick={() => handleOptionClick(participant)}
+                                            style={{
+                                                cursor: 'pointer',
+                                                display: 'flex',          // Utilisation de flexbox pour aligner les éléments en ligne
+                                                alignItems: 'center',     // Centrer verticalement les éléments (image, nom, prénom)
+                                                gap: '10px',              // Ajouter un petit espace entre l'image et le texte
+                                            }}
+                                        >
+                                            <img
+                                                src={participant.picture2}
+                                                alt="mystère"
+                                                style={{
+                                                    width: '40px',           // Taille de l'image
+                                                    height: '40px',          // Taille de l'image
+                                                    objectFit: 'cover',      // Maintenir l'image dans un carré sans la déformer
+                                                    borderRadius: '50%',     // Rendre l'image circulaire
+                                                }}
+                                            />
+                                            <span>{participant.name} {participant.firstname}</span>
                                         </li>
                                     ))}
                                 </ul>
@@ -206,10 +229,10 @@ const EnigmatoGame: React.FC = () => {
 
                     </ContainerBackgroundStyle>
                     <ContainerBackgroundStyle style={{
-                        display: "flex", // Utiliser "flex" pour une meilleure prise en charge
-                        justifyContent: "center", // Centrer horizontalement (si nécessaire)
-                        alignItems: "center", // Aligner verticalement
-                        gap: "8px", // Espacement minimal entre les boutons
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        gap: "8px",
                     }}>
                         <ButtonStyle onClick={handleOpenModal}>{t("need_help")}</ButtonStyle>
                         <ButtonStyle onClick={handleValidateChoice}>{t("validate_choice")}</ButtonStyle>
@@ -217,7 +240,6 @@ const EnigmatoGame: React.FC = () => {
 
                 </EnigmatoContainerStyle>
             </ContainerUnderTitleStyle>
-
 
             <Modal open={isModalOpen} onClose={handleCloseModal}>
                 <Box
@@ -242,7 +264,6 @@ const EnigmatoGame: React.FC = () => {
                 </Box>
             </Modal>
         </>
-
     );
 };
 
