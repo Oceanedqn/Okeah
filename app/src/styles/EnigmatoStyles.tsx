@@ -272,3 +272,27 @@ export const RadioInput = styled.input`
         border: 2px solid ${({ theme }) => theme.colors.primary};
     }
 `;
+
+export const ButtonHintStyle = styled.button`
+    border-radius: 50%; /* Bouton circulaire */
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: ${({ theme }) => theme.colors.secondary}; /* Utilisation de la couleur principale du thème */
+    color: white;
+    font-size: 20px; /* Taille de la police pour le "?" */
+    border: none; /* Aucun bord */
+    cursor: pointer; /* Curseur pointeur */
+    
+    /* Effet au survol */
+    &:hover {
+        background-color: ${({ theme }) => theme.colors.secondary_dark}; /* Couleur au survol depuis le thème */
+    }
+
+    /* Effet actif */
+    &:active {
+        transform: scale(0.95); /* Réduction légère du bouton lorsqu'il est cliqué */
+    }
+`;
