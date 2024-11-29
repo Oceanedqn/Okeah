@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ButtonStyle, ContainerUnderTitleStyle, TextAlertStyle, TextStyle } from '../../styles/GlobalStyles';
-import { AutoCompleteContainer, ContainerBackgroundStyle, EnigmatoContainerStyle } from '../../styles/EnigmatoStyles';
+import { AutoCompleteContainer, ButtonHintStyle, ContainerBackgroundStyle, EnigmatoContainerStyle } from '../../styles/EnigmatoStyles';
 import { Box, Modal } from '@mui/material';
 import { fetchCompletedParticipantsAsync, getPartyNameAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { getTodayBoxGameAsync } from '../../services/enigmato/enigmatoBoxesService';
@@ -121,10 +121,10 @@ const EnigmatoGame: React.FC = () => {
                 id_user_response: selectedParticipant.id_user,
                 cluse_used: false
             };
-            // await createBoxResponseAsync(boxResponse, navigate);
-            // navigate(-1);
-        } else {
-            alert('Veuillez sélectionner un participant.');
+
+            console.log(boxResponse);
+            await createBoxResponseAsync(boxResponse, navigate);
+            navigate(`/enigmato/parties/${id_party}/game/info`);
         }
     };
 
@@ -135,7 +135,7 @@ const EnigmatoGame: React.FC = () => {
 
     const handleOptionClick = (participant: IEnigmatoParticipants) => {
         setSelectedParticipant(participant);
-        setInputValue(participant.name);
+        setInputValue(`${participant.name} ${participant.firstname}`);
         setIsDropdownOpen(false);
     };
 
@@ -188,53 +188,72 @@ const EnigmatoGame: React.FC = () => {
                             />
                         )}
 
-                        <AutoCompleteContainer ref={dropdownRef}>
-                            <input
-                                style={{ borderRadius: '16px' }}
-                                type="text"
-                                value={inputValue}
-                                onFocus={() => setIsDropdownOpen(true)}  // Open dropdown on focus
-                                onChange={handleInputChange}
-                                placeholder={t("choise_response")}
-                            />
-                            {isDropdownOpen && filteredParticipants && filteredParticipants.length > 0 && (
-                                <ul style={{ listStyleType: 'none', padding: 0, maxHeight: '150px', overflowY: 'auto' }}>
-                                    {filteredParticipants.map(participant => (
-                                        <li
-                                            key={participant.id_user}
-                                            onClick={() => handleOptionClick(participant)}
-                                            style={{
-                                                cursor: 'pointer',
-                                                display: 'flex',          // Utilisation de flexbox pour aligner les éléments en ligne
-                                                alignItems: 'center',     // Centrer verticalement les éléments (image, nom, prénom)
-                                                gap: '10px',              // Ajouter un petit espace entre l'image et le texte
-                                            }}
-                                        >
-                                            <img
-                                                src={participant.picture2}
-                                                alt="mystère"
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <AutoCompleteContainer ref={dropdownRef} style={{ flex: 1 }}>
+                                <input
+                                    style={{ borderRadius: '16px', width: '100%' }}
+                                    type="text"
+                                    value={inputValue}
+                                    onFocus={() => { setIsDropdownOpen(true); setSelectedParticipant(null); setInputValue(''); }} // Open dropdown on focus
+                                    onChange={handleInputChange}
+                                    placeholder={t("choise_response")}
+                                />
+                                {isDropdownOpen && filteredParticipants && filteredParticipants.length > 0 && (
+                                    <ul style={{ listStyleType: 'none', padding: 0, maxHeight: '150px', overflowY: 'auto' }}>
+                                        {filteredParticipants.map(participant => (
+                                            <li
+                                                key={participant.id_user}
+                                                onClick={() => handleOptionClick(participant)}
                                                 style={{
-                                                    width: '40px',           // Taille de l'image
-                                                    height: '40px',          // Taille de l'image
-                                                    objectFit: 'cover',      // Maintenir l'image dans un carré sans la déformer
-                                                    borderRadius: '50%',     // Rendre l'image circulaire
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '10px',
                                                 }}
-                                            />
-                                            <span>{participant.name} {participant.firstname}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            )}
-                        </AutoCompleteContainer>
+                                            >
+                                                <img
+                                                    src={participant.picture2}
+                                                    alt="mystère"
+                                                    style={{
+                                                        width: '40px',
+                                                        height: '40px',
+                                                        objectFit: 'cover',
+                                                        borderRadius: '50%',
+                                                    }}
+                                                />
+                                                <span>{participant.name} {participant.firstname}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </AutoCompleteContainer>
+
+                            {/* Button with "?" icon */}
+                            <ButtonHintStyle onClick={handleOpenModal}>
+                                ?
+                            </ButtonHintStyle>
+                        </div>
 
                     </ContainerBackgroundStyle>
-                    <ContainerBackgroundStyle style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        gap: "8px",
-                    }}>
-                        <ButtonStyle onClick={handleOpenModal}>{t("need_help")}</ButtonStyle>
+                    <ContainerBackgroundStyle style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", }}>
+                        {selectedParticipant && (
+                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
+                                <TextStyle>{t("current_choice")}</TextStyle>
+                                <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "16px" }}>
+                                    <img
+                                        src={selectedParticipant.picture2}
+                                        alt={`${selectedParticipant.name} ${selectedParticipant.firstname}`}
+                                        style={{
+                                            width: '80px', // Taille plus petite pour bien s'intégrer
+                                            height: '80px',
+                                            borderRadius: '28px',
+                                            objectFit: 'cover',
+                                        }}
+                                    />
+                                    <TextStyle>{`${selectedParticipant.name} ${selectedParticipant.firstname}`}</TextStyle>
+                                </div>
+                            </div>
+                        )}
                         <ButtonStyle onClick={handleValidateChoice} disabled={!selectedParticipant}>{t("validate_choice")}</ButtonStyle>
                     </ContainerBackgroundStyle>
 

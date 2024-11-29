@@ -30,35 +30,45 @@ export const get_box_response_async = async (req: Request, res: Response) => {
 };
 
 
-// export const create_box_response_Async = async (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//         // Récupère les données envoyées dans la requête
-//         const boxResponseData: IEnigmatoBoxResponse = req.body;
-//         const currentUser = req.user; // Utilisateur authentifié grâce au middleware d'authentification
+export const create_box_response_async = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        // Récupère les données envoyées dans la requête
+        const boxResponseData: IEnigmatoBoxResponse = req.body;
+        const currentUser = req.user; // Utilisateur authentifié grâce au middleware d'authentification
 
-//         // Prépare les données à insérer
-//         const data = {
-//             ...boxResponseData,
-//             date: boxResponseData.date || new Date(),
-//             id_user: currentUser!.id_user,
-//         };
+        // Prépare les données à insérer
+        const data: IEnigmatoBoxResponse = {
+            id_box_response: null, // Géré automatiquement par la base si auto-incrément
+            id_box: boxResponseData.id_box!,
+            id_user: currentUser!.id_user, // ID utilisateur authentifié
+            id_user_response: boxResponseData.id_user_response || null, // Optionnel
+            date: new Date().toISOString(), // Génération de la date actuelle au format ISO
+            cluse_used: boxResponseData.cluse_used || false, // Valeur par défaut false si non fournie
+        };
 
-//         // Exécuter la requête pour insérer les données dans la base de données
-//         const query = `
-//       INSERT INTO enigmato_box_responses (id_user, box_id, response, date)
-//       VALUES ($1, $2, $3, $4)
-//       RETURNING *;
-//     `;
-//         const values = [data.id_user, data.box_id, data.response, data.date];
+        // Exécuter la requête pour insérer les données dans la base de données
+        const query = `
+            INSERT INTO enigmato_box_responses (id_box, id_user, id_user_response, date, cluse_used)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING *;
+        `;
+        const values = [
+            data.id_box,
+            data.id_user,
+            data.id_user_response,
+            data.date,
+            data.cluse_used,
+        ];
 
-//         // Effectuer la requête SQL via le pool de connexions
-//         const result = await pool.query(query, values);
 
-//         // Récupérer la réponse insérée et la renvoyer au client
-//         const newBoxResponse = result.rows[0];
+        // Effectuer la requête SQL via le pool de connexions
+        const result = await pool.query(query, values);
 
-//         res.status(201).json(newBoxResponse); // Retourne la nouvelle réponse de la boîte
-//     } catch (error) {
-//         next(error); // Passe l'erreur au middleware de gestion des erreurs
-//     }
-// };
+        // Récupérer la réponse insérée et la renvoyer au client
+        const newBoxResponse = result.rows[0];
+
+        res.status(201).json(newBoxResponse); // Retourne la nouvelle réponse de la boîte
+    } catch (error) {
+        next(error); // Passe l'erreur au middleware de gestion des erreurs
+    }
+};
