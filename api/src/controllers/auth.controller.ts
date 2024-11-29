@@ -29,7 +29,7 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
                 res.cookie('access_token', token, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === 'production',
-                    sameSite: process.env.SAME_SITE as "strict" | "none",
+                    sameSite: 'none',
                 });
 
                 // Retour de la réponse
