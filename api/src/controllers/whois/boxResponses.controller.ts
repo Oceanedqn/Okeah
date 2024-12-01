@@ -72,3 +72,44 @@ export const create_box_response_async = async (req: Request, res: Response, nex
         next(error); // Passe l'erreur au middleware de gestion des erreurs
     }
 };
+
+
+export const update_box_response_async = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        // Récupération des paramètres et du corps de la requête
+        const { id_box_response } = req.params; // ID de la réponse de la boîte
+        const { id_user_response } = req.body; // Nouvel utilisateur associé
+
+        console.log(id_box_response, id_user_response)
+
+        // Requête SQL pour vérifier si la box existe
+        const checkQuery = `
+            SELECT * FROM enigmato_box_responses
+            WHERE id_box_response = $1;
+        `;
+        const checkResult = await pool.query(checkQuery, [id_box_response]);
+
+        // Si aucune boîte n'est trouvée, retourner une erreur
+        if (checkResult.rows.length === 0) {
+            res.status(404).json({ message: 'Box response not found' });
+        }
+
+        // Requête SQL pour mettre à jour le champ `id_user_response`
+        const updateQuery = `
+            UPDATE enigmato_box_responses
+            SET id_user_response = $1
+            WHERE id_box_response = $2
+            RETURNING *;
+        `;
+        const values = [id_user_response, id_box_response];
+
+        // Exécuter la requête SQL de mise à jour
+        const updateResult = await pool.query(updateQuery, values);
+
+        // Renvoyer la réponse mise à jour au client
+        res.status(200).json(updateResult.rows[0]);
+    } catch (error) {
+        console.error('Error updating box response:', error);
+        next(error); // Passer l'erreur au middleware de gestion
+    }
+};

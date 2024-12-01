@@ -99,17 +99,17 @@ const EnigmatoGame: React.FC = () => {
             id_user_response: null,
             cluse_used: true
         };
-        // try {
-        //     const createdResponse = await createBoxResponseAsync(boxResponse, navigate);
-        //     if (createdResponse && createdResponse.id_box_response) {
-        //         navigate(`/enigmato/parties/${id_party}/game/hint`);
-        //     } else {
-        //         alert("Failed to create a box response. Please try again.");
-        //     }
-        // } catch (error) {
-        //     console.error("An error occurred while creating the box response:", error);
-        //     alert("An unexpected error occurred. Please try again.");
-        // }
+        try {
+            const createdResponse = await createBoxResponseAsync(boxResponse, navigate);
+            if (createdResponse && createdResponse.id_box_response) {
+                navigate(`/enigmato/parties/${id_party}/game/hint`);
+            } else {
+                alert("Failed to create a box response. Please try again.");
+            }
+        } catch (error) {
+            console.error("An error occurred while creating the box response:", error);
+            alert("An unexpected error occurred. Please try again.");
+        }
     };
 
     const handleValidateChoice = async () => {

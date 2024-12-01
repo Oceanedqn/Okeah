@@ -296,3 +296,76 @@ export const ButtonHintStyle = styled.button`
         transform: scale(0.95); /* Réduction légère du bouton lorsqu'il est cliqué */
     }
 `;
+
+
+export const StyledButton = styled.button<{ selected?: boolean }>`
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px; /* Espace entre l'image et le texte */
+    margin: 5px 0;
+    padding: 10px 15px;
+    border: 2px solid ${({ selected, theme }) => (selected ? theme.colors.primary : 'transparent')};
+    border-radius: 20px; /* Arrondi du bouton */
+    background-color: ${({ selected, theme }) =>
+        selected ? 'darkblue' : theme.colors.primary};
+    color: ${({ selected }) => (selected ? 'white' : 'black')};
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background-color: ${({ selected, theme }) =>
+        selected ? 'darkblue' : theme.colors.secondary};
+    }
+
+    img {
+        width: 40px; /* Taille de l'image */
+        height: 40px;
+        border-radius: 50%; /* Image circulaire */
+        object-fit: cover; /* Adapter l'image au conteneur */
+    }
+`;
+
+// Conteneur principal pour organiser les éléments en grille
+export const GridContainer = styled.div`
+    display: flex;
+    flex-wrap: wrap; /* Permet aux éléments de passer à la ligne suivante */
+    justify-content: center; /* Centre le contenu horizontalement */
+    align-items: center; /* Centre le contenu verticalement */
+    gap: 30px; /* Espace de 5px entre les éléments */
+    margin-top: 20px;
+`;
+
+// Style pour chaque carré
+export const StyledCard = styled.div<{ selected?: boolean }>`
+    width: 150px;
+    height: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: ${({ selected, theme }) => (selected ? theme.colors.primary_dark : 'white')};
+    box-shadow: ${({ selected }) => (selected ? '0 4px 8px rgba(0, 0, 255, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.1)')};
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover; /* Adapter l'image */
+        border-radius: 10px;
+    }
+
+    span {
+        font-size: 14px;
+        font-weight: bold;
+        text-align: center;
+        color: ${({ selected, theme }) => (selected ? theme.colors.background_light : 'black')};
+    }
+`;
