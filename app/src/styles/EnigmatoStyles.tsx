@@ -198,29 +198,7 @@ export const AutoCompleteContainer = styled.div`
         width: 100%;
         padding: 8px;
         border: 1px solid #ccc;
-        border-radius: 12px;
-    }
-
-    ul {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background: white;
-        border: 1px solid #ccc;
-        border-radius: 12px;
-        z-index: 1;
-        max-height: 150px;
-        overflow-y: auto;
-    }
-
-    li {
-        padding: 8px;
-        cursor: pointer;
-
-        &:hover {
-            background: ${({ theme }) => theme.colors.background_alternatif};
-        }
+        border-radius: 8px;
     }
 `;
 
