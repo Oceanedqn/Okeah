@@ -7,8 +7,10 @@ import { IEnigmatoBoxGame, IEnigmatoBoxResponse, IEnigmatoParticipants, IEnigmat
 import { getBoxResponseByIdBoxAsync, updateBoxResponseAsync } from '../../services/enigmato/enigmatoBoxResponsesService';
 import { useTranslation } from 'react-i18next';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
-import { ContainerBackgroundStyle, EnigmatoContainerStyle } from '../../styles/EnigmatoStyles';
+import { ButtonHintStyle, ContainerBackgroundStyle, EnigmatoContainerStyle, GridContainer, StyledButton, StyledCard } from '../../styles/EnigmatoStyles';
 import LoadingComponent from '../../components/base/LoadingComponent';
+import ParticipantsGridComponent from 'src/components/Enigmato/ParticipantGridComponent';
+
 
 const EnigmatoGameHint: React.FC = () => {
     const { t } = useTranslation();
@@ -52,8 +54,8 @@ const EnigmatoGameHint: React.FC = () => {
                     setBoxResponse(response);
 
                     if (response && response.id_user_response) {
-                        handleBack(); // Redirect if an id_user_response exists
-                        return; // Stop further execution
+                        handleBack();
+                        return;
                     }
 
                     if (response && !response.cluse_used) {
@@ -119,52 +121,31 @@ const EnigmatoGameHint: React.FC = () => {
 
     return (
         <>
-            <HeaderTitleComponent title={t("infoGame") + " " + party.name} onBackClick={handleBack} />
+            <HeaderTitleComponent title={todayBox!.name} onBackClick={handleBack} />
             <ContainerUnderTitleStyle>
                 <EnigmatoContainerStyle>
-                    <ContainerBackgroundStyle>
-                        <h2>{todayBox?.name}</h2>
-
-                        {/* Render image if it's a valid base64 string */}
-                        {todayBox?.picture1 && isBase64(todayBox.picture1) ? (
-                            <img
-                                src={todayBox.picture1}
-                                alt="mystère"
-                                style={{ width: '150px', height: 'auto', objectFit: 'cover' }}
-                            />
-                        ) : (
-                            <div>No image available</div>
-                        )}
-
-
-                        <div>
-                            <TextStyle style={{ marginTop: "20px" }}>Participants proposés :</TextStyle>
-                            {participants && participants.length > 0 ? (
-                                participants.map(participant => (
-                                    <button
-                                        key={participant.id_user}
-                                        style={{
-                                            margin: '5px 0',
-                                            backgroundColor: selectedParticipant?.id_user === participant.id_user ? 'blue' : 'transparent',
-                                            color: selectedParticipant?.id_user === participant.id_user ? 'white' : 'black',
-                                            cursor: 'pointer',
-                                            padding: '5px 10px',
-                                        }}
-                                        onClick={() => handleOptionClick(participant)}
-                                    >
-                                        {participant.name}
-                                    </button>
-                                ))
-                            ) : (
-                                <p>Aucun participant proposé.</p>
-                            )}
-                        </div>
-
-                        <ButtonStyle onClick={handleValidateChoice}>Valider mon choix</ButtonStyle>
-                    </ContainerBackgroundStyle>
-
-
+                    {todayBox?.picture1 && isBase64(todayBox.picture1) && (
+                        <img
+                            src={todayBox.picture1}
+                            alt="mystère"
+                            style={{ width: '200px', height: '200px', objectFit: 'cover', borderRadius: '32px' }}
+                        />
+                    )}
                 </EnigmatoContainerStyle>
+
+                <div>
+                    <ParticipantsGridComponent
+                        participants={participants}
+                        selectedParticipant={selectedParticipant}
+                        onParticipantClick={handleOptionClick}
+                    />
+                </div>
+
+                <EnigmatoContainerStyle style={{ paddingTop: '20px' }}>
+                    <ButtonStyle onClick={handleValidateChoice} disabled={!selectedParticipant}>Valider mon choix</ButtonStyle>
+                </EnigmatoContainerStyle>
+
+
             </ContainerUnderTitleStyle>
         </>
 
