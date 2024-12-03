@@ -1,4 +1,4 @@
-import { IEnigmatoParticipants } from "../interfaces/IEnigmato";
+import { IEnigmatoParticipants, IEnigmatoPartyParticipants } from "../interfaces/IEnigmato";
 import pool from "../config/database";
 import { IEnigmatoParty } from "../interfaces/IEnigmato";
 import { get_random_participant_completed_async } from "../controllers/whois/participants.controller";
@@ -77,7 +77,6 @@ export const fetchParty = async (id_party: number): Promise<IEnigmatoParty> => {
 
     return partyQuery.rows[0];
 };
-
 
 
 export const fetch_participants_completed_async = async (id_party: number): Promise<IEnigmatoParticipants[] | { message: string }> => {
@@ -236,6 +235,67 @@ export const create_box_async = async (id_party: number): Promise<any> => {
 
 
 
-const isValidParticipant = (participant: any): participant is IEnigmatoParticipants => {
-    return participant && typeof participant.id_user === 'number';
+export const checkPartyFinished = (party: IEnigmatoPartyParticipants): boolean => {
+    // Obtenir la date actuelle en UTC, sans l'heure
+    const today = new Date();
+    const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+
+    // Obtenir la date de début en UTC, sans l'heure
+    const dateStart = new Date(party.date_start);
+    const dateStartUTC = new Date(Date.UTC(dateStart.getFullYear(), dateStart.getMonth(), dateStart.getDate()));
+
+    // Calculer la différence en jours
+    const diffDays = Math.floor((todayUTC.getTime() - dateStartUTC.getTime()) / (1000 * 60 * 60 * 24));
+
+    let effectiveDays = diffDays;
+
+    // Si les week-ends doivent être exclus
+    if (!party.include_weekends) {
+        let workDays = 0;
+        for (let i = 0; i <= diffDays; i++) {
+            const currentDay = new Date(dateStartUTC);
+            currentDay.setUTCDate(currentDay.getUTCDate() + i);
+            const dayOfWeek = currentDay.getUTCDay();
+            if (dayOfWeek !== 0 && dayOfWeek !== 6) { // Exclure samedi (6) et dimanche (0)
+                workDays++;
+            }
+        }
+        effectiveDays = workDays;
+    }
+
+    // Si le nombre de jours effectifs dépasse ou atteint le nombre de boîtes, la partie est terminée
+    return effectiveDays >= party.number_of_box;
+};
+
+
+/**
+ * Retourne la date du jour normalisée (sans l'heure, à minuit local).
+ * @returns {Date} - La date normalisée au début de la journée locale.
+ */
+export const getNormalizedToday = (date: Date): Date => {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+};
+
+
+/**
+ * Calcule le nombre de jours entre deux dates, incluant ou excluant les week-ends.
+ * @param startDate - Date de début.
+ * @param endDate - Date de fin.
+ * @param includeWeekends - Si `false`, exclut les week-ends du calcul.
+ * @returns {number} - Nombre de jours calculés.
+ */
+export const calculateNumberOfBoxes = (startDate: string, endDate: string, includeWeekends: boolean): number => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    let numberOfDays = 0;
+
+    for (let current = new Date(start); current <= end; current.setDate(current.getDate() + 1)) {
+        const dayOfWeek = current.getDay();
+        if (includeWeekends || (dayOfWeek !== 0 && dayOfWeek !== 6)) {
+            numberOfDays++;
+        }
+    }
+
+    return numberOfDays;
 };

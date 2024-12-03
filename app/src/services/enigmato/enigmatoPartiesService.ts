@@ -132,9 +132,9 @@ export const joinPartyAsync = async (request: IEnigmatoJoinParty, navigate: Retu
       }
     );
     return response.data; // Retourner la réponse de l'API
-  } catch (error) {
+  } catch (error: any) {
     handleError(error, navigate);
-    return null;
+    return error.response?.data || { message: "Erreur inconnue." };
   }
 };
 

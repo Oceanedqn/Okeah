@@ -2,14 +2,14 @@ import { IUser } from '../../interfaces/IUser';
 import pool from '../../config/database';
 import { Request, Response, Router } from 'express';
 import { hashPassword, verifyPassword } from '../../utils/auth.utils';
-import { checkAndUpdatePartyStatus, fetchParty } from '../../utils/whois.utils';
+import { calculateNumberOfBoxes, checkAndUpdatePartyStatus, checkPartyFinished, fetchParty, getNormalizedToday } from '../../utils/whois.utils';
 
 const router = Router();
 
 // [OK] Récupère les parties d'un utilisateur
 export const get_parties_by_user_async = async (req: Request, res: Response) => {
     try {
-        const currentUser = req.user; // Auth middleware injects user dans la requête
+        const currentUser = req.user;
         const userId = currentUser!.id_user;
 
         // Sous-requête pour compter les participants par partie
@@ -23,7 +23,7 @@ export const get_parties_by_user_async = async (req: Request, res: Response) => 
             `
         );
 
-        // Convertir les résultats de participantCounts en un objet clé-valeur
+        // Convertir les résultats en un objet clé-valeur pour un accès rapide
         const participantCountsMap = participantCountsResult.rows.reduce(
             (acc: Record<number, number>, row) => {
                 acc[row.id_party] = Number(row.participants_number);
@@ -44,28 +44,27 @@ export const get_parties_by_user_async = async (req: Request, res: Response) => 
             [userId]
         );
 
-        // Vérifier et mettre à jour l'état des parties
-        const updatedParties = await Promise.all(
-            userPartiesResult.rows.map(async (party) => {
-                const updatedParty = await checkAndUpdatePartyStatus(party);
-                return {
-                    id_party: updatedParty.id_party,
-                    date_creation: updatedParty.date_creation,
-                    name: updatedParty.name,
-                    password: updatedParty.password,
-                    date_start: updatedParty.date_start,
-                    date_end: updatedParty.date_end,
-                    is_finished: updatedParty.is_finished,
-                    game_mode: updatedParty.game_mode,
-                    number_of_box: updatedParty.number_of_box,
-                    id_user: updatedParty.id_user,
-                    include_weekends: updatedParty.include_weekends,
-                    participants_number: participantCountsMap[updatedParty.id_party] || 0,
-                };
-            })
-        );
+        // Vérification et mise à jour des états des parties
+        const updatedParties = userPartiesResult.rows.map((party) => {
+            // Vérifie si la partie est terminée
+            const isFinished = checkPartyFinished(party);
 
-        // Filtrer uniquement les parties qui sont encore en cours (is_finished == false)
+            return {
+                id_party: party.id_party,
+                date_creation: party.date_creation,
+                name: party.name,
+                password: party.password,
+                date_start: party.date_start,
+                is_finished: isFinished,
+                game_mode: party.game_mode,
+                number_of_box: party.number_of_box,
+                id_user: party.id_user,
+                include_weekends: party.include_weekends,
+                participants_number: participantCountsMap[party.id_party] || 0,
+            };
+        });
+
+        // Filtrer les parties encore en cours
         const ongoingParties = updatedParties.filter(party => !party.is_finished);
 
         res.status(200).json(ongoingParties);
@@ -213,11 +212,22 @@ export const get_unjoined_parties_async = async (req: Request, res: Response) =>
     }
 };
 
-// [OK] Crée une partie
+// [DONE 03/12/2024] Crée une partie
 export const create_party_async = async (req: Request, res: Response) => {
     try {
         const party = req.body; // On suppose que les données sont envoyées dans le corps de la requête
         const currentUser: IUser | undefined = req.user;
+
+        if (!party.date_start || !party.date_end) {
+            res.status(400).json({ error: "Start date and end date are required" });
+        }
+
+        // Calculer le nombre de jours (number_of_box)
+        const numberOfBoxes = calculateNumberOfBoxes(
+            party.date_start,
+            party.date_end,
+            party.include_weekends
+        );
 
         // Si set_password est True, on hash le mot de passe. Sinon, on le met à None.
         const passwordToStore = party.set_password && party.password ? hashPassword(party.password) : null;
@@ -233,15 +243,15 @@ export const create_party_async = async (req: Request, res: Response) => {
 
                 const values = [
                     party.name,
-                    new Date(),
+                    getNormalizedToday(new Date()),
                     passwordToStore,
                     currentUser.id_user,
                     party.date_start,
                     party.game_mode,
-                    party.number_of_box,
+                    numberOfBoxes, // Utilisation de la valeur calculée
                     party.include_weekends,
                     party.set_password,
-                    null, // date_end sera null lors de la création de la partie
+                    party.date_end,
                     false, // Partie non terminée au départ
                 ];
 
@@ -260,13 +270,11 @@ export const create_party_async = async (req: Request, res: Response) => {
             }
         }
 
-
     } catch (err) {
         console.error("Error in createPartyAsync", err);
         res.status(500).json({ error: "Internal Server Error" });
     }
-
-}
+};
 
 // [OK] Rejoindre une partie
 export const join_party_async = async (req: Request, res: Response) => {
@@ -283,6 +291,7 @@ export const join_party_async = async (req: Request, res: Response) => {
 
             if (partyResult.rows.length === 0) {
                 res.status(404).json({ error: 'Partie non trouvée' });
+                return; // Stop execution after response
             }
 
             const party = partyResult.rows[0];
@@ -291,33 +300,36 @@ export const join_party_async = async (req: Request, res: Response) => {
             if (party.set_password) {
                 if (!password) {
                     res.status(400).json({ error: 'Mot de passe manquant' });
+                    return; // Stop execution after response
                 }
                 if (!verifyPassword(password, party.password)) {
                     res.status(400).json({ error: 'Mot de passe incorrect' });
+                    return; // Stop execution after response
                 }
             }
 
             // Vérifier si l'utilisateur est déjà membre de la partie
             const checkUserPartyQuery = `
-      SELECT * FROM enigmato_profiles
-      WHERE id_user = $1 AND id_party = $2
-    `;
+                SELECT * FROM enigmato_profiles
+                WHERE id_user = $1 AND id_party = $2
+            `;
             const userPartyResult = await client.query(checkUserPartyQuery, [currentUser.id_user, id_party]);
 
             if (userPartyResult.rows.length > 0) {
                 res.status(400).json({ error: 'Utilisateur déjà membre de cette partie' });
+                return; // Stop execution after response
             }
 
             // Créer une nouvelle entrée pour lier l'utilisateur à la partie
             const joinPartyQuery = `
-      INSERT INTO enigmato_profiles (id_user, id_party, date_joined_at, is_complete)
-VALUES ($1, $2, $3, $4) RETURNING *
-    `;
+                INSERT INTO enigmato_profiles (id_user, id_party, date_joined_at, is_complete)
+                VALUES ($1, $2, $3, $4) RETURNING *
+            `;
             const joinResult = await client.query(joinPartyQuery, [
                 currentUser.id_user,
                 id_party,
-                new Date(), // Date d'adhésion,
-                false
+                new Date(), // Date d'adhésion
+                false,
             ]);
 
             const newUserParty = joinResult.rows[0];
@@ -325,14 +337,16 @@ VALUES ($1, $2, $3, $4) RETURNING *
             // Retourner la réponse avec les données du profil de la partie
             res.status(201).json(newUserParty);
 
-            client.release();
+            client.release(); // Relâcher la connexion à la base de données
         } catch (err) {
             console.error('Error joining party:', err);
             res.status(500).json({ error: 'Erreur interne du serveur' });
         }
+    } else {
+        // Si l'utilisateur n'est pas authentifié
+        res.status(401).json({ error: 'Utilisateur non authentifié' });
     }
-
-}
+};
 
 export const get_party_by_id_async = async (req: Request, res: Response) => {
     const { id_party } = req.params;

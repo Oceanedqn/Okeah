@@ -15,6 +15,7 @@ const EnigmatoCreateParty: React.FC = () => {
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [dateStart, setDateStart] = useState('');
+    const [dateEnd, setDateEnd] = useState('');
     const [gameMode, setGameMode] = useState(1); // Par défaut, mode de jeu 1
     const [numberOfBox, setNumberOfBox] = useState(1); // Par défaut, 1 boîte
     const [includeWeekends, setIncludeWeekends] = useState(true); // Par défaut, inclure les week-ends
@@ -36,8 +37,8 @@ const EnigmatoCreateParty: React.FC = () => {
             name: name,
             password: isPasswordRequired ? password : "", // Si isPasswordRequired est true, on envoie le mot de passe, sinon on envoie une chaîne vide
             date_start: dateStart,
+            date_end: dateEnd,
             game_mode: gameMode,
-            number_of_box: numberOfBox,
             include_weekends: includeWeekends,
             set_password: isPasswordRequired
         };
@@ -108,23 +109,22 @@ const EnigmatoCreateParty: React.FC = () => {
                         </div>
 
                         <div>
+                            <label>{t('end_date')}</label>
+                            <input
+                                type="date"
+                                value={dateEnd}
+                                onChange={(e) => setDateEnd(e.target.value)}
+                                required
+                            />
+                        </div>
+
+                        <div>
                             <label>{t('game_mode')}</label>
                             <select value={gameMode} onChange={(e) => setGameMode(Number(e.target.value))}>
                                 <option value={1}>{t('mode_1')}</option>
                                 <option value={2}>{t('mode_2')}</option>
                                 <option value={3}>{t('mode_3')}</option>
                             </select>
-                        </div>
-
-                        <div>
-                            <label>{t('number_of_boxes')}</label>
-                            <input
-                                type="number"
-                                value={numberOfBox}
-                                onChange={(e) => setNumberOfBox(Number(e.target.value))}
-                                min={1}
-                                required
-                            />
                         </div>
 
                         <div>

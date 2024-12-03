@@ -58,5 +58,8 @@
     "photoNow": "Photo maintenant",
     "current_choice": "Choix actuel",
     "whois": "Qui est-ce ?",
-    "searchwhois": "Chercher"
+    "searchwhois": "Chercher",
+    "profile_complete": "Profil complet",
+    "profile_incomplete": "Profil incomplet",
+    "profile": "Profil"
 }

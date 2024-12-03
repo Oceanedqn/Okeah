@@ -21,6 +21,7 @@ export interface IEnigmatoPartyParticipants {
   password: string;
   id_user: number;
   date_start: string;
+  date_end: string;
   game_mode: number;
   number_of_box: number;
   include_weekends: boolean;
@@ -67,7 +68,7 @@ export interface IEnigmatoPartyCreateRequest {
   password: string;
   date_start: string;
   game_mode: number;
-  number_of_box: number;
+  date_end: string;
   include_weekends: boolean;
   set_password: boolean;
 }

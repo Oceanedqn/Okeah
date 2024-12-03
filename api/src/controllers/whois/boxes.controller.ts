@@ -1,5 +1,4 @@
 import { Router, Request, Response } from 'express';
-import { IUser } from '../../interfaces/IUser';
 import { IEnigmatoBoxGame, IEnigmatoBoxRightResponse } from '../../interfaces/IEnigmato';
 import pool from '../../config/database';
 import { bufferToBase64, create_box_async, fetchParty } from '../../utils/whois.utils';
