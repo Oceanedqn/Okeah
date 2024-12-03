@@ -39,6 +39,7 @@ export const EnigmatoItemStyle = styled.div`
     padding: 10px;
     background-color: ${({ theme }) => theme.colors.background_light};
     border-radius: 10px;
+    margin-bottom: 10px;
     
     @media (max-width: ${breakpoints.sm}) {
       flex-direction: column; /* Sur les petits écrans, empiler les éléments verticalement */
@@ -135,16 +136,9 @@ export const Title2 = styled.h1`
 
 export const PreviewContainer = styled.div`
     display: flex;
+    justify-content: space-between;
     gap: 10px;
-    margin: 15px 0;
-
-    img {
-        width: 80px;
-        height: 80px;
-        object-fit: cover;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-    }
+    margin-top: 15px;
 `;
 
 export const EditButton = styled.button`
@@ -346,4 +340,18 @@ export const StyledCard = styled.div<{ selected?: boolean }>`
         text-align: center;
         color: ${({ selected, theme }) => (selected ? theme.colors.background_light : 'black')};
     }
+`;
+
+
+export const TextStyleProfil = styled.p`
+  font-size: 14px;
+  line-height: 16px;
+  font-weight: bold;
+  background-color: ${({ theme }) => theme.colors.primary_dark};
+  color: ${({ theme }) => theme.colors.secondary_light};
+  padding: 10px;
+  border-radius: 28px;
+  display: flex;
+  align-items: center;
+  gap: 8px; // Espacement entre le texte et l'icône
 `;

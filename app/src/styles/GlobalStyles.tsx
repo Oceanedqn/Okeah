@@ -241,13 +241,13 @@ export const TextAlertStyle = styled.p`
 
 // Style pour le bouton "Retour"
 export const ButtonBackStyle = styled.button`
-  padding: 5px 10px;
+  padding: 5px;
   font-size: 16px;
   border: none;
   border-radius: 50px;
   cursor: pointer;
   background-color: ${({ theme }) => theme.colors.secondary};
-  color: white;
+  color: ${({ theme }) => theme.colors.background_light};
   align-self: flex-start; /* Place le bouton à gauche */
 
   &:hover {
@@ -257,7 +257,7 @@ export const ButtonBackStyle = styled.button`
 
   @media (max-width: ${breakpoints.sm}) {
     font-size: 14px; /* Réduire la taille du texte sur mobile */
-    padding: 4px 8px; /* Réduire le padding sur mobile */
+    padding: 5px;
   }
 `;
 

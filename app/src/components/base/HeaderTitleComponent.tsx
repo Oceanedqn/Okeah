@@ -3,6 +3,7 @@ import { ButtonBackStyle, ContainerTitleStyle, FaInfoCircleStyle, Title1Style } 
 import { useTranslation } from 'react-i18next';
 import { HeaderWithBackButtonProps } from '../../types';
 import { EnigmatoContainerStyle } from '../../styles/EnigmatoStyles';
+import { IoChevronBackCircle } from "react-icons/io5";
 
 const HeaderTitleComponent: React.FC<HeaderWithBackButtonProps> = ({ title, onBackClick, info }) => {
     const { t } = useTranslation();
@@ -14,7 +15,7 @@ const HeaderTitleComponent: React.FC<HeaderWithBackButtonProps> = ({ title, onBa
 
     return (
         <ContainerTitleStyle>
-            <ButtonBackStyle onClick={onBackClick}>{t('back')}</ButtonBackStyle>
+            <ButtonBackStyle onClick={onBackClick}><IoChevronBackCircle /></ButtonBackStyle>
             <div style={{ display: 'flex', alignItems: 'center' }}>
                 <Title1Style>{t(title)}</Title1Style>
                 {info && (<FaInfoCircleStyle onClick={handleInfoClick} />)}

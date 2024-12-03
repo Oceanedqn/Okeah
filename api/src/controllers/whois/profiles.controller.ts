@@ -41,7 +41,7 @@ export const get_profile = async (req: Request, res: Response) => {
 
 
 // [OK] Met à jour le profil de l'utilisateur
-export const update_profile = async (req: Request, res: Response) => {
+export const update_profile = async (req: Request, res: Response): Promise<void> => {
     const { id_party, picture1, picture2 } = req.body;
     const currentUser = req.user as IUser;
 
@@ -53,7 +53,9 @@ export const update_profile = async (req: Request, res: Response) => {
         );
 
         if (profileResult.rows.length === 0) {
+            // Envoi de la réponse et arrêt de l'exécution
             res.status(404).json({ message: 'Profile not found' });
+            return; // Stop l'exécution ici (ce return est nécessaire pour empêcher de continuer à exécuter le reste de la fonction)
         }
 
         const profile = profileResult.rows[0];
@@ -64,15 +66,17 @@ export const update_profile = async (req: Request, res: Response) => {
         const currentDate = new Date();
 
         if (new Date(party.date_start) <= currentDate && profile.is_complete) {
+            // Envoi de la réponse et arrêt de l'exécution
             res.status(403).json({
                 message: 'You cannot update your profile after the start date or if your profile is complete',
             });
+            return; // Stop l'exécution ici (encore une fois, ce return est nécessaire)
         }
 
         // Préparer les mises à jour
         const updates: Partial<IEnigmatoProfil> = {};
 
-        //Convertir et traiter les images en Base64 si elles existent
+        // Convertir et traiter les images en Base64 si elles existent
         if (picture1) {
             updates.picture1 = base64ToBuffer(picture1);
         }
@@ -98,9 +102,11 @@ export const update_profile = async (req: Request, res: Response) => {
             currentUser.id_user,
         ]);
 
+        // Envoi de la réponse une fois l'opération réussie
         res.status(201).send('Profil mis à jour');
     } catch (err) {
         console.error('Error updating profile:', err);
+        // Si une erreur se produit, envoyer une réponse d'erreur
         res.status(500).send('Internal server error');
     }
 };
