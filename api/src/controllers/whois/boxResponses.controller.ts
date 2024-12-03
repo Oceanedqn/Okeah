@@ -77,10 +77,8 @@ export const create_box_response_async = async (req: Request, res: Response, nex
 export const update_box_response_async = async (req: Request, res: Response, next: NextFunction) => {
     try {
         // Récupération des paramètres et du corps de la requête
-        const { id_box_response } = req.params; // ID de la réponse de la boîte
-        const { id_user_response } = req.body; // Nouvel utilisateur associé
-
-        console.log(id_box_response, id_user_response)
+        const { id_box_response } = req.params;
+        const { id_user_response } = req.body;
 
         // Requête SQL pour vérifier si la box existe
         const checkQuery = `

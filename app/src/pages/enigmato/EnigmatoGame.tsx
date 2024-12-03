@@ -122,7 +122,6 @@ const EnigmatoGame: React.FC = () => {
                 cluse_used: false
             };
 
-            console.log(boxResponse);
             await createBoxResponseAsync(boxResponse, navigate);
             navigate(`/enigmato/parties/${id_party}/game/info`);
         }

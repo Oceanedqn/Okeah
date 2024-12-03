@@ -23,30 +23,17 @@ export const addDays = (startDate: Date, numberOfDays: number, includeWeekends: 
 
 
 
-export const checkAndUpdatePartyStatus = async (party: any): Promise<any> => {
+export const checkIfFinishedParty = async (date_end: string): Promise<boolean> => {
     const now = new Date();
 
-    if (!party.is_finished) {
-        // Calculer la date théorique de fin
-        const dateStart = new Date(party.date_start);
-        const theoreticalEndDate = addDays(dateStart, party.number_of_box, party.include_weekends);
+    // Comparer la date actuelle avec la date de fin (date_end)
+    const dateEnd = new Date(date_end);
 
-        // Vérifier si la date actuelle dépasse la date théorique de fin
-        if (now > theoreticalEndDate) {
-            // Mettre à jour la base de données pour marquer la partie comme terminée
-            await pool.query(
-                `
-                UPDATE enigmato_parties
-                SET is_finished = true
-                WHERE id_party = $1
-                `,
-                [party.id_party]
-            );
-            party.is_finished = true; // Mettre à jour l'état localement
-        }
+    // Si la date actuelle est supérieure à la date de fin, la partie est terminée
+    if (now > dateEnd) {
+        return true;
     }
-
-    return party;
+    return false; // Retourner la partie, en incluant éventuellement l'update effectué
 };
 
 
@@ -197,8 +184,6 @@ export const get_profile_by_id_from_db = async (id_party: number, id_user: numbe
 
 // [UPDATE] Crée une boîte pour aujourd'hui
 export const update_box_async = async (id_party: number, box: IEnigmatoBoxEnigmaUser): Promise<any> => {
-    console.log(box)
-
     if (!box.id_enigma_user) {
         try {
             // Step 2: Attempt to fetch a random participant

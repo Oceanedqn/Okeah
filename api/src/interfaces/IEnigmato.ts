@@ -12,7 +12,6 @@ export interface IEnigmatoParty {
   number_of_box: number;
   include_weekends: boolean;
   set_password: boolean;
-  is_finished: boolean
 }
 
 export interface IEnigmatoPartyParticipants {
@@ -26,7 +25,6 @@ export interface IEnigmatoPartyParticipants {
   number_of_box: number;
   include_weekends: boolean;
   participants_number: number;
-  is_finished: boolean
 }
 
 export interface IEnigmatoPartyBoxes {
