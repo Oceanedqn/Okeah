@@ -7,6 +7,7 @@ export interface IEnigmatoParty {
   password: string;
   id_user: number;
   date_start: string;
+  date_end: string;
   game_mode: number;
   number_of_box: number;
   include_weekends: boolean;

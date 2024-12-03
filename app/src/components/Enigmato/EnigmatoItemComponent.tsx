@@ -26,7 +26,7 @@ const EnigmatoItemComponent: React.FC<EnigmatoItemComponentProps> = ({ game, han
                 <FaUser size={16} color="#555" />
                 <TextStyle>{game.participants_number}</TextStyle>
             </div>
-            <ButtonStyle onClick={handleClick}>
+            <ButtonStyle onClick={handleClick} disabled={game.is_finished}>
                 {buttonText}
             </ButtonStyle>
         </EnigmatoItemStyle>

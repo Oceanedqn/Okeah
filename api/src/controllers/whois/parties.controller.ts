@@ -214,6 +214,7 @@ export const get_unjoined_parties_async = async (req: Request, res: Response) =>
 
 // [DONE 03/12/2024] Crée une partie
 export const create_party_async = async (req: Request, res: Response) => {
+    const client = await pool.connect();
     try {
         const party = req.body; // On suppose que les données sont envoyées dans le corps de la requête
         const currentUser: IUser | undefined = req.user;
@@ -229,50 +230,69 @@ export const create_party_async = async (req: Request, res: Response) => {
             party.include_weekends
         );
 
-        // Si set_password est True, on hash le mot de passe. Sinon, on le met à None.
+        // Si set_password est True, on hash le mot de passe. Sinon, on le met à null.
         const passwordToStore = party.set_password && party.password ? hashPassword(party.password) : null;
 
-        // Créer la nouvelle partie
-        const client = await pool.connect();
-        if (currentUser) {
-            try {
-                const query = `
-        INSERT INTO enigmato_parties (name, date_creation, password, id_user, date_start, game_mode, number_of_box, include_weekends, set_password, date_end, is_finished)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *
-      `;
-
-                const values = [
-                    party.name,
-                    getNormalizedToday(new Date()),
-                    passwordToStore,
-                    currentUser.id_user,
-                    party.date_start,
-                    party.game_mode,
-                    numberOfBoxes, // Utilisation de la valeur calculée
-                    party.include_weekends,
-                    party.set_password,
-                    party.date_end,
-                    false, // Partie non terminée au départ
-                ];
-
-                // Exécution de la requête
-                const result = await client.query(query, values);
-                const dbParty = result.rows[0]; // Récupérer la première ligne de la réponse
-
-                // Retourner la partie créée
-                res.status(201).json(dbParty);
-
-            } catch (err) {
-                console.error("Error executing query", err);
-                res.status(500).json({ error: "Internal Server Error" });
-            } finally {
-                client.release();
-            }
+        if (!currentUser) {
+            res.status(403).json({ error: "Unauthorized" });
         }
 
+        // Début de la transaction
+        await client.query('BEGIN');
+
+        // Insertion de la nouvelle partie
+        const query = `
+            INSERT INTO enigmato_parties (name, date_creation, password, id_user, date_start, game_mode, number_of_box, include_weekends, set_password, date_end, is_finished)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *
+        `;
+        const values = [
+            party.name,
+            getNormalizedToday(new Date()),
+            passwordToStore,
+            currentUser!.id_user,
+            party.date_start,
+            party.game_mode,
+            numberOfBoxes, // Utilisation de la valeur calculée
+            party.include_weekends,
+            party.set_password,
+            party.date_end,
+            false, // Partie non terminée au départ
+        ];
+
+        const result = await client.query(query, values);
+        const dbParty = result.rows[0]; // La partie insérée
+        const idParty = dbParty.id_party;
+
+        // Création des boîtes
+        for (let i = 0; i < numberOfBoxes; i++) {
+            const boxDate = new Date(party.date_start);
+            boxDate.setDate(boxDate.getDate() + i);
+
+            if (!party.include_weekends && (boxDate.getDay() === 0 || boxDate.getDay() === 6)) {
+                continue; // Sauter les week-ends si non inclus
+            }
+
+            const formattedDate = boxDate.toISOString().split('T')[0];
+            await client.query(
+                `INSERT INTO enigmato_boxes (id_party, name, date, id_enigma_user)
+                VALUES ($1, $2, $3, $4)`,
+                [idParty, `Box du ${formattedDate}`, formattedDate, null] // id_enigma_user est null
+            );
+        }
+
+        // Si tout s'est bien passé, on valide la transaction
+        await client.query('COMMIT');
+
+        // Retourner la partie créée
+        res.status(201).json(dbParty);
     } catch (err) {
-        console.error("Error in createPartyAsync", err);
+        // En cas d'erreur, on annule la transaction
+        await client.query('ROLLBACK');
+        console.error("Error in create_party_async", err);
         res.status(500).json({ error: "Internal Server Error" });
+    } finally {
+        // On libère toujours le client, qu'il y ait eu une erreur ou non
+        client.release();
     }
 };
 
