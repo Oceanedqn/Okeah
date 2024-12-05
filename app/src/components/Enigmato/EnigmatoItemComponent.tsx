@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaUser } from 'react-icons/fa';
 import { ButtonStyle, TextStyle } from '../../styles/GlobalStyles';
 import { IEnigmatoPartyParticipants } from '../../interfaces/IEnigmato';
@@ -11,12 +11,30 @@ interface EnigmatoItemComponentProps {
     handleViewGame: (id: number, isFinished: boolean) => void;
 }
 
+// Fonction pour vérifier si la partie est terminée (en fonction de date_end)
+export const checkIfFinishedParty = async (date_end: string): Promise<boolean> => {
+    const now = new Date();
+    const dateEnd = new Date(date_end);
+    return now > dateEnd;  // Si la date actuelle dépasse la date de fin, la partie est terminée
+};
+
 const EnigmatoItemComponent: React.FC<EnigmatoItemComponentProps> = ({ game, handleViewGame }) => {
     const { t } = useTranslation();
 
-    // Texte du bouton et action en fonction de l'état 'is_finished'
-    const buttonText = game.is_finished ? t('viewScores') : t('view');
-    const handleClick = () => handleViewGame(game.id_party, game.is_finished);
+    const [isFinished, setIsFinished] = useState<boolean>(false);  // Ajouter un état pour le statut de la partie
+
+    useEffect(() => {
+        const checkFinished = async () => {
+            const finished = await checkIfFinishedParty(game.date_end);  // Vérification async de la partie terminée
+            setIsFinished(finished);  // Mettre à jour l'état
+        };
+
+        checkFinished();  // Appel de la fonction lors du montage du composant
+    }, [game.date_end]);  // Dépend de `game.date_end` pour mettre à jour quand la date change
+
+    // Texte du bouton et action en fonction de l'état "isFinished"
+    const buttonText = isFinished ? t('viewScores') : t('view');
+    const handleClick = () => handleViewGame(game.id_party, isFinished);  // Passer `isFinished` au lieu de `game.is_finished`
 
     return (
         <EnigmatoItemStyle key={game.id_party}>
@@ -26,7 +44,7 @@ const EnigmatoItemComponent: React.FC<EnigmatoItemComponentProps> = ({ game, han
                 <FaUser size={16} color="#555" />
                 <TextStyle>{game.participants_number}</TextStyle>
             </div>
-            <ButtonStyle onClick={handleClick}>
+            <ButtonStyle onClick={handleClick} disabled={isFinished}>
                 {buttonText}
             </ButtonStyle>
         </EnigmatoItemStyle>

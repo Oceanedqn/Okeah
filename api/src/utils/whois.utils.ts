@@ -1,4 +1,4 @@
-import { IEnigmatoParticipants, IEnigmatoPartyParticipants } from "../interfaces/IEnigmato";
+import { IEnigmatoBox, IEnigmatoBoxEnigmaUser, IEnigmatoParticipants, IEnigmatoPartyParticipants } from "../interfaces/IEnigmato";
 import pool from "../config/database";
 import { IEnigmatoParty } from "../interfaces/IEnigmato";
 import { get_random_participant_completed_async } from "../controllers/whois/participants.controller";
@@ -23,30 +23,17 @@ export const addDays = (startDate: Date, numberOfDays: number, includeWeekends: 
 
 
 
-export const checkAndUpdatePartyStatus = async (party: any): Promise<any> => {
+export const checkIfFinishedParty = async (date_end: string): Promise<boolean> => {
     const now = new Date();
 
-    if (!party.is_finished) {
-        // Calculer la date théorique de fin
-        const dateStart = new Date(party.date_start);
-        const theoreticalEndDate = addDays(dateStart, party.number_of_box, party.include_weekends);
+    // Comparer la date actuelle avec la date de fin (date_end)
+    const dateEnd = new Date(date_end);
 
-        // Vérifier si la date actuelle dépasse la date théorique de fin
-        if (now > theoreticalEndDate) {
-            // Mettre à jour la base de données pour marquer la partie comme terminée
-            await pool.query(
-                `
-                UPDATE enigmato_parties
-                SET is_finished = true
-                WHERE id_party = $1
-                `,
-                [party.id_party]
-            );
-            party.is_finished = true; // Mettre à jour l'état localement
-        }
+    // Si la date actuelle est supérieure à la date de fin, la partie est terminée
+    if (now > dateEnd) {
+        return true;
     }
-
-    return party;
+    return false; // Retourner la partie, en incluant éventuellement l'update effectué
 };
 
 
@@ -195,42 +182,33 @@ export const get_profile_by_id_from_db = async (id_party: number, id_user: numbe
 
 
 
-// [POST] Crée une boîte pour aujourd'hui
-export const create_box_async = async (id_party: number): Promise<any> => {
-    const todayDate = new Date().toISOString().split('T')[0];
+// [UPDATE] Crée une boîte pour aujourd'hui
+export const update_box_async = async (id_party: number, box: IEnigmatoBoxEnigmaUser): Promise<any> => {
+    if (!box.id_enigma_user) {
+        try {
+            // Step 2: Attempt to fetch a random participant
+            const participant = await get_random_participant_completed_async(id_party);
 
-    try {
-        // Step 1: Check if today's box already exists
-        const boxQuery = await pool.query(
-            'SELECT * FROM enigmato_boxes WHERE id_party = $1 AND date = $2',
-            [id_party, todayDate]
-        );
+            if (!participant || !participant?.id_user) {
+                throw new Error(`No valid participant could be found to create a box.`);
+            }
+            // Step 3: Update if the box exists, otherwise throw an error
 
-        const existingBox = boxQuery.rows[0];
-        if (existingBox) {
-            return existingBox;
+            const updatedBoxQuery = await pool.query(
+                `UPDATE enigmato_boxes 
+                SET id_enigma_user = $1 
+                WHERE id_box = $2 
+                RETURNING *`,
+                [participant.id_user, box.id_box]
+            );
+            return updatedBoxQuery.rows[0];
+
+        } catch (err: any) {
+            console.error(`Error in update_box_async:`, err);
+            throw new Error(`Failed to update the box: ${err.message}`);
         }
-
-        // Step 2: Attempt to fetch a random participant
-        const participant = await get_random_participant_completed_async(id_party);
-
-        if (!participant || !participant?.id_user) {
-            throw new Error(`No valid participant could be found to create a box.`);
-        }
-
-        // Step 3: Create the box
-        const newBoxQuery = await pool.query(
-            `INSERT INTO enigmato_boxes (id_party, name, date, id_enigma_user)
-            VALUES ($1, $2, $3, $4)
-            RETURNING *`,
-            [id_party, `Box du ${todayDate}`, todayDate, participant.id_user]
-        );
-
-        return newBoxQuery.rows[0];
-    } catch (err: any) {
-        console.error(`Error in create_box_async:`, err);
-        throw new Error(`Failed to create a box: ${err.message}`);
     }
+
 };
 
 

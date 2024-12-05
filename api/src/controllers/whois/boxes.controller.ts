@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { IEnigmatoBoxGame, IEnigmatoBoxRightResponse } from '../../interfaces/IEnigmato';
 import pool from '../../config/database';
-import { bufferToBase64, create_box_async, fetchParty } from '../../utils/whois.utils';
+import { bufferToBase64, fetchParty, getNormalizedToday, update_box_async } from '../../utils/whois.utils';
 
 const router = Router();
 const partyLocks: Record<number, boolean> = {};
@@ -17,10 +17,10 @@ export const get_today_box_async = async (req: Request, res: Response) => {
     try {
         // Vérifiez la date de début de la partie
         const party = await fetchParty(idPartyNumber);
-        const todayDate = new Date().toISOString().split('T')[0]; // Date actuelle au format YYYY-MM-DD
+        const todayDate = getNormalizedToday(new Date());
 
         // Vérifier si la partie est terminée
-        if (party.is_finished) {
+        if (todayDate > getNormalizedToday(new Date(party.date_end))) {
             if (!res.headersSent) {
                 res.status(204).json({ message: "La partie est terminée." });
             }
@@ -39,9 +39,18 @@ export const get_today_box_async = async (req: Request, res: Response) => {
 
                 let box = boxExistQuery.rows[0];
 
-                // Si la boîte n'existe pas, créez-la
                 if (!box) {
-                    box = await create_box_async(idPartyNumber);
+                    // Si aucune boîte n'est trouvée, renvoyer une erreur 404
+                    if (!res.headersSent) {
+                        res.status(404).json({ message: "Aucune boîte trouvée pour aujourd'hui." });
+                    }
+                    return; // On arrête le traitement ici si aucune boîte n'est trouvée
+                }
+
+                // Vérification si la boîte a déjà une réponse, et l'exclusion de `id_enigma_user`
+                if (!box.id_enigma_user) {
+                    // Mise à jour de la boîte si pas de réponse
+                    box = await update_box_async(idPartyNumber, box);
                 }
 
                 // Exclure `id_enigma_user` de la boîte avant de l'envoyer

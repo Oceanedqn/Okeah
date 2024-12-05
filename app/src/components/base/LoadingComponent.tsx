@@ -10,7 +10,7 @@ const LoadingComponent: React.FC = () => {
     return (
         <CenteredContainerLoadingStyle>
             <LoadingSpinnerStyle />
-            <LoadingTextStyle>{t('loading')}...</LoadingTextStyle>
+            <LoadingTextStyle>{t('loading')}</LoadingTextStyle>
         </CenteredContainerLoadingStyle>
     );
 };

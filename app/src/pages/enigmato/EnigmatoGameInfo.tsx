@@ -10,6 +10,7 @@ import { getBeforeBoxAsync, getTodayBoxAsync } from '../../services/enigmato/eni
 import { getBoxResponseByIdBoxAsync } from '../../services/enigmato/enigmatoBoxResponsesService';
 import { useTranslation } from 'react-i18next';
 import LoadingComponent from '../../components/base/LoadingComponent';
+import { formatDate } from 'src/utils/utils';
 
 const EnigmatoGameInfo: React.FC = () => {
     const { t } = useTranslation();
@@ -140,8 +141,9 @@ const EnigmatoGameInfo: React.FC = () => {
                             </div>
                         ) : (
                             todayBox ? (
-                                <div>
-                                    <TextStyle>{todayBox.name}</TextStyle>
+                                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                                    <TextStyle>{formatDate(todayBox.date!)}</TextStyle>
+                                    <TextStyle style={{ marginTop: "10px", marginBottom: "10px" }}>{t("time_to_play")}</TextStyle>
                                     <ButtonStyle onClick={handlePlay}>{t("view")}</ButtonStyle>
                                 </div>
                             ) : (
@@ -149,44 +151,55 @@ const EnigmatoGameInfo: React.FC = () => {
                             )
                         )}
                     </ContainerBackgroundStyle>
+                    {beforeBoxes && (
+                        <>
+                            <Title2Style>{t("other_days")}</Title2Style>
 
-                    <Title2Style>{t("other_days")}</Title2Style>
+                            <ContainerBackgroundStyle>
+                                {beforeBoxes.map((box) => (
+                                    <div key={box.id_box} style={{ marginBottom: "20px" }}>
+                                        {/* Nom et Date de la boîte */}
+                                        <p>
+                                            <strong>{box.name_box}</strong> - {new Date(box.date).toLocaleDateString()}
+                                        </p>
 
-                    <ContainerBackgroundStyle>
-                        {beforeBoxes?.map((box) => (
-                            <div key={box.id_box}>
-                                <p>{box.name_box} - {new Date(box.date).toLocaleDateString()}</p>
-                                <p>{t("user_name")} {box.name} {box.firstname}</p>
+                                        {/* Nom et prénom de l'utilisateur */}
+                                        <p>
+                                            {t("user_name")}: {box.name} {box.firstname}
+                                        </p>
 
-                                {/* Affiche image si picture1 est en base64 */}
-                                {box.picture1 && isBase64(box.picture1) && (
-                                    <img
-                                        src={box.picture1}
-                                        alt="Bebe"
-                                        style={{
-                                            width: '100px',
-                                            height: '100px',
-                                            objectFit: 'cover',
-                                            marginRight: '10px',
-                                        }}
-                                    />
-                                )}
+                                        {/* Image 1 si elle est valide */}
+                                        {box.picture1 && isBase64(box.picture1) && (
+                                            <img
+                                                src={box.picture1}
+                                                alt="Bebe"
+                                                style={{
+                                                    width: "100px",
+                                                    height: "100px",
+                                                    objectFit: "cover",
+                                                    marginRight: "10px",
+                                                }}
+                                            />
+                                        )}
 
-                                {/* Affiche image si picture2 est en base64 */}
-                                {box.picture2 && isBase64(box.picture2) && (
-                                    <img
-                                        src={box.picture2}
-                                        alt="Adulte"
-                                        style={{
-                                            width: '100px',
-                                            height: '100px',
-                                            objectFit: 'cover',
-                                        }}
-                                    />
-                                )}
-                            </div>
-                        ))}
-                    </ContainerBackgroundStyle>
+                                        {/* Image 2 si elle est valide */}
+                                        {box.picture2 && isBase64(box.picture2) && (
+                                            <img
+                                                src={box.picture2}
+                                                alt="Adulte"
+                                                style={{
+                                                    width: "100px",
+                                                    height: "100px",
+                                                    objectFit: "cover",
+                                                }}
+                                            />
+                                        )}
+                                    </div>
+                                ))}
+                            </ContainerBackgroundStyle>
+                        </>
+                    )}
+
                 </EnigmatoContainerStyle>
             </ContainerUnderTitleStyle>
         </>

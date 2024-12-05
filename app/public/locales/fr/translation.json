@@ -18,7 +18,7 @@
     "about": "À propos",
     "contact": "Contact",
     "hub": "Applications",
-    "loading": "Chargement des parties...",
+    "loading": "Chargement...",
     "error": {
         "fetchingParties": "Impossible de récupérer les parties en cours."
     },
@@ -61,5 +61,7 @@
     "searchwhois": "Chercher",
     "profile_complete": "Profil complet",
     "profile_incomplete": "Profil incomplet",
-    "profile": "Profil"
+    "profile": "Profil",
+    "viewScores": "Scores",
+    "time_to_play": "Il est temps de jouer"
 }

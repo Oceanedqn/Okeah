@@ -97,13 +97,10 @@ const EnigmatoGameHint: React.FC = () => {
 
 
     const handleOptionClick = (participant: IEnigmatoParticipants) => {
-        console.log(participant)
         setSelectedParticipant(participant);  // Mettre à jour le participant sélectionné
     };
 
     const handleValidateChoice = async () => {
-        console.log(selectedParticipant)
-        console.log(boxResponse)
         if (selectedParticipant && boxResponse && boxResponse.id_box_response) {
             await updateBoxResponseAsync(boxResponse.id_box_response, selectedParticipant.id_user, navigate);
             handleBack();

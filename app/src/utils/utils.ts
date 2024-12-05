@@ -9,6 +9,25 @@ export const getNormalizedDate = (date: Date): Date => {
     return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
 };
 
+
+export function formatDate(dateString: string) {
+    const date = new Date(dateString);
+
+    // Récupère la langue (par exemple "fr" ou "en") depuis le localStorage
+    const language = localStorage.getItem("i18nextLng") || "fr";
+    // Mapper les langues vers des locales complètes
+    const locale = language === "fr" ? "fr-FR" : "en-US";
+
+
+
+    // Format la date selon la locale
+    return date.toLocaleDateString(locale, {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+    });
+}
+
 export const calculateGameStage = (party: IEnigmatoPartyParticipants, t: Function) => {
     const today = getNormalizedDate(new Date());  // La date d'aujourd'hui sans heure
     const dateStart = getNormalizedDate(new Date(party.date_start));  // La date de début sans heure

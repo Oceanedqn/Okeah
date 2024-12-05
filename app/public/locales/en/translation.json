@@ -18,7 +18,7 @@
     "about": "About",
     "contact": "Contact",
     "hub": "Hub",
-    "loading": "Loading parties...",
+    "loading": "Loading...",
     "error": {
         "fetchingParties": "Unable to fetch ongoing parties."
     },
@@ -61,5 +61,7 @@
     "searchwhois": "Search",
     "profile_complete": "Profil complete",
     "profile_incomplete": "Profil incomplete",
-    "profile": "Profile"
+    "profile": "Profile",
+    "viewScores": "Scores",
+    "time_to_play": "It's time to play"
 }

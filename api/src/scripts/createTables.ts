@@ -22,8 +22,7 @@ const createTables = async () => {
       name VARCHAR(100) NOT NULL,
       password VARCHAR(255),
       date_start DATE NOT NULL,
-      date_end DATE,
-      is_finished BOOLEAN DEFAULT FALSE,
+      date_end DATE NOT NULL,
       game_mode INTEGER NOT NULL,
       number_of_box INTEGER NOT NULL,
       id_user INTEGER NOT NULL REFERENCES users(id_user),
@@ -52,7 +51,7 @@ const createTables = async () => {
       id_party INTEGER NOT NULL REFERENCES enigmato_parties(id_party),
       name VARCHAR(100) NOT NULL,
       date TIMESTAMP,
-      id_enigma_user INTEGER NOT NULL
+      id_enigma_user INTEGER
     );
     `,
 
