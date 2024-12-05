@@ -46,11 +46,15 @@ export const get_parties_by_user_async = async (req: Request, res: Response) => 
 
         // Filtrage des parties qui ne sont pas terminées
         const ongoingParties = userPartiesResult.rows.filter((party) => {
-            const dateEnd = new Date(party.date_end);
-            const currentDate = new Date();
+            const dateEnd = new Date(party.date_end); // Convertir directement depuis la DB
+            const currentDate = new Date(); // Date actuelle
 
-            // Vérifie si la date actuelle est inférieure à la date de fin + 1 jour
-            return currentDate < new Date(dateEnd.setDate(dateEnd.getDate() + 1));
+            // Ajouter un jour à la date de fin pour inclure la journée entière
+            const extendedDateEnd = new Date(dateEnd);
+            extendedDateEnd.setDate(dateEnd.getDate());
+
+            // Comparer les dates
+            return currentDate <= extendedDateEnd;
         });
 
         // Vérification et mise à jour des états des parties
