@@ -123,9 +123,9 @@ const RegisterComponent: React.FC<{ onRegister: () => void; handleToggle: () => 
             )}
             {isLogin && (
                 <p>
-                    Vous n'avez pas de compte ?{' '}
+                    {t("noaccount")}{' '}
                     <span onClick={handleToggle} style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}>
-                        Inscrivez-vous
+                        {t("registeryou")}
                     </span>
                 </p>
 

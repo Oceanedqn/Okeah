@@ -60,9 +60,9 @@ const LoginComponent: React.FC<{ onLogin: () => void; handleToggle: () => void; 
             )}
             {!isLogin && (
                 <p>
-                    Vous avez déjà un compte ?{' '}
+                    {t("alreadyaccount")}{' '}
                     <span onClick={handleToggle} style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}>
-                        Connectez-vous
+                        {t("loginyou")}
                     </span>
                 </p>
             )}

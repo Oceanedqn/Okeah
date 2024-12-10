@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Container, LinksContainer, StyledLink, WelcomeTitle } from '../styles/HomeStyles';
 import LoadingComponent from '../components/base/LoadingComponent';
 import { IUserLocalstorage } from '../interfaces/IUser';
+import { useTranslation } from 'react-i18next';
 
 
 const Home: React.FC = () => {
   const [user, setUser] = useState<IUserLocalstorage>();
   const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -37,7 +39,7 @@ const Home: React.FC = () => {
 
   return (
     <Container>
-      <WelcomeTitle>Bienvenue, {user.firstname}!</WelcomeTitle>
+      <WelcomeTitle>{t("welcome")}, {user.firstname}!</WelcomeTitle>
 
       <LinksContainer>
         {/* Exemple de conteneurs carrés redirigeant vers d'autres pages */}

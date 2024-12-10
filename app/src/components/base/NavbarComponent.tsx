@@ -31,7 +31,7 @@ const NavbarComponent: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
                 <MenuItem to="/enigmato/home">Enigmato</MenuItem>
                 <MenuItem to="/contact">{t('contact')}</MenuItem>
                 <MenuItem to="/login">
-                    <ButtonStyle onClick={handleLogout}>Déconnexion</ButtonStyle>
+                    <ButtonStyle onClick={handleLogout}>{t("logout")}</ButtonStyle>
                 </MenuItem>
             </Menu>
         </NavbarContainerStyle>
