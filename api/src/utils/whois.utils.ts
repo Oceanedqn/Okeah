@@ -269,11 +269,10 @@ export const calculateNumberOfBoxes = (startDate: string, endDate: string, inclu
     let numberOfDays = 0;
 
     for (let current = new Date(start); current <= end; current.setDate(current.getDate() + 1)) {
-        const dayOfWeek = current.getDay();
+        const dayOfWeek = current.getDay(); // 0 pour Dimanche, 6 pour Samedi
         if (includeWeekends || (dayOfWeek !== 0 && dayOfWeek !== 6)) {
             numberOfDays++;
         }
     }
-
     return numberOfDays;
 };

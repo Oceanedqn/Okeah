@@ -153,8 +153,6 @@ export const get_unjoined_parties_async = async (req: Request, res: Response) =>
             const result = await client.query(query, [currentUser.id_user, skip, limit]);
             const parties = result.rows;
 
-            console.log(parties);
-
             // Sous-requête pour compter le nombre de participants par partie
             const participantsQuery = `
             SELECT id_party, COUNT(id_profil) AS participants_number
@@ -251,19 +249,16 @@ export const create_party_async = async (req: Request, res: Response) => {
         const idParty = dbParty.id_party;
 
         // Création des boîtes
-        for (let i = 0; i < numberOfBoxes; i++) {
-            const boxDate = new Date(party.date_start);
-            boxDate.setDate(boxDate.getDate() + i);
-
-            if (!party.include_weekends && (boxDate.getDay() === 0 || boxDate.getDay() === 6)) {
+        for (let currentDate = new Date(party.date_start); currentDate <= new Date(party.date_end); currentDate.setDate(currentDate.getDate() + 1)) {
+            if (!party.include_weekends && (currentDate.getDay() === 0 || currentDate.getDay() === 6)) {
                 continue; // Sauter les week-ends si non inclus
             }
 
-            const formattedDate = boxDate.toISOString().split('T')[0];
+            const formattedDate = currentDate.toISOString().split('T')[0];
             await client.query(
                 `INSERT INTO enigmato_boxes (id_party, name, date, id_enigma_user)
-                VALUES ($1, $2, $3, $4)`,
-                [idParty, `Box du ${formattedDate}`, formattedDate, null] // id_enigma_user est null
+        VALUES ($1, $2, $3, $4)`,
+                [idParty, `Box du ${formattedDate}`, formattedDate, null]
             );
         }
 
