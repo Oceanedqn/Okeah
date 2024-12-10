@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ButtonStyle, ContainerUnderTitleStyle, TextStyle } from '../../styles/GlobalStyles';
+import { ButtonStyle, ContainerUnderTitleStyle } from '../../styles/GlobalStyles';
 import { fetchCompletedRandomParticipantsAsync, getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { getTodayBoxGameAsync } from '../../services/enigmato/enigmatoBoxesService';
 import { IEnigmatoBoxGame, IEnigmatoBoxResponse, IEnigmatoParticipants, IEnigmatoParty } from '../../interfaces/IEnigmato';
 import { getBoxResponseByIdBoxAsync, updateBoxResponseAsync } from '../../services/enigmato/enigmatoBoxResponsesService';
 import { useTranslation } from 'react-i18next';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
-import { ButtonHintStyle, ContainerBackgroundStyle, EnigmatoContainerStyle, GridContainer, StyledButton, StyledCard } from '../../styles/EnigmatoStyles';
+import { EnigmatoContainerStyle } from '../../styles/EnigmatoStyles';
 import LoadingComponent from '../../components/base/LoadingComponent';
 import ParticipantsGridComponent from 'src/components/Enigmato/ParticipantGridComponent';
 
@@ -139,7 +139,7 @@ const EnigmatoGameHint: React.FC = () => {
                 </div>
 
                 <EnigmatoContainerStyle style={{ paddingTop: '20px' }}>
-                    <ButtonStyle onClick={handleValidateChoice} disabled={!selectedParticipant}>Valider mon choix</ButtonStyle>
+                    <ButtonStyle onClick={handleValidateChoice} disabled={!selectedParticipant}>{t("validate_choice")}</ButtonStyle>
                 </EnigmatoContainerStyle>
 
 

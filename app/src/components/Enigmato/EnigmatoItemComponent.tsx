@@ -13,9 +13,11 @@ interface EnigmatoItemComponentProps {
 
 // Fonction pour vérifier si la partie est terminée (en fonction de date_end)
 export const checkIfFinishedParty = async (date_end: string): Promise<boolean> => {
-    const now = new Date();
+    const today = new Date(); // Date actuelle
+    const now = new Date(today.getFullYear(), today.getMonth(), today.getDate()); // Normalisation à minuit
     const dateEnd = new Date(date_end);
-    return now > dateEnd;  // Si la date actuelle dépasse la date de fin, la partie est terminée
+    const normalizedDateEnd = new Date(dateEnd.getFullYear(), dateEnd.getMonth(), dateEnd.getDate()); // Normalisation à minuit
+    return now > normalizedDateEnd;  // Comparaison sur les dates sans heures
 };
 
 const EnigmatoItemComponent: React.FC<EnigmatoItemComponentProps> = ({ game, handleViewGame }) => {

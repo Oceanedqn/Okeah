@@ -6,7 +6,7 @@ import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
 import { useTranslation } from 'react-i18next';
 import { fetchParticipantsAsync, getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { fetchProfile, updateProfile } from '../../services/enigmato/enigmatoProfileService';
-import { IEnigmatoParticipants, IEnigmatoParty, IEnigmatoProfil } from '../../interfaces/IEnigmato';
+import { IEnigmatoParticipants, IEnigmatoProfil } from '../../interfaces/IEnigmato';
 import imageCompression from 'browser-image-compression';
 import ParticipantsListComponent from 'src/components/Enigmato/ParticipantListComponent';
 import PhotoUploadComponent from 'src/components/Enigmato/PhotoUploadComponent';

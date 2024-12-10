@@ -58,6 +58,41 @@ export const get_participants_async = async (req: Request, res: Response) => {
     }
 }
 
+export const get_participant_by_id_async = async (req: Request, res: Response) => {
+    const { id_user } = req.params;
+
+    try {
+        // Vérification si l'utilisateur existe
+        const userQuery = await pool.query(
+            `SELECT u.id_user, u.name, u.firstname, p.id_profil, p.picture2
+             FROM users u
+             LEFT JOIN enigmato_profiles p ON p.id_user = u.id_user
+             WHERE u.id_user = $1`,
+            [id_user]
+        );
+
+        if (userQuery.rows.length === 0) {
+            res.status(404).json({ message: 'No such user found' });
+        }
+
+        const user = userQuery.rows[0];
+
+        // Préparer les informations de l'utilisateur avec son statut `is_complete`
+        const userWithStatus = {
+            id_user: user.id_user,
+            id_profil: user.id_profil,
+            name: user.name,
+            firstname: user.firstname,
+            picture2: user.picture2 ? bufferToBase64(user.picture2) : null,
+        };
+
+        res.json(userWithStatus);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+}
+
 export const get_participants_completed_async = async (req: Request, res: Response) => {
     const { id_party } = req.params; // Récupération de l'id de la partie depuis les paramètres de la requête
 
