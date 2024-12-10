@@ -157,7 +157,7 @@ export const get_unjoined_parties_async = async (req: Request, res: Response) =>
     const client = await pool.connect();
     if (currentUser) {
         try {
-            // Sous-requête pour récupérer les parties auxquelles l'utilisateur actuel n'a pas encore rejoint
+            // Sous-requête pour récupérer les parties auxquelles l'utilisateur actuel a déjà rejoint
             const subquery = `
             SELECT id_party
             FROM enigmato_profiles
@@ -167,16 +167,18 @@ export const get_unjoined_parties_async = async (req: Request, res: Response) =>
             // Requête principale pour récupérer les parties auxquelles l'utilisateur n'a pas participé
             // et dont la date de fin est après la date actuelle (parties non terminées)
             const query = `
-            SELECT * 
+            SELECT *
             FROM enigmato_parties
             WHERE id_party NOT IN (${subquery}) 
-            AND date_end > NOW()  -- Ajouter un filtre pour ne récupérer que les parties non terminées
+            AND date_end >= DATE_TRUNC('day', NOW()) -- Inclure les parties qui se terminent aujourd'hui
             OFFSET $2 LIMIT $3
             `;
 
             // Exécution de la requête principale pour récupérer les parties non terminées
             const result = await client.query(query, [currentUser.id_user, skip, limit]);
             const parties = result.rows;
+
+            console.log(parties);
 
             // Sous-requête pour compter le nombre de participants par partie
             const participantsQuery = `
