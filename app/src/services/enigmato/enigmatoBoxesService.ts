@@ -12,7 +12,7 @@ export const getTodayBoxAsync = async (id_party: number, navigate: ReturnType<ty
         const response = await axios.get(`${API_ENIGMATO_BOXES_URL}/${id_party}/today`, {
             withCredentials: true,
         });
-        return response.data;
+        return response;
     } catch (error) {
         handleError(error, navigate);
     }

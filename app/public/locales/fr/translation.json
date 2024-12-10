@@ -63,5 +63,6 @@
     "profile_incomplete": "Profil incomplet",
     "profile": "Profil",
     "viewScores": "Scores",
-    "time_to_play": "Il est temps de jouer"
+    "time_to_play": "Il est temps de jouer",
+    "gameStartsTomorrow": "La partie commence demain"
 }
