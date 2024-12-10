@@ -3,8 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ButtonStyle, ContainerUnderTitleStyle, TextStyle, Title2Style } from '../../styles/GlobalStyles';
 import { EnigmatoContainerStyle, ContainerBackgroundStyle } from '../../styles/EnigmatoStyles';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
-import { IEnigmatoBox, IEnigmatoBoxResponse, IEnigmatoBoxRightResponse, IEnigmatoParty, IEnigmatoProfil } from '../../interfaces/IEnigmato';
-import { getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
+import { IEnigmatoBox, IEnigmatoBoxResponse, IEnigmatoBoxRightResponse, IEnigmatoParticipants, IEnigmatoParty, IEnigmatoProfil } from '../../interfaces/IEnigmato';
+import { fetchParticipantByIdAsync, getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { fetchProfile } from '../../services/enigmato/enigmatoProfileService';
 import { getBeforeBoxAsync, getTodayBoxAsync } from '../../services/enigmato/enigmatoBoxesService';
 import { getBoxResponseByIdBoxAsync } from '../../services/enigmato/enigmatoBoxResponsesService';
@@ -22,6 +22,7 @@ const EnigmatoGameInfo: React.FC = () => {
     const [beforeBoxes, setBeforeBoxes] = useState<IEnigmatoBoxRightResponse[] | null>(null);
     const [boxResponse, setBoxResponse] = useState<IEnigmatoBoxResponse>();
     const [message, setMessage] = useState<string | null>(null);
+    const [participant, setParticipant] = useState<IEnigmatoParticipants>();
 
     // Vérifie si une chaîne est en base64 pour les images
     const isBase64 = (str: string) => /^data:image\/[a-z]+;base64,/.test(str);
@@ -105,6 +106,24 @@ const EnigmatoGameInfo: React.FC = () => {
         }
     }, [todayBox, navigate]);
 
+
+    useEffect(() => {
+        const fetchParticipant = async () => {
+            try {
+                if (boxResponse?.id_user_response) {
+                    const participantRequest: IEnigmatoParticipants = await fetchParticipantByIdAsync(parseInt(id_party!), boxResponse?.id_user_response!, navigate)
+                    setParticipant(participantRequest);
+                }
+            } catch (error) {
+                console.error("Erreur lors de la récupération du participant :", error);
+            }
+        }
+
+        if (boxResponse) {
+            fetchParticipant();
+        }
+    }, [boxResponse, navigate]);
+
     const handleInfo = () => {
         if (id_party) {
             navigate(`/enigmato/parties/${id_party}/profil`);
@@ -135,10 +154,34 @@ const EnigmatoGameInfo: React.FC = () => {
                     </ButtonStyle>
                     <ContainerBackgroundStyle>
                         {message && <TextStyle>{message}</TextStyle>}
-                        {!message && boxResponse ? (
-                            <div>
-                                <TextStyle>{t("response")}</TextStyle>
-                                <TextStyle>{t("choosen_response")} {boxResponse.id_user_response}</TextStyle>
+                        {/* Message or box response */}
+                        {message ? (
+                            <TextStyle>{message}</TextStyle>
+                        ) : boxResponse ? (
+                            <div
+                                style={{
+                                    display: 'flex', // Use flexbox
+                                    flexDirection: 'column', // Arrange elements in a column
+                                    alignItems: 'center', // Center elements horizontally
+                                    textAlign: 'center', // Center text within the div
+                                }}
+                            >
+                                <TextStyle>{t('choosen_response')}</TextStyle>
+                                <TextStyle>{participant?.firstname} {participant?.name}</TextStyle>
+                                {participant?.picture2 && isBase64(participant.picture2) && (
+                                    <img
+                                        src={participant.picture2}
+                                        alt={`${participant.name} ${participant.firstname}`}
+                                        style={{
+                                            width: '200px',
+                                            height: '200px',
+                                            borderRadius: '18px',
+                                            objectFit: 'cover',
+                                            display: 'block', // Permet d'utiliser margin auto
+                                            margin: 'auto', // Centre horizontalement
+                                        }}
+                                    />
+                                )}
                             </div>
                         ) : (
                             !message && todayBox && (

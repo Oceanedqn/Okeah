@@ -142,6 +142,10 @@ export const get_past_boxes_in_game_async = async (req: Request, res: Response) 
         for (const box of boxes) {
             if (responseSent) break; // Avoid further processing if a response has already been sent
 
+            if (!box.id_enigma_user) {
+                continue;
+            }
+
             try {
                 const profileQuery = await pool.query(
                     'SELECT * FROM enigmato_profiles WHERE id_user = $1 AND id_party = $2',
@@ -151,7 +155,7 @@ export const get_past_boxes_in_game_async = async (req: Request, res: Response) 
                 const userQuery = await pool.query(
                     'SELECT id_user, name, firstname FROM users WHERE id_user = $1',
                     [box.id_enigma_user]
-                )
+                );
 
                 const profile = profileQuery.rows[0];
                 const user = userQuery.rows[0];
@@ -161,11 +165,11 @@ export const get_past_boxes_in_game_async = async (req: Request, res: Response) 
                     id_party: box.id_party,
                     name: user.name,
                     date: box.date,
-                    picture1: profile.picture1,
-                    picture2: profile.picture2,
+                    picture1: profile?.picture1 || null,
+                    picture2: profile?.picture2 || null,
                     name_box: box.name,
                     id_user: user.id_user,
-                    id_profil: profile.id_profil,
+                    id_profil: profile?.id_profil || null,
                     firstname: user.firstname,
                 });
             } catch (innerErr) {
