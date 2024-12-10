@@ -16,6 +16,6 @@ router.get('/:id_party', authenticate, get_participants_async)
 // router.get('/:id_party/number', authenticate, get_participants_number_async)
 router.get('/:id_party/completed', authenticate, get_participants_completed_async)
 router.get('/:id_party/completed/random', authenticate, get_random_participants_completed_async)
-router.get('/user/:id_user', authenticate, get_participant_by_id_async)
+router.get('/:id_party/user/:id_user', authenticate, get_participant_by_id_async)
 
 export { router as participantsRoutes };

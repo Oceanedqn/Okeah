@@ -81,9 +81,9 @@ export const fetchParticipantsAsync = async (id_party: number, navigate: ReturnT
   }
 };
 
-export const fetchParticipantByIdAsync = async (id_user: number, navigate: ReturnType<typeof useNavigate>) => {
+export const fetchParticipantByIdAsync = async (id_party: number, id_user: number, navigate: ReturnType<typeof useNavigate>) => {
   try {
-    const response = await axios.get(`${API_ENIGMATO_PARTICIPANTS_URL}/user/${id_user}`, {
+    const response = await axios.get(`${API_ENIGMATO_PARTICIPANTS_URL}/${id_party}/user/${id_user}`, {
       withCredentials: true,
     });
     return response.data;

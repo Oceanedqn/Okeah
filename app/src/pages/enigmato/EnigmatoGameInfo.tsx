@@ -111,7 +111,7 @@ const EnigmatoGameInfo: React.FC = () => {
         const fetchParticipant = async () => {
             try {
                 if (boxResponse?.id_user_response) {
-                    const participantRequest: IEnigmatoParticipants = await fetchParticipantByIdAsync(boxResponse?.id_user_response!, navigate)
+                    const participantRequest: IEnigmatoParticipants = await fetchParticipantByIdAsync(parseInt(id_party!), boxResponse?.id_user_response!, navigate)
                     setParticipant(participantRequest);
                 }
             } catch (error) {

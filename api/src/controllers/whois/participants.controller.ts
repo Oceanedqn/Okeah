@@ -60,15 +60,16 @@ export const get_participants_async = async (req: Request, res: Response) => {
 
 export const get_participant_by_id_async = async (req: Request, res: Response) => {
     const { id_user } = req.params;
+    const { id_party } = req.params;
 
     try {
         // Vérification si l'utilisateur existe
         const userQuery = await pool.query(
-            `SELECT u.id_user, u.name, u.firstname, p.id_profil, p.picture2
-             FROM users u
-             LEFT JOIN enigmato_profiles p ON p.id_user = u.id_user
-             WHERE u.id_user = $1`,
-            [id_user]
+            `SELECT u.id_user, u.name, u.firstname, p.id_profil, p.picture2, p.id_party
+            FROM users u
+            LEFT JOIN enigmato_profiles p ON p.id_user = u.id_user
+            WHERE u.id_user = $1 AND p.id_party = $2`,
+            [id_user, id_party] // Vous passez ici id_user et id_party
         );
 
         if (userQuery.rows.length === 0) {
