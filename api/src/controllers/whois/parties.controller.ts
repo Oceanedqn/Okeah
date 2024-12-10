@@ -91,31 +91,18 @@ export const get_finished_parties_by_user_async = async (req: Request, res: Resp
             {}
         );
 
-        // Requête principale pour récupérer les parties terminées de l'utilisateur
+        // Requête principale pour récupérer les parties strictement terminées de l'utilisateur
         const userPartiesResult = await pool.query(`
             SELECT
                 p.*
             FROM enigmato_parties p
             INNER JOIN enigmato_profiles ep ON p.id_party = ep.id_party
             WHERE ep.id_user = $1
-            AND p.date_end <= (CURRENT_DATE + INTERVAL '1 day' - INTERVAL '1 second') -- Jusqu'à fin de journée
+            AND p.date_end < DATE_TRUNC('day', NOW()) -- Strictement terminées avant aujourd'hui
         `, [userId]);
 
-        // Filtrage des parties terminées
-        const finishedParties = userPartiesResult.rows.filter((party) => {
-            const dateEnd = new Date(party.date_end);
-            const currentDate = new Date();
-
-            // Définir la fin de la journée actuelle
-            const endOfDay = new Date();
-            endOfDay.setHours(23, 59, 59, 999);
-
-            // Vérifie si la date de fin est avant ou égale à la fin du jour
-            return dateEnd <= endOfDay;
-        });
-
         // Mapper les données pour correspondre au schéma attendu
-        const response = finishedParties.map((party) => ({
+        const response = userPartiesResult.rows.map((party) => ({
             id_party: party.id_party,
             date_creation: party.date_creation,
             name: party.name,
