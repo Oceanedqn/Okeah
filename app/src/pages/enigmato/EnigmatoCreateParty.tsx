@@ -17,7 +17,6 @@ const EnigmatoCreateParty: React.FC = () => {
     const [dateStart, setDateStart] = useState('');
     const [dateEnd, setDateEnd] = useState('');
     const [gameMode, setGameMode] = useState(1); // Par défaut, mode de jeu 1
-    const [numberOfBox, setNumberOfBox] = useState(1); // Par défaut, 1 boîte
     const [includeWeekends, setIncludeWeekends] = useState(true); // Par défaut, inclure les week-ends
     const [isPasswordRequired, setIsPasswordRequired] = useState(false); // Nouvel état pour savoir si un mot de passe est requis
 

@@ -63,5 +63,11 @@
     "profile_incomplete": "Profil incomplete",
     "profile": "Profile",
     "viewScores": "Scores",
-    "time_to_play": "It's time to play"
+    "time_to_play": "It's time to play",
+    "gameStartsTomorrow": "Game starts tomorrow",
+    "noaccount": "Don't have an account?",
+    "registeryou": "Sign up",
+    "alreadyaccount": "Already have an account?",
+    "loginyou": "Log in",
+    "welcome": "Welcome"
 }

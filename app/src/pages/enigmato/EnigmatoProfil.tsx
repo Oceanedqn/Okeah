@@ -10,6 +10,7 @@ import { IEnigmatoParticipants, IEnigmatoParty, IEnigmatoProfil } from '../../in
 import imageCompression from 'browser-image-compression';
 import ParticipantsListComponent from 'src/components/Enigmato/ParticipantListComponent';
 import PhotoUploadComponent from 'src/components/Enigmato/PhotoUploadComponent';
+import LoadingComponent from 'src/components/base/LoadingComponent';
 
 const EnigmatoProfil: React.FC = () => {
     const { id_party } = useParams<{ id_party: string }>();
@@ -18,6 +19,8 @@ const EnigmatoProfil: React.FC = () => {
     const [profil, setCurrentUserProfile] = useState<IEnigmatoProfil | null>(null);
     const { t } = useTranslation();
     const [canEditProfile, setCanEditProfile] = useState<boolean>(false);
+    const [loading, setLoading] = useState(false);
+
 
     useEffect(() => {
         const loadDatas = async () => {
@@ -76,6 +79,7 @@ const EnigmatoProfil: React.FC = () => {
 
     const handleSubmitProfile = async () => {
         if (profil && id_party) {
+            setLoading(true);
             try {
                 await updateProfile(profil, navigate);
                 const updatedParticipants = await fetchParticipantsAsync(parseInt(id_party, 10), navigate);
@@ -88,6 +92,8 @@ const EnigmatoProfil: React.FC = () => {
                 }
             } catch (error) {
                 console.error('Erreur lors de la mise à jour du profil:', error);
+            } finally {
+                setLoading(false);
             }
         } else {
             console.error('Le profil ou l\'ID de la partie est manquant.');
@@ -104,6 +110,10 @@ const EnigmatoProfil: React.FC = () => {
         const regex = /^data:image\/[a-z]+;base64,/;
         return regex.test(str);
     };
+
+    if (loading) {
+        return <LoadingComponent />;
+    }
 
     return (
         <>

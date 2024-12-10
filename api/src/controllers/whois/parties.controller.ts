@@ -32,7 +32,7 @@ export const get_parties_by_user_async = async (req: Request, res: Response) => 
             {}
         );
 
-        // Requête principale pour récupérer les parties de l'utilisateur
+        // Requête principale pour récupérer les parties en cours (non terminées)
         const userPartiesResult = await pool.query(
             `
             SELECT
@@ -40,42 +40,25 @@ export const get_parties_by_user_async = async (req: Request, res: Response) => 
             FROM enigmato_parties p
             INNER JOIN enigmato_profiles ep ON p.id_party = ep.id_party
             WHERE ep.id_user = $1
+            AND p.date_end >= DATE_TRUNC('day', NOW()) -- Parties non terminées (date de fin >= maintenant)
             `,
             [userId]
         );
 
-        // Filtrage des parties qui ne sont pas terminées
-        const ongoingParties = userPartiesResult.rows.filter((party) => {
-            const dateEnd = new Date(party.date_end); // Convertir directement depuis la DB
-            const currentDate = new Date(); // Date actuelle
-
-            // Ajouter un jour à la date de fin pour inclure la journée entière
-            const extendedDateEnd = new Date(dateEnd);
-            extendedDateEnd.setDate(dateEnd.getDate());
-
-            // Comparer les dates
-            return currentDate <= extendedDateEnd;
-        });
-
-        // Vérification et mise à jour des états des parties
-        const updatedParties = ongoingParties.map((party) => {
-
-            return {
-                id_party: party.id_party,
-                date_creation: party.date_creation,
-                name: party.name,
-                password: party.password,
-                date_start: party.date_start,
-                date_end: party.date_end,
-                game_mode: party.game_mode,
-                number_of_box: party.number_of_box,
-                id_user: party.id_user,
-                include_weekends: party.include_weekends,
-                participants_number: participantCountsMap[party.id_party] || 0,
-            };
-        });
-
-
+        // Mapper les résultats pour inclure les informations supplémentaires
+        const updatedParties = userPartiesResult.rows.map((party) => ({
+            id_party: party.id_party,
+            date_creation: party.date_creation,
+            name: party.name,
+            password: party.password,
+            date_start: party.date_start,
+            date_end: party.date_end,
+            game_mode: party.game_mode,
+            number_of_box: party.number_of_box,
+            id_user: party.id_user,
+            include_weekends: party.include_weekends,
+            participants_number: participantCountsMap[party.id_party] || 0,
+        }));
 
         res.status(200).json(updatedParties);
     } catch (error) {
@@ -108,26 +91,18 @@ export const get_finished_parties_by_user_async = async (req: Request, res: Resp
             {}
         );
 
-        // Requête principale pour récupérer les parties terminées de l'utilisateur
+        // Requête principale pour récupérer les parties strictement terminées de l'utilisateur
         const userPartiesResult = await pool.query(`
             SELECT
                 p.*
             FROM enigmato_parties p
             INNER JOIN enigmato_profiles ep ON p.id_party = ep.id_party
             WHERE ep.id_user = $1
+            AND p.date_end < DATE_TRUNC('day', NOW()) -- Strictement terminées avant aujourd'hui
         `, [userId]);
 
-        // Filtrage des parties terminées
-        const finishedParties = userPartiesResult.rows.filter((party) => {
-            const dateEnd = new Date(party.date_end);
-            const currentDate = new Date();
-
-            // Vérifie si la date actuelle est supérieure à la date de fin
-            return currentDate > dateEnd;
-        });
-
         // Mapper les données pour correspondre au schéma attendu
-        const response = finishedParties.map((party) => ({
+        const response = userPartiesResult.rows.map((party) => ({
             id_party: party.id_party,
             date_creation: party.date_creation,
             name: party.name,
@@ -157,7 +132,7 @@ export const get_unjoined_parties_async = async (req: Request, res: Response) =>
     const client = await pool.connect();
     if (currentUser) {
         try {
-            // Sous-requête pour récupérer les parties auxquelles l'utilisateur actuel n'a pas encore rejoint
+            // Sous-requête pour récupérer les parties auxquelles l'utilisateur actuel a déjà rejoint
             const subquery = `
             SELECT id_party
             FROM enigmato_profiles
@@ -167,10 +142,10 @@ export const get_unjoined_parties_async = async (req: Request, res: Response) =>
             // Requête principale pour récupérer les parties auxquelles l'utilisateur n'a pas participé
             // et dont la date de fin est après la date actuelle (parties non terminées)
             const query = `
-            SELECT * 
+            SELECT *
             FROM enigmato_parties
             WHERE id_party NOT IN (${subquery}) 
-            AND date_end > NOW()  -- Ajouter un filtre pour ne récupérer que les parties non terminées
+            AND date_end >= DATE_TRUNC('day', NOW()) -- Inclure les parties qui se terminent aujourd'hui
             OFFSET $2 LIMIT $3
             `;
 
@@ -274,19 +249,16 @@ export const create_party_async = async (req: Request, res: Response) => {
         const idParty = dbParty.id_party;
 
         // Création des boîtes
-        for (let i = 0; i < numberOfBoxes; i++) {
-            const boxDate = new Date(party.date_start);
-            boxDate.setDate(boxDate.getDate() + i);
-
-            if (!party.include_weekends && (boxDate.getDay() === 0 || boxDate.getDay() === 6)) {
+        for (let currentDate = new Date(party.date_start); currentDate <= new Date(party.date_end); currentDate.setDate(currentDate.getDate() + 1)) {
+            if (!party.include_weekends && (currentDate.getDay() === 0 || currentDate.getDay() === 6)) {
                 continue; // Sauter les week-ends si non inclus
             }
 
-            const formattedDate = boxDate.toISOString().split('T')[0];
+            const formattedDate = currentDate.toISOString().split('T')[0];
             await client.query(
                 `INSERT INTO enigmato_boxes (id_party, name, date, id_enigma_user)
-                VALUES ($1, $2, $3, $4)`,
-                [idParty, `Box du ${formattedDate}`, formattedDate, null] // id_enigma_user est null
+        VALUES ($1, $2, $3, $4)`,
+                [idParty, `Box du ${formattedDate}`, formattedDate, null]
             );
         }
 
