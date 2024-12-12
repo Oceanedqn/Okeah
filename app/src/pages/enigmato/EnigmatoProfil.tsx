@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ButtonStyle, ContainerUnderTitleStyle, } from '../../styles/GlobalStyles';
+import { ButtonStyle, ContainerUnderTitleStyle, TextStyle, } from '../../styles/GlobalStyles';
 import { EnigmatoContainerStyle, PreviewContainer, TextStyleProfil } from '../../styles/EnigmatoStyles';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +20,8 @@ const EnigmatoProfil: React.FC = () => {
     const { t } = useTranslation();
     const [canEditProfile, setCanEditProfile] = useState<boolean>(false);
     const [loading, setLoading] = useState(false);
+    const [imageError, setImageError] = useState<string | null>(null); // État pour les messages d'erreur des images
+
 
 
     useEffect(() => {
@@ -58,8 +60,20 @@ const EnigmatoProfil: React.FC = () => {
         if (e.target.files && e.target.files[0] && profil) {
             const file = e.target.files[0];
 
+            const validMimeTypes = ['image/png', 'image/jpeg'];
+            if (!validMimeTypes.includes(file.type)) {
+                setImageError('Invalid file type. Please upload a PNG or JPG image.');
+                return;
+            }
+
+            const maxSizeMB = 2; // Limite de 1 MB
+            if (file.size > maxSizeMB * 1024 * 1024) {
+                setImageError('File size exceeds the maximum limit of 1 MB.');
+                return;
+            }
+
             const options = {
-                maxSizeMB: 1,
+                maxSizeMB: 2,
                 maxWidthOrHeight: 1024,
                 useWebWorker: true,
             };
@@ -67,11 +81,30 @@ const EnigmatoProfil: React.FC = () => {
             try {
                 // Compress image
                 const compressedFile = await imageCompression(file, options);
+
+                // Vérification du contenu du fichier (exemple basique : header de l'image)
+                const arrayBuffer = await compressedFile.arrayBuffer();
+                const uint8Array = new Uint8Array(arrayBuffer);
+
+                // Vérifie si le fichier commence par des signatures spécifiques (magic numbers)
+                const pngSignature = [0x89, 0x50, 0x4e, 0x47]; // PNG
+                const jpgSignature = [0xff, 0xd8, 0xff]; // JPEG
+
+                const isPng = uint8Array.slice(0, 4).every((byte, index) => byte === pngSignature[index]);
+                const isJpg = uint8Array.slice(0, 3).every((byte, index) => byte === jpgSignature[index]);
+
+                if (!isPng && !isJpg) {
+                    setImageError('File content does not match PNG or JPG signature.');
+                    return;
+                }
+
                 const base64String = await imageCompression.getDataUrlFromFile(compressedFile);
 
                 // Update the profile with the compressed base64 image
                 setCurrentUserProfile({ ...profil, [photoField]: base64String });
+                setImageError(null); // Réinitialiser l'erreur en cas de succès
             } catch (error) {
+                setImageError('Error compressing image. Please try again.');
                 console.error('Error compressing image:', error);
             }
         }
@@ -147,6 +180,13 @@ const EnigmatoProfil: React.FC = () => {
                             handleClickPhoto={handleClickPhoto}
                         />
                     </PreviewContainer>
+
+                    {/* Afficher l'erreur d'image */}
+                    {imageError && (
+                        <TextStyle style={{ color: 'red', marginTop: '10px' }}>
+                            {imageError}
+                        </TextStyle>
+                    )}
                     <ButtonStyle onClick={handleSubmitProfile} disabled={
                         !canEditProfile ||
                         !isBase64(profil?.picture1 || '') ||  // Vérifier si picture1 est valide
