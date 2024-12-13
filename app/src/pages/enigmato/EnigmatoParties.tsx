@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ButtonStyle, ContainerUnderTitleStyle, TextStyle } from '../../styles/GlobalStyles';
-import { EnigmatoContainerStyle, ModalContent, ModalOverlay, EnigmatoItemStyle } from '../../styles/EnigmatoStyles';
+import { EnigmatoContainerStyle, ModalContent, ModalOverlay, EnigmatoItemGridStyle } from '../../styles/EnigmatoStyles';
 import { getPartiesAsync, joinPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { IEnigmatoJoinParty, IEnigmatoParty, IEnigmatoPartyParticipants } from '../../interfaces/IEnigmato';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
 import { useTranslation } from 'react-i18next';
 import { calculateGameStage } from '../../utils/utils';
+import LoadingComponent from 'src/components/base/LoadingComponent';
 
 const EnigmatoParties: React.FC = () => {
     const navigate = useNavigate();
@@ -93,7 +94,7 @@ const EnigmatoParties: React.FC = () => {
     };
 
     if (loading) {
-        return <div>{t('loading')}</div>;
+        return <LoadingComponent />;
     }
 
     if (error) {
@@ -109,15 +110,14 @@ const EnigmatoParties: React.FC = () => {
                 ) : (
                     <EnigmatoContainerStyle>
                         {parties.map((partie) => (
-                            <EnigmatoItemStyle key={partie.id_party}>
+                            <EnigmatoItemGridStyle>
                                 <TextStyle>{partie.name}</TextStyle>
-                                {/* Vérification de set_password */}
-                                {partie.set_password && (
-                                    <TextStyle>{t('mdp')}</TextStyle>
-                                )}
                                 {calculateGameStage(partie, t)}
+                                {partie.set_password ? (
+                                    <TextStyle>{t('mdp')}</TextStyle>
+                                ) : (<div></div>)}
                                 <ButtonStyle onClick={() => handleJoin(partie)}>{t('join')}</ButtonStyle>
-                            </EnigmatoItemStyle>
+                            </EnigmatoItemGridStyle>
                         ))}
                     </EnigmatoContainerStyle>
                 )}
