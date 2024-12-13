@@ -4,7 +4,7 @@ import { VscUnverified } from "react-icons/vsc";
 import { GrValidate } from "react-icons/gr";
 import { IEnigmatoParticipants } from '../../interfaces/IEnigmato';
 import { FaUser } from 'react-icons/fa';
-import { Title2Style } from 'src/styles/GlobalStyles';
+import { TextDarkStyle, Title2Style } from 'src/styles/GlobalStyles';
 
 interface ParticipantsListProps {
     participants: IEnigmatoParticipants[];
@@ -44,7 +44,7 @@ const ParticipantsList: React.FC<ParticipantsListProps> = ({ participants, isBas
                                 />
                             )}
 
-                            <span>{participant.name} {participant.firstname}</span>
+                            <TextDarkStyle>{participant.name} {participant.firstname}</TextDarkStyle>
 
                             {!participant.is_complete ? (
                                 <span style={{ color: 'red', marginLeft: '10px' }}>

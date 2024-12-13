@@ -11,16 +11,24 @@ export const getNormalizedDate = (date: Date): Date => {
 
 
 export function formatDate(dateString: string) {
+    if (!dateString) {
+        console.error("La chaîne de date est invalide :", dateString);
+        return "Invalid Date";
+    }
+
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+        console.error("Impossible de parser la date :", dateString);
+        return "Invalid Date";
+    }
 
     // Récupère la langue (par exemple "fr" ou "en") depuis le localStorage
     const language = localStorage.getItem("i18nextLng") || "fr";
-    // Mapper les langues vers des locales complètes
     const locale = language === "fr" ? "fr-FR" : "en-US";
 
+    console.log("Date originale :", dateString);
+    console.log("Langue détectée :", language);
 
-
-    // Format la date selon la locale
     return date.toLocaleDateString(locale, {
         day: "2-digit",
         month: "2-digit",

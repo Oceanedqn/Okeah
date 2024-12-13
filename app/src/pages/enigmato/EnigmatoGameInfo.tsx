@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ButtonStyle, ContainerUnderTitleStyle, TextStyle, Title2Style } from '../../styles/GlobalStyles';
+import { ButtonStyle, ContainerUnderTitleStyle, TextDarkStyle, TextStyle, Title2Style } from '../../styles/GlobalStyles';
 import { EnigmatoContainerStyle, ContainerBackgroundStyle } from '../../styles/EnigmatoStyles';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
 import { IEnigmatoBox, IEnigmatoBoxResponse, IEnigmatoBoxRightResponse, IEnigmatoParticipants, IEnigmatoParty, IEnigmatoProfil } from '../../interfaces/IEnigmato';
@@ -52,11 +52,22 @@ const EnigmatoGameInfo: React.FC = () => {
                 }
             };
 
+            fetchParty();
+            fetchUserProfile();
+        } else {
+            console.error("id_party est indéfini");
+        }
+    }, [id_party, navigate]);
+
+    useEffect(() => {
+        if (party && id_party) {
             const fetchTodayBox = async () => {
                 try {
                     const response = await getTodayBoxAsync(parseInt(id_party), navigate);
                     if (response && response.status === 202) {
-                        setMessage(t("gameStartsTomorrow"));
+                        if (party.date_start) {
+                            setMessage(t("gameStarts") + " " + formatDate(party.date_start));
+                        }
                     } else if (response && response.data) {
                         setTodayBox(response.data);
                     }
@@ -76,15 +87,10 @@ const EnigmatoGameInfo: React.FC = () => {
                 }
             };
 
-            // Appeler toutes les fonctions de récupération des données
-            fetchParty();
-            fetchUserProfile();
             fetchTodayBox();
             fetchBeforeBox();
-        } else {
-            console.error("id_party est indéfini");
         }
-    }, [id_party, navigate, t]);
+    }, [party, id_party, navigate, t]);
 
     // Deuxième useEffect pour vérifier si la réponse a été donnée, mais seulement lorsque todayBox est défini
     useEffect(() => {
@@ -153,10 +159,8 @@ const EnigmatoGameInfo: React.FC = () => {
                         {t("infoGame")}
                     </ButtonStyle>
                     <ContainerBackgroundStyle>
-                        {message && <TextStyle>{message}</TextStyle>}
-                        {/* Message or box response */}
                         {message ? (
-                            <TextStyle>{message}</TextStyle>
+                            <TextDarkStyle>{message}</TextDarkStyle>
                         ) : boxResponse ? (
                             <div
                                 style={{
