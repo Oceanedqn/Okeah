@@ -108,9 +108,9 @@ const EnigmatoHome: React.FC = () => {
           <img src="/assets/guess_who.jpg" alt="Guess Who" style={{ width: "50%", maxWidth: "400px", marginBottom: "16px", borderRadius: "32px" }} />
         </EnigmatoContainerStyle>
       )}
+
       <ContainerUnderTitleStyle>
         <EnigmatoContainerStyle style={{ marginBottom: "32px" }}>{ongoingGames.length === 0 ? returnGameExplanation() : null}</EnigmatoContainerStyle>
-
 
         {ongoingGames.length > 0 && (
           <EnigmatoContainerStyle style={{ marginBottom: "15px" }}>
@@ -118,6 +118,7 @@ const EnigmatoHome: React.FC = () => {
               <Title2Style>{t('ongoing_games')}</Title2Style>
               <ButtonStyle onClick={() => navigate('/enigmato/parties')}>{t('join_game')}</ButtonStyle>
             </div>
+
             {ongoingGames.map((game) => (
               <EnigmatoItemComponent key={game.id_party} game={game} handleViewGame={handleViewGame} />
             ))}

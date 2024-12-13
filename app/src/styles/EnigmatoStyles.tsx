@@ -50,6 +50,27 @@ export const EnigmatoItemStyle = styled.div`
     }
 `;
 
+export const EnigmatoItemGridStyle = styled.div`
+    display: grid;
+    grid-template-columns: 2fr 2fr 1fr 1fr; /* Ajustez les colonnes selon vos besoins */
+    align-items: center; /* Centre le contenu verticalement */
+    gap: 10px; /* Espace entre les colonnes */
+    padding: 10px;
+    width: 100%;
+    border-bottom: 1px solid #ddd;
+    background-color: ${({ theme }) => theme.colors.background_light};
+    border-radius: 10px;
+
+    @media (max-width: ${breakpoints.sm}) {
+      flex-direction: column; /* Sur les petits écrans, empiler les éléments verticalement */
+      align-items: flex-start; /* Alignement à gauche sur mobile */
+    }
+
+    @media (min-width: ${breakpoints.md}) {
+      flex-direction: row; /* Sur les tablettes et plus, maintenir la disposition horizontale */
+    }
+`;
+
 export const ContainerBackgroundStyle = styled.div`
     background-color: ${({ theme }) => theme.colors.background_light};
     padding: 20px;
