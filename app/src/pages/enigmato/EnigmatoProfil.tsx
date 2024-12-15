@@ -192,7 +192,7 @@ const EnigmatoProfil: React.FC = () => {
                         !isBase64(profil?.picture1 || '') ||  // Vérifier si picture1 est valide
                         !isBase64(profil?.picture2 || '')      // Vérifier si picture2 est valide
                     }>
-                        {t('edit')}
+                        {t('send')}
                     </ButtonStyle>
                     <ParticipantsListComponent
                         participants={participants}

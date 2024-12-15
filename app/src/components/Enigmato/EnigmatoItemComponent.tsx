@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { FaUser } from 'react-icons/fa';
-import { ButtonStyle, TextStyle } from '../../styles/GlobalStyles';
+import { ButtonStyle, TextDarkStyle } from '../../styles/GlobalStyles';
 import { IEnigmatoPartyParticipants } from '../../interfaces/IEnigmato';
 import { calculateGameStage } from '../../utils/utils';
 import { useTranslation } from 'react-i18next';
 import { EnigmatoItemGridStyle } from '../../styles/EnigmatoStyles';
+import { FaCirclePlay } from "react-icons/fa6";
+import { FaMedal } from "react-icons/fa";
 
 interface EnigmatoItemComponentProps {
     game: IEnigmatoPartyParticipants;
@@ -40,14 +42,18 @@ const EnigmatoItemComponent: React.FC<EnigmatoItemComponentProps> = ({ game, han
 
     return (
         <EnigmatoItemGridStyle>
-            <TextStyle>{game.name}</TextStyle>
-            <TextStyle>{calculateGameStage(game, t)}</TextStyle>
+            <TextDarkStyle>{game.name}</TextDarkStyle>
+            <TextDarkStyle>{calculateGameStage(game, t)}</TextDarkStyle>
             <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                 <FaUser size={16} color="#555" />
-                <TextStyle>{game.participants_number}</TextStyle>
+                <TextDarkStyle>{game.participants_number}</TextDarkStyle>
             </div>
-            <ButtonStyle onClick={handleClick} disabled={isFinished}>
+
+            <ButtonStyle className='flex items-center justify-center' onClick={handleClick} disabled={isFinished}>
                 {buttonText}
+                {!isFinished ? (<FaCirclePlay className='ml-2' />) : (<FaMedal className='ml-2' />
+                )}
+
             </ButtonStyle>
         </EnigmatoItemGridStyle>
     );

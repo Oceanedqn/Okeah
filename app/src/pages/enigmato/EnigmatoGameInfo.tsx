@@ -11,6 +11,7 @@ import { getBoxResponseByIdBoxAsync } from '../../services/enigmato/enigmatoBoxR
 import { useTranslation } from 'react-i18next';
 import LoadingComponent from '../../components/base/LoadingComponent';
 import { formatDate } from 'src/utils/utils';
+import { FaInfoCircle } from "react-icons/fa";
 
 const EnigmatoGameInfo: React.FC = () => {
     const { t } = useTranslation();
@@ -155,8 +156,10 @@ const EnigmatoGameInfo: React.FC = () => {
             <HeaderTitleComponent title={party.name} onBackClick={handleBack} />
             <ContainerUnderTitleStyle>
                 <EnigmatoContainerStyle>
-                    <ButtonStyle onClick={handleInfo}>
+                    <ButtonStyle onClick={handleInfo} className='flex items-center justify-cente'>
+                        <FaInfoCircle className='mr-2' />
                         {t("infoGame")}
+                        <FaInfoCircle className='ml-2' />
                     </ButtonStyle>
                     <ContainerBackgroundStyle>
                         {message ? (
@@ -209,7 +212,7 @@ const EnigmatoGameInfo: React.FC = () => {
                                             <strong>{box.name_box}</strong> - {new Date(box.date).toLocaleDateString()}
                                         </p>
                                         <p>
-                                            {t("user_name")}: {box.name} {box.firstname}
+                                            {t("user_name")} {box.name} {box.firstname}
                                         </p>
 
                                         {box.picture1 && isBase64(box.picture1) && (
