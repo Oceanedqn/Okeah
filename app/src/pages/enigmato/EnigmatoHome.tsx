@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ButtonStyle, ContainerUnderTitleStyle, TextStyle, Title2Style } from '../../styles/GlobalStyles';
+import { ButtonJoinStyle, ButtonStyle, ContainerUnderTitleStyle, TextStyle, Title2Style } from '../../styles/GlobalStyles';
 import { EnigmatoContainerStyle } from '../../styles/EnigmatoStyles';
 import { getUserPartiesAsync, getUserFinishedPartiesAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { fetchProfile } from '../../services/enigmato/enigmatoProfileService'; // Importer la fonction pour récupérer le profil
@@ -9,6 +9,7 @@ import { IEnigmatoPartyParticipants, IEnigmatoProfil } from '../../interfaces/IE
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
 import EnigmatoItemComponent from '../../components/Enigmato/EnigmatoItemComponent';
 import LoadingComponent from '../../components/base/LoadingComponent';
+import { IoGameController } from "react-icons/io5";
 
 const EnigmatoHome: React.FC = () => {
   const { t } = useTranslation();
@@ -80,10 +81,7 @@ const EnigmatoHome: React.FC = () => {
   const returnGameExplanation = () => {
     return <>
       <Title2Style>{t('game_explanation')}</Title2Style>
-      <TextStyle>{t('game_description')}</TextStyle>
-      {ongoingGames.length === 0 && (
-        <ButtonStyle style={{ width: "100%", marginTop: "16px" }} onClick={() => navigate('/enigmato/parties')}>{t('join_game')}</ButtonStyle>
-      )}
+      <TextStyle className='mb-8'>{t('game_description')}</TextStyle>
 
     </>
   }
@@ -110,13 +108,16 @@ const EnigmatoHome: React.FC = () => {
       )}
 
       <ContainerUnderTitleStyle>
-        <EnigmatoContainerStyle style={{ marginBottom: "32px" }}>{ongoingGames.length === 0 ? returnGameExplanation() : null}</EnigmatoContainerStyle>
-
+        <EnigmatoContainerStyle>{ongoingGames.length === 0 ? returnGameExplanation() : null}</EnigmatoContainerStyle>
+        <EnigmatoContainerStyle style={{ marginBottom: "24px", marginTop: "24px" }}>
+          <ButtonJoinStyle className='flex items-center justify-center -mt-8' onClick={() => navigate('/enigmato/parties')}><IoGameController className='mr-2' />
+            {t('join_game')}<IoGameController className='ml-2' /></ButtonJoinStyle>
+        </EnigmatoContainerStyle>
         {ongoingGames.length > 0 && (
           <EnigmatoContainerStyle style={{ marginBottom: "15px" }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
               <Title2Style>{t('ongoing_games')}</Title2Style>
-              <ButtonStyle onClick={() => navigate('/enigmato/parties')}>{t('join_game')}</ButtonStyle>
+
             </div>
 
             {ongoingGames.map((game) => (

@@ -132,59 +132,90 @@ export const get_unjoined_parties_async = async (req: Request, res: Response) =>
     const client = await pool.connect();
     if (currentUser) {
         try {
-            // Sous-requête pour récupérer les parties auxquelles l'utilisateur actuel a déjà rejoint
-            const subquery = `
-            SELECT id_party
-            FROM enigmato_profiles
-            WHERE id_user = $1
-            `;
+            if (currentUser.id_user === 1) {
+                // Sous-requête pour récupérer les parties auxquelles l'utilisateur actuel a déjà rejoint
+                const subquery = `
+                SELECT id_party
+                FROM enigmato_profiles
+                WHERE id_user = $1
+                `;
 
-            // Requête principale pour récupérer les parties auxquelles l'utilisateur n'a pas participé
-            // et dont la date de fin est après la date actuelle (parties non terminées)
-            const query = `
-            SELECT *
-            FROM enigmato_parties
-            WHERE id_party NOT IN (${subquery}) 
-            AND date_end >= DATE_TRUNC('day', NOW()) -- Inclure les parties qui se terminent aujourd'hui
-            OFFSET $2 LIMIT $3
-            `;
+                // Requête principale pour récupérer les parties auxquelles l'utilisateur n'a pas participé
+                // et dont la date de fin est après la date actuelle (parties non terminées)
+                const query = `
+                SELECT *
+                FROM enigmato_parties
+                WHERE id_party NOT IN (${subquery}) 
+                AND date_end >= DATE_TRUNC('day', NOW())
+                OFFSET $2 LIMIT $3
+                `;
 
-            // Exécution de la requête principale pour récupérer les parties non terminées
-            const result = await client.query(query, [currentUser.id_user, skip, limit]);
-            const parties = result.rows;
+                const result = await client.query(query, [currentUser.id_user, skip, limit]);
+                const parties = result.rows || [];
 
-            // Sous-requête pour compter le nombre de participants par partie
-            const participantsQuery = `
-            SELECT id_party, COUNT(id_profil) AS participants_number
-            FROM enigmato_profiles
-            GROUP BY id_party
-            `;
+                if (parties.length === 0) {
+                    res.json([]);
+                    return;
+                }
 
-            // Exécution de la requête pour récupérer le nombre de participants par partie
-            const participantsResult = await client.query(participantsQuery);
-            const participantsCount = participantsResult.rows.reduce((acc: any, row: any) => {
-                acc[row.id_party] = row.participants_number;
-                return acc;
-            }, {});
+                // Sous-requête pour compter le nombre de participants par partie
+                const participantsQuery = `
+                SELECT id_party, COUNT(id_profil) AS participants_number
+                FROM enigmato_profiles
+                GROUP BY id_party
+                `;
+                const participantsResult = await client.query(participantsQuery);
+                const participantsCount = participantsResult.rows.reduce((acc: any, row: any) => {
+                    acc[row.id_party] = row.participants_number;
+                    return acc;
+                }, {});
 
-            // Mapper les parties récupérées pour inclure les informations nécessaires
-            const updatedParties = parties.map((party) => ({
-                id_party: party.id_party,
-                date_creation: party.date_creation,
-                name: party.name,
-                password: party.password,
-                date_start: party.date_start,
-                date_end: party.date_end,
-                game_mode: party.game_mode,
-                number_of_box: party.number_of_box,
-                id_user: party.id_user,
-                include_weekends: party.include_weekends,
-                participants_number: participantsCount[party.id_party] || 0,
-            }));
+                // Mapper les parties récupérées pour inclure les informations nécessaires
+                const updatedParties = parties.map((party) => ({
+                    id_party: party.id_party,
+                    date_creation: party.date_creation,
+                    name: party.name,
+                    password: party.password,
+                    date_start: party.date_start,
+                    date_end: party.date_end,
+                    game_mode: party.game_mode,
+                    number_of_box: party.number_of_box,
+                    id_user: party.id_user,
+                    include_weekends: party.include_weekends,
+                    participants_number: participantsCount[party.id_party] || 0,
+                }));
 
-            // Retourner les parties non terminées
-            res.json(updatedParties);
+                // Envoi de la réponse avec les parties mises à jour
+                res.json(updatedParties);
+            } else {
+                // Si l'utilisateur n'est pas id_user = 1, on recherche la partie avec id = 24
+                const query = `
+                SELECT *
+                FROM enigmato_parties
+                WHERE id_party = 28
+                `;
+                const result = await client.query(query);
+                const party = result.rows[0];
 
+                // Si la partie est trouvée, renvoie les informations de la partie
+                if (party) {
+                    res.json([{
+                        id_party: party.id_party,
+                        date_creation: party.date_creation,
+                        name: party.name,
+                        password: party.password,
+                        date_start: party.date_start,
+                        date_end: party.date_end,
+                        game_mode: party.game_mode,
+                        number_of_box: party.number_of_box,
+                        id_user: party.id_user,
+                        include_weekends: party.include_weekends,
+                        participants_number: 0,
+                    }]);
+                } else {
+                    res.status(404).json({ error: "Party not found" });
+                }
+            }
         } catch (err: unknown) {
             if (err instanceof Error) {
                 console.error("Error executing query", err.stack);
@@ -201,72 +232,76 @@ export const get_unjoined_parties_async = async (req: Request, res: Response) =>
 // [DONE 03/12/2024] Crée une partie
 export const create_party_async = async (req: Request, res: Response) => {
     const client = await pool.connect();
+    const party = req.body; // On suppose que les données sont envoyées dans le corps de la requête
+    const currentUser: IUser | undefined = req.user;
+
     try {
-        const party = req.body; // On suppose que les données sont envoyées dans le corps de la requête
-        const currentUser: IUser | undefined = req.user;
-
-        if (!party.date_start || !party.date_end) {
-            res.status(400).json({ error: "Start date and end date are required" });
-        }
-
-        // Calculer le nombre de jours (number_of_box)
-        const numberOfBoxes = calculateNumberOfBoxes(
-            party.date_start,
-            party.date_end,
-            party.include_weekends
-        );
-
-        // Si set_password est True, on hash le mot de passe. Sinon, on le met à null.
-        const passwordToStore = party.set_password && party.password ? hashPassword(party.password) : null;
-
-        if (!currentUser) {
-            res.status(403).json({ error: "Unauthorized" });
-        }
-
-        // Début de la transaction
-        await client.query('BEGIN');
-
-        // Insertion de la nouvelle partie
-        const query = `
-            INSERT INTO enigmato_parties (name, date_creation, password, id_user, date_start, game_mode, number_of_box, include_weekends, set_password, date_end)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *
-        `;
-        const values = [
-            party.name,
-            getNormalizedToday(new Date()),
-            passwordToStore,
-            currentUser!.id_user,
-            party.date_start,
-            party.game_mode,
-            numberOfBoxes, // Utilisation de la valeur calculée
-            party.include_weekends,
-            party.set_password,
-            party.date_end,
-        ];
-
-        const result = await client.query(query, values);
-        const dbParty = result.rows[0]; // La partie insérée
-        const idParty = dbParty.id_party;
-
-        // Création des boîtes
-        for (let currentDate = new Date(party.date_start); currentDate <= new Date(party.date_end); currentDate.setDate(currentDate.getDate() + 1)) {
-            if (!party.include_weekends && (currentDate.getDay() === 0 || currentDate.getDay() === 6)) {
-                continue; // Sauter les week-ends si non inclus
+        if (currentUser?.id_user == 1) {
+            if (!party.date_start || !party.date_end) {
+                res.status(400).json({ error: "Start date and end date are required" });
             }
 
-            const formattedDate = currentDate.toISOString().split('T')[0];
-            await client.query(
-                `INSERT INTO enigmato_boxes (id_party, name, date, id_enigma_user)
-        VALUES ($1, $2, $3, $4)`,
-                [idParty, `Box du ${formattedDate}`, formattedDate, null]
+            // Calculer le nombre de jours (number_of_box)
+            const numberOfBoxes = calculateNumberOfBoxes(
+                party.date_start,
+                party.date_end,
+                party.include_weekends
             );
+
+            // Si set_password est True, on hash le mot de passe. Sinon, on le met à null.
+            const passwordToStore = party.set_password && party.password ? hashPassword(party.password) : null;
+
+            if (!currentUser) {
+                res.status(403).json({ error: "Unauthorized" });
+            }
+
+            // Début de la transaction
+            await client.query('BEGIN');
+
+            // Insertion de la nouvelle partie
+            const query = `
+                INSERT INTO enigmato_parties (name, date_creation, password, id_user, date_start, game_mode, number_of_box, include_weekends, set_password, date_end)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *
+            `;
+            const values = [
+                party.name,
+                getNormalizedToday(new Date()),
+                passwordToStore,
+                currentUser!.id_user,
+                party.date_start,
+                party.game_mode,
+                numberOfBoxes, // Utilisation de la valeur calculée
+                party.include_weekends,
+                party.set_password,
+                party.date_end,
+            ];
+
+            const result = await client.query(query, values);
+            const dbParty = result.rows[0]; // La partie insérée
+            const idParty = dbParty.id_party;
+
+            // Création des boîtes
+            for (let currentDate = new Date(party.date_start); currentDate <= new Date(party.date_end); currentDate.setDate(currentDate.getDate() + 1)) {
+                if (!party.include_weekends && (currentDate.getDay() === 0 || currentDate.getDay() === 6)) {
+                    continue; // Sauter les week-ends si non inclus
+                }
+
+                const formattedDate = currentDate.toISOString().split('T')[0];
+                await client.query(
+                    `INSERT INTO enigmato_boxes (id_party, name, date, id_enigma_user)
+                        VALUES ($1, $2, $3, $4)`,
+                    [idParty, `Box du ${formattedDate}`, formattedDate, null]
+                );
+            }
+
+            // Si tout s'est bien passé, on valide la transaction
+            await client.query('COMMIT');
+
+            // Retourner la partie créée
+            res.status(201).json(dbParty);
+        } else {
+            res.status(403).json({ error: "You are not authorized to perform this action" });
         }
-
-        // Si tout s'est bien passé, on valide la transaction
-        await client.query('COMMIT');
-
-        // Retourner la partie créée
-        res.status(201).json(dbParty);
     } catch (err) {
         // En cas d'erreur, on annule la transaction
         await client.query('ROLLBACK');

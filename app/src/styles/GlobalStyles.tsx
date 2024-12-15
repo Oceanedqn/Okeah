@@ -185,6 +185,33 @@ export const ButtonStyle = styled.button`
   }
 `;
 
+export const ButtonJoinStyle = styled.button`
+  padding: 5px 10px;
+  font-size: 24px;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  background-color: ${({ theme }) => theme.colors.primary};
+  color: white;
+
+  &:hover {
+    border: none;
+    background-color: ${({ theme }) => theme.colors.primary_dark};
+  }
+
+  &:disabled {
+    background-color: ${({ theme }) => theme.colors.background_alternatif}; // Couleur de fond pour état désactivé
+    color: ${({ theme }) => theme.colors.title_text};          // Couleur de texte pour état désactivé
+    opacity: 0.6;
+    cursor: default;                                              
+  }
+
+  @media (max-width: ${breakpoints.sm}) {
+    font-size: 14px; /* Réduire la taille du texte sur mobile */
+    padding: 4px 8px; /* Réduire le padding sur mobile */
+  }
+`;
+
 // Style du titre
 export const Title1Style = styled.h1`
   font-size: 32px;
