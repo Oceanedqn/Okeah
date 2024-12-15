@@ -66,9 +66,9 @@ const EnigmatoProfil: React.FC = () => {
                 return;
             }
 
-            const maxSizeMB = 2; // Limite de 1 MB
+            const maxSizeMB = 10; // Limite de 1 MB
             if (file.size > maxSizeMB * 1024 * 1024) {
-                setImageError('File size exceeds the maximum limit of 1 MB.');
+                setImageError('File size exceeds the maximum limit of 10 MB.');
                 return;
             }
 
