@@ -4,7 +4,7 @@ import { ButtonStyle, TextStyle } from '../../styles/GlobalStyles';
 import { IEnigmatoPartyParticipants } from '../../interfaces/IEnigmato';
 import { calculateGameStage } from '../../utils/utils';
 import { useTranslation } from 'react-i18next';
-import { EnigmatoItemStyle } from '../../styles/EnigmatoStyles';
+import { EnigmatoItemGridStyle } from '../../styles/EnigmatoStyles';
 
 interface EnigmatoItemComponentProps {
     game: IEnigmatoPartyParticipants;
@@ -39,7 +39,7 @@ const EnigmatoItemComponent: React.FC<EnigmatoItemComponentProps> = ({ game, han
     const handleClick = () => handleViewGame(game.id_party, isFinished);  // Passer `isFinished` au lieu de `game.is_finished`
 
     return (
-        <EnigmatoItemStyle key={game.id_party}>
+        <EnigmatoItemGridStyle>
             <TextStyle>{game.name}</TextStyle>
             <TextStyle>{calculateGameStage(game, t)}</TextStyle>
             <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
@@ -49,7 +49,7 @@ const EnigmatoItemComponent: React.FC<EnigmatoItemComponentProps> = ({ game, han
             <ButtonStyle onClick={handleClick} disabled={isFinished}>
                 {buttonText}
             </ButtonStyle>
-        </EnigmatoItemStyle>
+        </EnigmatoItemGridStyle>
     );
 };
 

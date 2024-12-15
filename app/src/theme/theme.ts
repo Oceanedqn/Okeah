@@ -7,6 +7,7 @@ export const vintageTheme: DefaultTheme = {
     background_alternatif: "#EDE6F2",
     background_light: "#FFFFFF",
     text: "#555",
+    dark_text: "#555",
     title_text: "#000009",
     primary: "#1F6E8C",
     primary_light: "#2E8A97",
@@ -23,6 +24,7 @@ export const plexiglasOrangeTheme: DefaultTheme = {
     background_alternatif: "#FCE3C5",
     background_light: "#FFFFFF",
     text: "#1C1C1C",
+    dark_text: "#1C1C1C",
     title_text: "#1C1C1C",
     primary: "#FF8C42",          // Orange plexiglas
     primary_light: "#FFA659",     // Orange plus clair, translucide
@@ -39,6 +41,7 @@ export const futuristTheme: DefaultTheme = {
     background_alternatif: "#2C2C54", // Bleu moyen
     background_light: "#FFFFFF",      // Blanc
     text: "#EDEDED",                  // Blanc cassé pour contraste doux
+    dark_text: "#1C1C1C",
     title_text: "#F7F9F9",            // Blanc pur pour titres
     primary: "#AD00FF",               // Violet néon
     primary_light: "#CF3FFF",         // Violet clair
@@ -55,6 +58,7 @@ export const christmasTheme: DefaultTheme = {
     background_alternatif: "#F8E2E2", // Rouge très pâle
     background_light: "#FFFFFF",      // Blanc pur (neige)
     text: "#4A4A4A",                  // Gris foncé
+    dark_text: "#4A4A4A",                  // Gris foncé
     title_text: "#8B0000",            // Rouge foncé (classique Noël)
     primary: "#D32F2F",               // Rouge éclatant
     primary_light: "#FF6659",         // Rouge plus clair
@@ -71,6 +75,7 @@ export const animalCrossingTheme: DefaultTheme = {
     background_alternatif: "#FDEAC3", // Beige chaleureux
     background_light: "#FFFFFF",      // Blanc pur
     text: "#4F4F4F",                  // Gris doux
+    dark_text: "#4F4F4F",                  // Gris doux
     title_text: "#006B3C",            // Vert forêt
     primary: "#6A994E",               // Vert feuillage
     primary_light: "#A7C957",         // Vert lime doux
@@ -88,6 +93,7 @@ export const candyTheme: DefaultTheme = {
     background_alternatif: "#FFD700", // Jaune bonbon, une couleur vive et amusante pour les zones secondaires
     background_light: "#FFF5E1",      // Crème claire, pour les éléments de fond comme les cartes ou les boîtes
     text: "#4B0082",                  // Violet foncé, un contraste amusant tout en restant lisible sur des fonds lumineux
+    dark_text: "#4B0082",                  // Violet foncé, un contraste amusant tout en restant lisible sur des fonds lumineux
     title_text: "#FF6347",            // Rouge tomate, pour les titres, vibrant et plein d'énergie
     primary: "#32CD32",               // Vert lime, frais et acidulé, parfait pour les éléments interactifs
     primary_light: "#98FB98",         // Vert menthe, doux et rafraîchissant pour les états secondaires
@@ -104,6 +110,7 @@ export const sixtiesTheme: DefaultTheme = {
     background_alternatif: "#F8B500", // Orange rétro éclatant
     background_light: "#FFFFFF",      // Blanc pour les contrastes
     text: "#5C5C5C",                  // Gris doux
+    dark_text: "#5C5C5C",                  // Gris doux
     title_text: "#4D2800",            // Marron foncé, inspiré des bois
     primary: "#FF4500",               // Orange vif, style pop art
     primary_light: "#FFA07A",         // Orange saumoné

@@ -229,6 +229,16 @@ export const TextStyle = styled.p`
   }
 `;
 
+export const TextDarkStyle = styled.p`
+  font-size: 19px;
+  line-height: 19px;
+  color: ${({ theme }) => theme.colors.dark_text};
+
+  @media (max-width: ${breakpoints.sm}) {
+    font-size: 16px; /* Réduire la taille du texte sur mobile */
+  }
+`;
+
 export const TextAlertStyle = styled.p`
   font-size: 19px;
   line-height: 19px;
