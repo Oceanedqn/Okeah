@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { Hamburger, Logo, Menu, MenuItem, NavbarContainerStyle } from '../../styles/NavbarStyles';
+import { Hamburger, Logo, Menu, MenuItem, MenuItemWhois, NavbarContainerStyle } from '../../styles/NavbarStyles';
 import { ButtonStyle } from '../../styles/GlobalStyles';
 import { useTranslation } from 'react-i18next';
 import { logout_async } from '../../services/authentication/loginService';
+import { IoGameController } from 'react-icons/io5';
+import { IoLogOut } from "react-icons/io5";
+
 
 const NavbarComponent: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -28,10 +31,16 @@ const NavbarComponent: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
             <Menu $isOpen={isOpen}>
                 <MenuItem to="/home">{t('home')}</MenuItem>
                 <MenuItem to="/about">{t('about')}</MenuItem>
-                <MenuItem to="/enigmato/home">Enigmato</MenuItem>
+                <MenuItemWhois className='flex items-center justify-center' to="/enigmato/home">
+                    {t("whois")}
+                    <IoGameController className='ml-2' />
+                </MenuItemWhois>
                 <MenuItem to="/contact">{t('contact')}</MenuItem>
                 <MenuItem to="/login">
-                    <ButtonStyle onClick={handleLogout}>{t("logout")}</ButtonStyle>
+                    <ButtonStyle className='flex items-center justify-center' onClick={handleLogout}>
+                        {t("logout")}
+                        <IoLogOut className='ml-2' />
+                    </ButtonStyle>
                 </MenuItem>
             </Menu>
         </NavbarContainerStyle>

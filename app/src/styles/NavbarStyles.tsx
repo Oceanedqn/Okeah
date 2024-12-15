@@ -66,3 +66,19 @@ export const MenuItem = styled(Link)`
     color: ${({ theme }) => theme.colors.primary_light};
   }
 `;
+
+export const MenuItemWhois = styled(Link)`
+  text-decoration: none;
+  color: ${({ theme }) => theme.colors.background_light};
+  background-color: ${({ theme }) => theme.colors.primary};
+  font-size: 1rem;
+  transition: color 0.3s;
+  align-items: center;
+  border-radius: 32px;
+  height: 32px;
+  padding: 5px;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.colors.primary_dark};
+  }
+`;
