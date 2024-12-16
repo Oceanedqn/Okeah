@@ -44,7 +44,7 @@ const Home: React.FC = () => {
       <LinksContainer>
         {/* Exemple de conteneurs carrés redirigeant vers d'autres pages */}
         <StyledLink to="/enigmato/home" color="primary_dark">
-          <h3>Who is ?</h3>
+          <h3>{t("whois")}</h3>
         </StyledLink>
         <StyledLink to="/home" color="primary">
           <h3>Tasty check (soon)</h3>

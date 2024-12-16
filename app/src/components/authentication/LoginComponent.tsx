@@ -24,7 +24,7 @@ const LoginComponent: React.FC<{ onLogin: () => void; handleToggle: () => void; 
             if (err.response && err.response.data && err.response.data.detail) {
                 setError(err.response.data.detail);
             } else {
-                setError('An unexpected error occurred.');
+                setError('Email ou mot de passe incorrect.');
             }
         }
     };
