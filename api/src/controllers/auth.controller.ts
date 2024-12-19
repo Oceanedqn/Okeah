@@ -7,7 +7,7 @@ import { IRegisterData } from '../interfaces/IRegister';
 import pool from '../config/database';
 import { sendResetPasswordEmail } from '../utils/email.utils';
 
-
+const samesite = "none";
 
 // Fonction pour le login
 export const login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -30,7 +30,7 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
                 res.cookie('access_token', token, {
                     httpOnly: true,
                     secure: process.env.NODE_ENV === 'production',
-                    sameSite: 'none',
+                    sameSite: samesite,
                 });
 
                 // Retour de la réponse
@@ -101,9 +101,10 @@ export const resetPasswordRequest = async (req: Request, res: Response) => {
             httpOnly: true, // Sécurise le cookie contre les accès JavaScript
             secure: process.env.NODE_ENV === 'production', // Utilisez secure en production pour assurer l'envoi uniquement via HTTPS
             maxAge: RESET_PASSWORD_TOKEN_EXPIRE_MINUTES * 60 * 1000, // Durée de validité du cookie en millisecondes,
-            sameSite: 'none',
+            sameSite: samesite,
         });
 
+        alert(process.env.FRONTEND_URL)
         const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
 
         await sendResetPasswordEmail(email, resetLink);
