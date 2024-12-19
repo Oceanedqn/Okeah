@@ -104,7 +104,7 @@ export const resetPasswordRequest = async (req: Request, res: Response) => {
             sameSite: samesite,
         });
 
-        alert(process.env.FRONTEND_URL)
+        console.log(process.env.FRONTEND_URL)
         const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
 
         await sendResetPasswordEmail(email, resetLink);
