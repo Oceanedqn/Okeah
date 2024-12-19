@@ -46,6 +46,7 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
 export const logout = (req: Request, res: Response) => {
     res.clearCookie('access_token');
     res.status(200).json({ message: 'Déconnexion réussie' });
+    window.location.reload();
 };
 
 export const register = async (req: Request, res: Response) => {
@@ -139,7 +140,6 @@ export const resetPassword = async (req: Request, res: Response) => {
 
         // Supprimer le cookie contenant le token de réinitialisation après utilisation
         res.clearCookie('reset_password_token');
-
         res.status(200).json({ message: 'Mot de passe réinitialisé avec succès.' });
     } catch (error) {
         console.error(error);
