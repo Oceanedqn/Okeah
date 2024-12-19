@@ -45,3 +45,22 @@ export const getUserById = async (id_user: number): Promise<IUser | null> => {
         throw new Error('Erreur interne du serveur');
     }
 };
+
+
+// Met à jour le mot de passe d'un utilisateur
+export const updateUserPassword = async (id_user: number, newPassword: string) => {
+    try {
+        const result = await pool.query('UPDATE users SET password = $1 WHERE id_user = $2', [newPassword, id_user]);
+
+        // Vérification si la mise à jour a bien été effectuée
+        if (result.rowCount === 0) {
+            // Si aucune ligne n'a été mise à jour, cela signifie que l'utilisateur n'a pas été trouvé
+            throw new Error('Utilisateur introuvable ou mise à jour échouée.');
+        }
+        // Si tout s'est bien passé
+        return { success: true, message: 'Mot de passe mis à jour avec succès.' };
+    } catch (error) {
+        // Gérer l'erreur, par exemple en loggant ou renvoyant un message d'erreur
+        throw new Error('Erreur interne lors de la mise à jour du mot de passe.');
+    }
+};

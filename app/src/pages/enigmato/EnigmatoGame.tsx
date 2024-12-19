@@ -104,11 +104,11 @@ const EnigmatoGame: React.FC = () => {
             if (createdResponse && createdResponse.id_box_response) {
                 navigate(`/enigmato/parties/${id_party}/game/hint`);
             } else {
-                alert("Failed to create a box response. Please try again.");
+                console.log("Failed to create a box response. Please try again.");
             }
         } catch (error) {
             console.error("An error occurred while creating the box response:", error);
-            alert("An unexpected error occurred. Please try again.");
+            console.log("An unexpected error occurred. Please try again.");
         }
     };
 

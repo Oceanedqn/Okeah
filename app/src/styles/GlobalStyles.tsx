@@ -1,4 +1,5 @@
 import { FaInfoCircle } from "react-icons/fa";
+import { ToastContainer } from "react-toastify";
 import { createGlobalStyle, keyframes } from "styled-components";
 import styled from "styled-components";
 
@@ -185,6 +186,33 @@ export const ButtonStyle = styled.button`
   }
 `;
 
+export const ButtonSecondaryStyle = styled.button`
+  padding: 5px 10px;
+  font-size: 16px;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  background-color: ${({ theme }) => theme.colors.secondary};
+  color: white;
+
+  &:hover {
+    border: none;
+    background-color: ${({ theme }) => theme.colors.secondary_dark};
+  }
+
+  &:disabled {
+    background-color: ${({ theme }) => theme.colors.background_alternatif}; // Couleur de fond pour état désactivé
+    color: ${({ theme }) => theme.colors.title_text};          // Couleur de texte pour état désactivé
+    opacity: 0.6;
+    cursor: default;                                              
+  }
+
+  @media (max-width: ${breakpoints.sm}) {
+    font-size: 14px; /* Réduire la taille du texte sur mobile */
+    padding: 4px 8px; /* Réduire le padding sur mobile */
+  }
+`;
+
 export const ButtonJoinStyle = styled.button`
   padding: 5px 10px;
   font-size: 24px;
@@ -319,6 +347,15 @@ export const SpaceStyle = styled.div`
   }
 `;
 
+export const SpanAuthentStyle = styled.span`
+  cursor: pointer;
+  color: ${({ theme }) => theme.colors.primary};
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.primary_dark};
+  }
+`;
+
 // ################# PARTIE VISUAL SETTINGS (THEME ET LANGUES) #################
 export const VisualSettingsContainerStyle = styled.div`
   position: fixed;
@@ -334,4 +371,41 @@ export const VisualSettingsContainerStyle = styled.div`
     right: 10px; /* Réduire la marge droite sur mobile */
     padding: 8px; /* Réduire le padding sur mobile */
   }
+`;
+
+
+// Styled ToastContainer
+export const StyledToastContainer = styled(ToastContainer)`
+  .Toastify__toast {
+    background-color: ${({ theme }) => theme.colors.background_light}; /* Couleur principale de votre thème */
+    color: ${({ theme }) => theme.colors.dark_text}; /* Couleur du texte */
+    font-size: 14px;
+    font-weight: bold;
+    font-family: 'Arial', sans-serif;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Masquer la barre de progression */
+  .Toastify__progress-bar, .Toastify__progress-bar--error {
+    display: none;
+  }
+
+    /* Masquer l'icône par défaut */
+  .Toastify__toast-icon {
+    display: none;
+  }
+
+/* Toast de succès */
+  .Toastify__toast--success {
+    background-color: ${({ theme }) => theme.colors.background_light}; /* Couleur du texte pour succès */
+    color: ${({ theme }) => theme.colors.primary};
+  }
+
+  /* Toast d'erreur */
+  .Toastify__toast--error {
+    background-color: ${({ theme }) => theme.colors.background_light}; /* Couleur du texte pour erreur */
+    color: ${({ theme }) => theme.colors.secondary};
+    }
+
 `;
