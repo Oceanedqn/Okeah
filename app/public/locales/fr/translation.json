@@ -22,6 +22,15 @@
     "error": {
         "fetchingParties": "Impossible de récupérer les parties en cours."
     },
+    "toast": {
+        "emailSend": "Email de réinitialisation du mot de passe envoyé",
+        "errorEmailSend": "Erreur lors de l'envoi de l'email de récupération du mot de passe",
+        "resetPasswordSucces": "Mot de passe réinitialisé avec succès !",
+        "errorResetPassword": "Erreur lors de la modification du mot de passe.",
+        "loginSuccess": "Connexion réussie !",
+        "loginFailed": "Email ou mot de passe incorrect",
+        "unexpectedError": "Une erreur inattendue s'est produite."
+    },
     "welcomeenigmato": "Bienvenue dans Guess Who ?",
     "ongoing_games": "Parties en cours",
     "no_ongoing_games": "Actuellement, il n'y a pas de parties en cours. Veuillez rejoindre une partie.",
@@ -70,5 +79,9 @@
     "alreadyaccount": "Vous avez déjà un compte ?",
     "loginyou": "Connectez-vous",
     "welcome": "Bienvenue",
-    "send": "Envoyer"
+    "send": "Envoyer",
+    "resetPassword": "Réinitialiser le mot de passe",
+    "newPassword": "Nouveau mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "reset": "Réinitialiser"
 }

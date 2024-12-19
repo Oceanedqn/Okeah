@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { CenteredElement, InputStyle, LabelStyle } from '../../styles/AuthenticationStyles';
-import { ButtonStyle, Title1Style } from '../../styles/GlobalStyles';
+import { ButtonStyle, SpanAuthentStyle, Title1Style } from '../../styles/GlobalStyles';
 import { useTranslation } from 'react-i18next';
 import { register_async } from '../../services/authentication/registerService';
 import { RadioContainer, RadioInput, RadioLabel } from 'src/styles/EnigmatoStyles';
@@ -124,9 +124,9 @@ const RegisterComponent: React.FC<{ onRegister: () => void; handleToggle: () => 
             {isLogin && (
                 <p>
                     {t("noaccount")}{' '}
-                    <span onClick={handleToggle} style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}>
+                    <SpanAuthentStyle onClick={handleToggle}>
                         {t("registeryou")}
-                    </span>
+                    </SpanAuthentStyle>
                 </p>
 
             )}

@@ -22,4 +22,11 @@ export interface IUserLogin {
   password: string;
 }
 
+export interface IUserResetPassword {
+  email: string; // Email de l'utilisateur qui demande la réinitialisation
+  token?: string; // Token pour la réinitialisation
+  newPassword?: string; // Nouveau mot de passe (si réinitialisation)
+  expiresAt?: Date; // Expiration du token
+}
+
 

@@ -3,7 +3,7 @@ import Home from "./pages/Home";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import { ThemeProvider } from "styled-components";
-import GlobalStyles, { ContainerStyle } from "./styles/GlobalStyles";
+import GlobalStyles, { ContainerStyle, StyledToastContainer } from "./styles/GlobalStyles";
 import Authentication from "./pages/Authentication";
 import PrivateRoute from "./components/PrivateRouteComponent";
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
@@ -18,6 +18,7 @@ import Cookies from 'js-cookie';
 import EnigmatoCreateParty from "./pages/enigmato/EnigmatoCreateParty";
 import EnigmatoGameHint from "./pages/enigmato/EnigmatoGameHint";
 import { themeMap } from "./components/base/ThemeSwitcherComponent";
+import ResetPassword from "./pages/ResetPassword";
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(() => { return !!sessionStorage.getItem("user"); });
@@ -25,15 +26,15 @@ const App: React.FC = () => {
     const savedTheme = localStorage.getItem("currentTheme");
     return savedTheme ? JSON.parse(savedTheme) : "vintage";
   });
+  const handleLoginSuccess = () => {
+    setIsAuthenticated(true); // Utilisé après une connexion réussie
+  };
+  const handleLogout = () => {
+    Cookies.remove('access_token');
+    sessionStorage.removeItem("user");
+    setIsAuthenticated(false);
+  };
 
-  useEffect(() => {
-    // Mettre à jour l'état d'authentification si sessionStorage change
-    const handleAuthChange = () => {
-      setIsAuthenticated(!!sessionStorage.getItem("user"));
-    };
-    window.addEventListener("storage", handleAuthChange);
-    return () => window.removeEventListener("storage", handleAuthChange);
-  }, []);
 
   // Sauvegarder le thème actuel dans le localStorage
   useEffect(() => {
@@ -45,10 +46,7 @@ const App: React.FC = () => {
   const [currentLanguage, setCurrentLanguage] = useState('fr');
 
   // Fonction de déconnexion
-  const handleLogout = () => {
-    Cookies.remove('access_token');
-    setIsAuthenticated(false);
-  };
+
 
   return (
     <ThemeProvider theme={themeMap[currentTheme]}>
@@ -56,10 +54,12 @@ const App: React.FC = () => {
       <Router>
         {isAuthenticated && <NavbarComponent onLogout={handleLogout} />}
         <ContainerStyle>
+          <StyledToastContainer hideProgressBar={true} />
           <Routes>
-            <Route path="/login" element={<Authentication onLogin={() => setIsAuthenticated(true)} />} />
+            <Route path="/login" element={<Authentication onLogin={handleLoginSuccess} />} />
             <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
             <Route path="/" element={<Navigate to="/login" />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/enigmato/home" element={<PrivateRoute><EnigmatoHome /></PrivateRoute>} />
