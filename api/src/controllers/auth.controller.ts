@@ -103,8 +103,6 @@ export const resetPasswordRequest = async (req: Request, res: Response) => {
             maxAge: RESET_PASSWORD_TOKEN_EXPIRE_MINUTES * 60 * 1000, // Durée de validité du cookie en millisecondes,
             sameSite: samesite,
         });
-
-        console.log(process.env.FRONTEND_URL)
         const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
 
         await sendResetPasswordEmail(email, resetLink);
