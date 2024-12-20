@@ -21,18 +21,14 @@ import { themeMap } from "./components/base/ThemeSwitcherComponent";
 import ResetPassword from "./pages/ResetPassword";
 
 const App: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => { return !!sessionStorage.getItem("user"); });
   const [currentTheme, setCurrentTheme] = useState(() => {
     const savedTheme = localStorage.getItem("currentTheme");
     return savedTheme ? JSON.parse(savedTheme) : "vintage";
   });
-  const handleLoginSuccess = () => {
-    setIsAuthenticated(true); // Utilisé après une connexion réussie
-  };
+
   const handleLogout = () => {
     Cookies.remove('access_token');
     sessionStorage.removeItem("user");
-    setIsAuthenticated(false);
   };
 
 
@@ -45,23 +41,27 @@ const App: React.FC = () => {
 
   const [currentLanguage, setCurrentLanguage] = useState('fr');
 
-  // Fonction de déconnexion
-
 
   return (
     <ThemeProvider theme={themeMap[currentTheme]}>
       <GlobalStyles />
       <Router>
-        {isAuthenticated && <NavbarComponent onLogout={handleLogout} />}
+
+        <Routes>
+          <Route path="/home" element={<PrivateRoute><NavbarComponent onLogout={handleLogout} /></PrivateRoute>} />
+          <Route path="/enigmato/*" element={<PrivateRoute><NavbarComponent onLogout={handleLogout} /></PrivateRoute>} />
+        </Routes>
+
         <ContainerStyle>
-          <StyledToastContainer hideProgressBar={true} />
+          <StyledToastContainer hideProgressBar={true} autoClose={5000} closeOnClick pauseOnHover />
           <Routes>
-            <Route path="/login" element={<Authentication onLogin={handleLoginSuccess} />} />
-            <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
+            <Route path="/login" element={<Authentication />} />
             <Route path="/" element={<Navigate to="/login" />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
+
+            <Route path="/home" element={<PrivateRoute><Home /></PrivateRoute>} />
             <Route path="/enigmato/home" element={<PrivateRoute><EnigmatoHome /></PrivateRoute>} />
             <Route path="/enigmato/create" element={<PrivateRoute><EnigmatoCreateParty /></PrivateRoute>} />
             <Route path="/enigmato/parties" element={<PrivateRoute><EnigmatoParties /></PrivateRoute>} />
@@ -69,6 +69,7 @@ const App: React.FC = () => {
             <Route path="/enigmato/parties/:id_party/game/info" element={<PrivateRoute><EnigmatoGameInfo /></PrivateRoute>} />
             <Route path="/enigmato/parties/:id_party/game" element={<PrivateRoute><EnigmatoGame /></PrivateRoute>} />
             <Route path="/enigmato/parties/:id_party/game/hint" element={<PrivateRoute><EnigmatoGameHint /></PrivateRoute>} />
+
             <Route path="/*" element={<div>404</div>} />
           </Routes>
           <VisualSettingsComponent

@@ -27,7 +27,15 @@ export const resetPasswordAsync = async (password: string, t: Function): Promise
             { withCredentials: true } // Inclure les cookies si nécessaire
         );
         toast.success(t("toast.resetPasswordSucces"));
-    } catch (error) {
-        toast.error(t("toast.errorResetPassword"));
+    } catch (error: any) {
+        if (error.response && error.response.status === 401) {
+            if (error.response.data.message === 'expiredToken') {
+                toast.error(t("toast.tokenExpired"));  // Afficher le message d'expiration du token
+            } else {
+                toast.error(t("toast.tokenExpired"));
+            }
+        } else {
+            toast.error(t("toast.tokenExpired"));
+        }
     }
-}
+};

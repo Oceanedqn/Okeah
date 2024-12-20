@@ -72,7 +72,7 @@ export const authenticateResetPasswordToken = async (req: Request, res: Response
 
     } catch (err) {
         if (err instanceof jwt.TokenExpiredError) {
-            res.status(401).json({ message: 'Token de réinitialisation expiré.' });
+            res.status(401).json({ message: 'expiredToken' });
         } else {
             res.status(401).json({ message: 'Token de réinitialisation invalide ou expiré.' });
         }

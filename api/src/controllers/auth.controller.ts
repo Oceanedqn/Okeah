@@ -31,6 +31,7 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
                     httpOnly: true,
                     secure: process.env.NODE_ENV === 'production',
                     sameSite: samesite,
+                    maxAge: 3600000 // 1 heure
                 });
 
                 // Retour de la réponse
@@ -44,9 +45,14 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
 
 // Fonction pour le logout
 export const logout = (req: Request, res: Response) => {
-    res.clearCookie('access_token');
+    res.clearCookie('access_token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: samesite,
+        maxAge: 0
+    });
     res.status(200).json({ message: 'Déconnexion réussie' });
-    window.location.reload();
+
 };
 
 export const register = async (req: Request, res: Response) => {
@@ -84,15 +90,18 @@ export const register = async (req: Request, res: Response) => {
 };
 
 export const resetPasswordRequest = async (req: Request, res: Response) => {
-    const RESET_PASSWORD_TOKEN_EXPIRE_MINUTES = Number(process.env.RESET_PASSWORD_TOKEN_EXPIRE_MINUTES);
-
     try {
         const { email }: IUserResetPassword = req.body;
+
+        if (!email) {
+            res.status(400).json({ message: 'Email requis pour la réinitialisation.' });
+            return;
+        }
 
         // Vérifiez si l'utilisateur existe
         const user: IUserLogin = await getUserByEmail(email);
         if (!user) {
-            res.status(401).json({ message: 'Utilisateur introuvable' });
+            res.status(200).json({ message: 'Si cet email est enregistré, vous recevrez un lien de réinitialisation (il peut être dans les spams).' });
             return;
         }
 
@@ -101,8 +110,8 @@ export const resetPasswordRequest = async (req: Request, res: Response) => {
         res.cookie('reset_password_token', token, {
             httpOnly: true, // Sécurise le cookie contre les accès JavaScript
             secure: process.env.NODE_ENV === 'production', // Utilisez secure en production pour assurer l'envoi uniquement via HTTPS
-            maxAge: RESET_PASSWORD_TOKEN_EXPIRE_MINUTES * 60 * 1000, // Durée de validité du cookie en millisecondes,
             sameSite: samesite,
+            maxAge: 3600000, // 1 heure
         });
         const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
 
@@ -118,12 +127,11 @@ export const resetPasswordRequest = async (req: Request, res: Response) => {
 
 
 export const resetPassword = async (req: Request, res: Response) => {
-    const { password } = req.body; // Nouveau mot de passe
-
-    // L'utilisateur est disponible dans req.user après le middleware authenticateResetPasswordToken
+    const { password } = req.body;
     const user = req.user;
     if (!user) {
         res.status(400).json({ message: 'Utilisateur non trouvé' })
+        return;
     }
 
     // Vérifier si le mot de passe a été fourni
@@ -133,13 +141,15 @@ export const resetPassword = async (req: Request, res: Response) => {
     }
 
     try {
-        // Hacher le nouveau mot de passe
         const hashedPassword = hashPassword(password);
-        // Mettre à jour le mot de passe de l'utilisateur dans la base de données
         await updateUserPassword(user!.id_user, hashedPassword);
 
-        // Supprimer le cookie contenant le token de réinitialisation après utilisation
-        res.clearCookie('reset_password_token');
+        res.clearCookie('reset_password_token', {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: samesite,
+            maxAge: 0 // 0 heure
+        });
         res.status(200).json({ message: 'Mot de passe réinitialisé avec succès.' });
     } catch (error) {
         console.error(error);

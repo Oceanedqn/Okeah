@@ -7,9 +7,10 @@ import { useTranslation } from 'react-i18next';
 import { resetPasswordRequestAsync } from 'src/services/authentication/resetPasswordService';
 import { toast } from 'react-toastify';
 
-const LoginComponent: React.FC<{ onLogin: () => void; handleToggle: () => void; isLogin: boolean }> = ({ onLogin, handleToggle, isLogin }) => {
+const LoginComponent: React.FC<{ handleToggle: () => void; isLogin: boolean }> = ({ handleToggle, isLogin }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [loadingReset, setLoadingReset] = useState(false); // État pour le loader
     const navigate = useNavigate();
     const { t } = useTranslation();
 
@@ -19,7 +20,6 @@ const LoginComponent: React.FC<{ onLogin: () => void; handleToggle: () => void; 
         try {
             const loginResponse = await login_async(email, password);
             if (loginResponse) {
-                onLogin(); // Appel à onLogin si la connexion est réussie
                 navigate('/home'); // Navigation vers la page d'accueil après succès
             }
         } catch (err: any) {
@@ -29,10 +29,14 @@ const LoginComponent: React.FC<{ onLogin: () => void; handleToggle: () => void; 
 
     const handleResetPassword = async (event: React.FormEvent) => {
         event.preventDefault();
+        setLoadingReset(true); // Activer le loader
+
         try {
             await resetPasswordRequestAsync(email, t); // Demande de réinitialisation de mot de passe
         } catch (err: any) {
             toast.error(t("toast.unexpectedError")); // Affiche un toast pour une erreur de réinitialisation
+        } finally {
+            setLoadingReset(false);
         }
     };
 
@@ -62,7 +66,7 @@ const LoginComponent: React.FC<{ onLogin: () => void; handleToggle: () => void; 
                         />
                     </div>
                     <SpanAuthentStyle onClick={handleResetPassword}>
-                        {t("resetPassword")}
+                        {loadingReset ? t("loading") : t("resetPassword")}
                     </SpanAuthentStyle>
                     <ButtonStyle type="submit" style={{ float: 'right' }}>{t('loginAction')}</ButtonStyle>
                 </form>

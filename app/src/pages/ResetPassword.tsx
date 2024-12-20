@@ -23,7 +23,7 @@ const ResetPassword: React.FC = () => {
         try {
             await resetPasswordAsync(newPassword, t);
             // Redirige après un délai si nécessaire
-            setTimeout(() => navigate('/login'), 3000);
+            setTimeout(() => navigate('/login'), 1000);
         } catch (error: any) {
             if (error.response && error.response.status === 401 && error.response.data.message === 'Token de réinitialisation expiré.') {
                 toast.error("Le token de réinitialisation a expiré. Veuillez demander un nouveau lien.")
