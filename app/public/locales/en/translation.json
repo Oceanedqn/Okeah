@@ -23,13 +23,15 @@
         "fetchingParties": "Unable to fetch ongoing parties."
     },
     "toast": {
-        "emailSend": "Password reset email sent",
+        "emailSend": "If the email is associated with an existing account, you will receive an email shortly. (Please check your spam folder.)",
         "errorEmailSend": "Error sending password recovery email",
         "resetPasswordSucces": "Password successfully reset!",
         "errorResetPassword": "Error resetting the password.",
         "loginSuccess": "Login successful!",
         "loginFailed": "Incorrect email or password",
-        "unexpectedError": "An unexpected error occurred."
+        "unexpectedError": "An unexpected error occurred.",
+        "registerSuccess": "Register success",
+        "expiredToken": "Reset token expired. Please make a new reset request."
     },
     "welcomeenigmato": "Welcome to Guess Who?",
     "ongoing_games": "Ongoing games",
