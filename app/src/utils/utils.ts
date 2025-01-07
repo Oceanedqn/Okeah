@@ -57,32 +57,21 @@ export const calculateGameStage = (party: IEnigmatoPartyParticipants, t: Functio
         return t('gameFinished'); // La partie est terminée
     }
 
-    // Calcul du nombre de jours total inclus entre dateStart et dateEnd
-    let totalDays = 0;
 
-    if (!party.include_weekends) {
-        let currentDay = new Date(dateStart);
+    // Calcul du nombre total de jours ou de jours écoulés, en excluant les week-ends si nécessaire
+    let daysCount = 0;
+    let currentDay = new Date(dateStart);
 
-        // On inclut la date de fin
-        while (currentDay.getTime() <= dateEnd) {
-            const dayOfWeek = currentDay.getDay();
-            if (dayOfWeek !== 0 && dayOfWeek !== 6) { // Si ce n'est ni dimanche (0) ni samedi (6)
-                totalDays++;
-            }
-            currentDay.setUTCDate(currentDay.getUTCDate() + 1); // Utilisation de setUTCDate pour éviter les problèmes de fuseaux horaires
+    while (currentDay.getTime() <= Math.min(today, dateEnd)) {
+        const dayOfWeek = currentDay.getDay();
+        if (party.include_weekends || (dayOfWeek !== 0 && dayOfWeek !== 6)) {
+            daysCount++;
         }
-    } else {
-        // Si les week-ends doivent être inclus, calculer simplement la différence en jours
-        const diffTime = dateEnd - dateStart; // Différence en millisecondes
-        totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1; // Convertir en jours, +1 pour inclure la date de fin
+        currentDay.setUTCDate(currentDay.getUTCDate() + 1); // Passer au jour suivant
     }
 
-    // Calcul des jours écoulés depuis la date de début jusqu'à aujourd'hui
-    let daysElapsed = Math.floor((today - dateStart) / (1000 * 60 * 60 * 24)) + 1; // Inclure la date de début
-
     // Calcul de l'étape actuelle : 
-    // Si daysElapsed > totalDays, on est à la fin
-    const step = Math.min(daysElapsed, totalDays, party.number_of_box);
+    const step = Math.min(daysCount, party.number_of_box);
 
     // Retourne l'étape actuelle avec le nombre total de boîtes
     return `${t('step')} ${step}/${party.number_of_box}`;
