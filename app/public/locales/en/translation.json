@@ -85,5 +85,8 @@
     "resetPassword": "Reset password",
     "newPassword": "New password",
     "confirmPassword": "Confirm password",
-    "reset": "Reset"
+    "reset": "Reset",
+    "thoughtOf": "You thought of",
+    "like": "like",
+    "ofPeople": "of people"
 }

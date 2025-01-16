@@ -163,14 +163,14 @@ export const get_past_boxes_in_game_async = async (req: Request, res: Response) 
                 pastBoxesWithProfiles.push({
                     id_box: box.id_box,
                     id_party: box.id_party,
+                    firstname: user.firstname,
                     name: user.name,
                     date: box.date,
-                    picture1: profile?.picture1 || null,
-                    picture2: profile?.picture2 || null,
+                    picture1: bufferToBase64(profile.picture1)!,
+                    picture2: bufferToBase64(profile.picture2)!,
                     name_box: box.name,
                     id_user: user.id_user,
-                    id_profil: profile?.id_profil || null,
-                    firstname: user.firstname,
+                    id_profil: profile.id_profil,
                 });
             } catch (innerErr) {
                 console.error(`Error processing box ${box.id_box}:`, innerErr);
