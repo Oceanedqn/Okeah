@@ -61,6 +61,18 @@ export interface IEnigmatoParticipants {
   picture2: string
 }
 
+export interface IEnigmatoParticipantPercentage {
+  id_user: number
+  id_party: number
+  id_box: number
+  id_profil: number
+  name: string
+  firstname: string
+  picture2: string
+  percentage: number
+  isChoiceByUser: boolean
+}
+
 export interface IEnigmatoPartyCreateRequest {
   name: string;
   password: string;

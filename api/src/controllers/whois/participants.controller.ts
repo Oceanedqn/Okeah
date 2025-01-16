@@ -2,6 +2,7 @@ import pool from '../../config/database';
 import { Request, Response } from 'express';
 import { IEnigmatoBoxEnigmaUser, IEnigmatoParticipants } from '../../interfaces/IEnigmato';
 import { bufferToBase64, fetch_participants_completed_async, get_profile_by_id_from_db, get_today_box_in_game_with_response_async } from '../../utils/whois.utils';
+import { IUser } from '../../interfaces/IUser';
 
 // [OK] Récupère les participants d'une partie
 export const get_participants_async = async (req: Request, res: Response) => {
@@ -245,3 +246,86 @@ function deduplicateParticipants(participants: IEnigmatoParticipants[]): IEnigma
 
     return uniqueParticipants;
 }
+
+
+export const get_responses_participants_in_percentages_async = async (req: Request, res: Response) => {
+    const { id_box, id_party } = req.params;
+    const currentUser = req.user as IUser; // Supposons que l'utilisateur actuel soit injecté dans la requête (middleware d'authentification)
+
+    try {
+        // Étape 1 : Récupérer la réponse de l'utilisateur actuel pour la box donnée
+        const userResponseResult = await pool.query(
+            'SELECT * FROM enigmato_box_responses WHERE id_box = $1 AND id_user = $2',
+            [id_box, currentUser.id_user]
+        );
+
+        const boxUserResponse = userResponseResult.rows[0] || null;
+
+        if (!boxUserResponse) {
+            res.status(204).json({ message: 'Box response not found' });
+            return;
+        }
+
+        // Étape 2 : Récupérer toutes les réponses pour cette box
+        const allResponsesResult = await pool.query(
+            'SELECT * FROM enigmato_box_responses WHERE id_box = $1',
+            [id_box]
+        );
+
+        const allBoxResponses = allResponsesResult.rows;
+
+        if (allBoxResponses.length === 0) {
+            res.status(204).json({ message: 'No responses found for this box' });
+            return;
+        }
+
+        // Étape 3 : Compter les occurrences de chaque `id_user_response`
+        const responseCount: { [key: number]: number } = {};
+        allBoxResponses.forEach((response) => {
+            const userResponseId = response.id_user_response;
+            if (userResponseId !== null) {
+                responseCount[userResponseId] = (responseCount[userResponseId] || 0) + 1;
+            }
+        });
+
+        // Étape 4 : Calculer les pourcentages
+        const totalResponses = allBoxResponses.length;
+        const responsePercentages = Object.entries(responseCount).map(([userId, count]) => ({
+            id_user_response: parseInt(userId, 10),
+            percentage: (count / totalResponses * 100).toFixed(2), // Limiter à deux décimales
+        }));
+
+        // Étape 5 : Récupérer les informations des participants
+        const participants = await fetch_participants_completed_async(Number(id_party));
+
+        if ('message' in participants) {
+            res.status(404).json({ message: participants.message });
+            return;
+        }
+
+        // Étape 6 : Assembler les données finales
+        const enrichedParticipants = participants.map((participant) => {
+            const percentageInfo = responsePercentages.find(
+                (percent) => percent.id_user_response === participant.id_user
+            );
+
+            return {
+                id_user: currentUser.id_user,
+                id_party: Number(id_party),
+                id_box: Number(id_box),
+                id_profil: participant.id_profil,
+                name: participant.name,
+                firstname: participant.firstname,
+                picture2: participant.picture2,
+                percentage: percentageInfo ? parseFloat(percentageInfo.percentage) : 0,
+                isChoiceByUser: participant.id_user === boxUserResponse.id_user_response,
+            };
+        })
+            .filter(participant => participant.percentage > 0) // Exclure les participants avec un pourcentage de 0
+            .sort((a, b) => b.percentage - a.percentage); // Trier par pourcentage, du plus élevé au plus bas
+        res.status(200).json(enrichedParticipants);
+    } catch (err) {
+        console.error('Error fetching responses and participants:', err);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};

@@ -115,6 +115,17 @@ export const fetchCompletedRandomParticipantsAsync = async (id_party: number, na
   }
 };
 
+export const fetchParticipantsPourcentagesAsync = async (id_party: number, id_box: number, navigate: ReturnType<typeof useNavigate>) => {
+  try {
+    const response = await axios.get(`${API_ENIGMATO_PARTICIPANTS_URL}/${id_party}/${id_box}/percentages`, {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    handleError(error, navigate);
+  }
+}
+
 
 export const createPartyAsync = async (party: IEnigmatoPartyCreateRequest, navigate: ReturnType<typeof useNavigate>) => {
   try {

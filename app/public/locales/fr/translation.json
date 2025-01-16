@@ -86,5 +86,8 @@
     "resetPassword": "Réinitialiser le mot de passe",
     "newPassword": "Nouveau mot de passe",
     "confirmPassword": "Confirmer le mot de passe",
-    "reset": "Réinitialiser"
+    "reset": "Réinitialiser",
+    "thoughtOf": "Tu as pensé à",
+    "like": "comme",
+    "ofPeople": "des gens"
 }

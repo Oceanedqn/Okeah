@@ -26,9 +26,6 @@ export function formatDate(dateString: string) {
     const language = localStorage.getItem("i18nextLng") || "fr";
     const locale = language === "fr" ? "fr-FR" : "en-US";
 
-    console.log("Date originale :", dateString);
-    console.log("Langue détectée :", language);
-
     return date.toLocaleDateString(locale, {
         day: "2-digit",
         month: "2-digit",

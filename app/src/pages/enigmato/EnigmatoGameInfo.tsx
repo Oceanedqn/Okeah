@@ -3,8 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ButtonStyle, ContainerUnderTitleStyle, TextDarkStyle, TextStyle, Title2Style } from '../../styles/GlobalStyles';
 import { EnigmatoContainerStyle, ContainerBackgroundStyle } from '../../styles/EnigmatoStyles';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
-import { IEnigmatoBox, IEnigmatoBoxResponse, IEnigmatoBoxRightResponse, IEnigmatoParticipants, IEnigmatoParty, IEnigmatoProfil } from '../../interfaces/IEnigmato';
-import { fetchParticipantByIdAsync, getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
+import { IEnigmatoBox, IEnigmatoBoxResponse, IEnigmatoBoxRightResponse, IEnigmatoParticipantPercentage, IEnigmatoParty, IEnigmatoProfil } from '../../interfaces/IEnigmato';
+import { fetchParticipantByIdAsync, fetchParticipantsPourcentagesAsync, getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { fetchProfile } from '../../services/enigmato/enigmatoProfileService';
 import { getBeforeBoxAsync, getTodayBoxAsync } from '../../services/enigmato/enigmatoBoxesService';
 import { getBoxResponseByIdBoxAsync } from '../../services/enigmato/enigmatoBoxResponsesService';
@@ -23,7 +23,7 @@ const EnigmatoGameInfo: React.FC = () => {
     const [beforeBoxes, setBeforeBoxes] = useState<IEnigmatoBoxRightResponse[] | null>(null);
     const [boxResponse, setBoxResponse] = useState<IEnigmatoBoxResponse>();
     const [message, setMessage] = useState<string | null>(null);
-    const [participant, setParticipant] = useState<IEnigmatoParticipants>();
+    const [participantsPercentages, setParticipantsPercentages] = useState<IEnigmatoParticipantPercentage[]>([]);
 
     // Vérifie si une chaîne est en base64 pour les images
     const isBase64 = (str: string) => /^data:image\/[a-z]+;base64,/.test(str);
@@ -115,19 +115,19 @@ const EnigmatoGameInfo: React.FC = () => {
 
 
     useEffect(() => {
-        const fetchParticipant = async () => {
+        const fetchPercentagesParticipants = async () => {
             try {
                 if (boxResponse?.id_user_response) {
-                    const participantRequest: IEnigmatoParticipants = await fetchParticipantByIdAsync(parseInt(id_party!), boxResponse?.id_user_response!, navigate)
-                    setParticipant(participantRequest);
+                    const participantsPercentagesRequest: IEnigmatoParticipantPercentage[] = await fetchParticipantsPourcentagesAsync(parseInt(id_party!), boxResponse.id_box, navigate);
+                    setParticipantsPercentages(participantsPercentagesRequest);
                 }
             } catch (error) {
-                console.error("Erreur lors de la récupération du participant :", error);
+                console.error("Erreur lors de la récupération du pourcentage des participants :", error);
             }
         }
 
         if (boxResponse) {
-            fetchParticipant();
+            fetchPercentagesParticipants();
         }
     }, [boxResponse, navigate]);
 
@@ -147,7 +147,7 @@ const EnigmatoGameInfo: React.FC = () => {
         navigate(`/enigmato/home`);
     };
 
-    if (!party || !userProfile) {
+    if (!party || !userProfile || !participantsPercentages) {
         return <LoadingComponent />;
     }
 
@@ -173,22 +173,90 @@ const EnigmatoGameInfo: React.FC = () => {
                                     textAlign: 'center', // Center text within the div
                                 }}
                             >
-                                <TextStyle>{t('choosen_response')}</TextStyle>
-                                <TextStyle>{participant?.firstname} {participant?.name}</TextStyle>
-                                {participant?.picture2 && isBase64(participant.picture2) && (
-                                    <img
-                                        src={participant.picture2}
-                                        alt={`${participant.name} ${participant.firstname}`}
-                                        style={{
-                                            width: '200px',
-                                            height: '200px',
-                                            borderRadius: '18px',
-                                            objectFit: 'cover',
-                                            display: 'block', // Permet d'utiliser margin auto
-                                            margin: 'auto', // Centre horizontalement
-                                        }}
-                                    />
-                                )}
+                                <div><TextStyle>{t('thoughtOf')} <strong>{participantsPercentages.find(p => p.isChoiceByUser)?.firstname} {participantsPercentages.find(p => p.isChoiceByUser)?.name}</strong> {t('like')} <strong>{participantsPercentages.find(p => p.isChoiceByUser)?.percentage}%</strong> {t('ofPeople')}</TextStyle></div>
+
+                                <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'center', textAlign: 'center', marginTop: '20px' }}>
+                                    {/* Left image (2nd place) */}
+                                    <div style={{ textAlign: 'center', marginRight: '10px' }}>
+                                        {participantsPercentages[1]?.picture2 && isBase64(participantsPercentages[1]?.picture2) && (
+                                            <>
+                                                <img
+                                                    src={participantsPercentages[1]?.picture2}
+                                                    alt={`${participantsPercentages[1]?.name} ${participantsPercentages[1]?.firstname}`}
+                                                    style={{
+                                                        width: '150px',
+                                                        height: '150px',
+                                                        borderRadius: '12px',
+                                                        objectFit: 'cover',
+                                                    }}
+                                                />
+                                                <TextStyle className='mt-2'>{participantsPercentages[1]?.percentage}%</TextStyle>
+                                            </>
+                                        )}
+                                    </div>
+
+                                    {/* Middle image (1st place) */}
+                                    <div style={{ textAlign: 'center', margin: '0 10px' }}>
+                                        {participantsPercentages[0]?.picture2 && isBase64(participantsPercentages[0]?.picture2) && (
+                                            <>
+                                                <img
+                                                    src={participantsPercentages[0]?.picture2}
+                                                    alt={`${participantsPercentages[0]?.name} ${participantsPercentages[0]?.firstname}`}
+                                                    style={{
+                                                        width: '200px',
+                                                        height: '200px',
+                                                        borderRadius: '18px',
+                                                        objectFit: 'cover',
+                                                    }}
+                                                />
+                                                <TextStyle className='mt-2'>{participantsPercentages[0]?.percentage} %</TextStyle>
+                                            </>
+                                        )}
+                                    </div>
+
+                                    {/* Right image (3rd place) */}
+                                    <div style={{ textAlign: 'center', marginLeft: '10px' }}>
+                                        {participantsPercentages[2]?.picture2 && isBase64(participantsPercentages[2]?.picture2) && (
+                                            <>
+                                                <img
+                                                    src={participantsPercentages[2]?.picture2}
+                                                    alt={`${participantsPercentages[2]?.name} ${participantsPercentages[2]?.firstname}`}
+                                                    style={{
+                                                        width: '125px',
+                                                        height: '125px',
+                                                        borderRadius: '10px',
+                                                        objectFit: 'cover',
+                                                    }}
+                                                />
+                                                <TextStyle className='mt-2'>{participantsPercentages[2]?.percentage} %</TextStyle>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'flex', marginTop: '20px', gap: '5px' }}>
+                                    {/* Afficher le reste des images des participants */}
+                                    {participantsPercentages.slice(3).map((participant, index) => (
+                                        <div key={participant.id_user} style={{ textAlign: 'center', marginBottom: '20px' }}>
+                                            {participant.picture2 && isBase64(participant.picture2) && (
+                                                <>
+                                                    <img
+                                                        src={participant.picture2}
+                                                        alt={`${participant.name} ${participant.firstname}`}
+                                                        style={{
+                                                            width: '60px',
+                                                            height: '60px',
+                                                            borderRadius: '10px',
+                                                            objectFit: 'cover',
+                                                        }}
+                                                    />
+                                                    <TextStyle className='mt-2'>{participant.percentage}%</TextStyle>
+                                                </>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+
                             </div>
                         ) : (
                             !message && todayBox && (
@@ -207,38 +275,41 @@ const EnigmatoGameInfo: React.FC = () => {
 
                             <ContainerBackgroundStyle>
                                 {beforeBoxes.map((box) => (
-                                    <div key={box.id_box} style={{ marginBottom: "20px" }}>
-                                        <p>
-                                            <strong>{box.name_box}</strong> - {new Date(box.date).toLocaleDateString()}
-                                        </p>
+                                    <div key={box.id_box} style={{ marginBottom: "20px", display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        <TextStyle>
+                                            <strong>{new Date(box.date).toLocaleDateString()}</strong>
+                                        </TextStyle>
                                         <p>
                                             {t("user_name")} {box.name} {box.firstname}
                                         </p>
+                                        <div style={{ display: 'flex' }}>
+                                            {box.picture1 && isBase64(box.picture1) && (
+                                                <img
+                                                    src={box.picture1}
+                                                    alt="Bebe"
+                                                    style={{
+                                                        width: "100px",
+                                                        height: "100px",
+                                                        objectFit: "cover",
+                                                        marginRight: "10px",
+                                                    }}
+                                                />
+                                            )}
 
-                                        {box.picture1 && isBase64(box.picture1) && (
-                                            <img
-                                                src={box.picture1}
-                                                alt="Bebe"
-                                                style={{
-                                                    width: "100px",
-                                                    height: "100px",
-                                                    objectFit: "cover",
-                                                    marginRight: "10px",
-                                                }}
-                                            />
-                                        )}
+                                            {box.picture2 && isBase64(box.picture2) && (
+                                                <img
+                                                    src={box.picture2}
+                                                    alt="Adulte"
+                                                    style={{
+                                                        width: "100px",
+                                                        height: "100px",
+                                                        objectFit: "cover",
+                                                    }}
+                                                />
+                                            )}
 
-                                        {box.picture2 && isBase64(box.picture2) && (
-                                            <img
-                                                src={box.picture2}
-                                                alt="Adulte"
-                                                style={{
-                                                    width: "100px",
-                                                    height: "100px",
-                                                    objectFit: "cover",
-                                                }}
-                                            />
-                                        )}
+                                        </div>
+
                                     </div>
                                 ))}
                             </ContainerBackgroundStyle>
