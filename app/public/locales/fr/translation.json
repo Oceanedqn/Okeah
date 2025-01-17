@@ -89,5 +89,7 @@
     "reset": "Réinitialiser",
     "thoughtOf": "Tu as pensé à",
     "like": "comme",
-    "ofPeople": "des gens"
+    "ofPeople": "des gens",
+    "ranking": "Classement",
+    "explication_ranking": "1 point pour chaque réponse correcte, 0.5 point si un indice est utilisé, ainsi que des points bonus pour la rapidité."
 }

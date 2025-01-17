@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ButtonStyle, ContainerUnderTitleStyle, TextStyle, Title2Style, } from '../../styles/GlobalStyles';
+import { ButtonStyle, ContainerUnderTitleStyle, TextStyle } from '../../styles/GlobalStyles';
 import { EnigmatoContainerStyle, PreviewContainer, TextStyleProfil } from '../../styles/EnigmatoStyles';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
 import { useTranslation } from 'react-i18next';
-import { fetchParticipantsAsync, getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
+import { fetchParticipantsScoresAsync, getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { fetchProfile, updateProfile } from '../../services/enigmato/enigmatoProfileService';
-import { IEnigmatoParticipants, IEnigmatoProfil } from '../../interfaces/IEnigmato';
+import { IEnigmatoParticipantsScores, IEnigmatoProfil } from '../../interfaces/IEnigmato';
 import imageCompression from 'browser-image-compression';
 import ParticipantsListComponent from 'src/components/Enigmato/ParticipantListComponent';
 import PhotoUploadComponent from 'src/components/Enigmato/PhotoUploadComponent';
 import LoadingComponent from 'src/components/base/LoadingComponent';
+import RankingComponent from 'src/components/Enigmato/RankingtComponent copy';
 
 const EnigmatoProfil: React.FC = () => {
     const { id_party } = useParams<{ id_party: string }>();
     const navigate = useNavigate();
-    const [participants, setParticipants] = useState<IEnigmatoParticipants[]>([]);
+    const [participants, setParticipants] = useState<IEnigmatoParticipantsScores[]>([]);
     const [profil, setCurrentUserProfile] = useState<IEnigmatoProfil | null>(null);
     const { t } = useTranslation();
     const [canEditProfile, setCanEditProfile] = useState<boolean>(false);
@@ -37,7 +38,7 @@ const EnigmatoProfil: React.FC = () => {
                         setIsAlreadyPicture(true);
                     }
 
-                    const participantsList = await fetchParticipantsAsync(parseInt(id_party, 10), navigate);
+                    const participantsList = await fetchParticipantsScoresAsync(parseInt(id_party, 10), navigate);
                     setParticipants(participantsList);
 
                     const party = await getPartyAsync(parseInt(id_party), navigate);
@@ -121,7 +122,7 @@ const EnigmatoProfil: React.FC = () => {
             setLoading(true);
             try {
                 await updateProfile(profil, navigate);
-                const updatedParticipants = await fetchParticipantsAsync(parseInt(id_party, 10), navigate);
+                const updatedParticipants = await fetchParticipantsScoresAsync(parseInt(id_party, 10), navigate);
                 setParticipants(updatedParticipants);
                 const currentUserProfile = await fetchProfile(parseInt(id_party, 10), navigate);
                 setCurrentUserProfile(currentUserProfile);
@@ -224,8 +225,11 @@ const EnigmatoProfil: React.FC = () => {
                         </>
                     )}
 
-
-
+                    <RankingComponent
+                        participants={participants}
+                        isBase64={isBase64}
+                        title={t('ranking')}
+                    />
 
                     <ParticipantsListComponent
                         participants={participants}

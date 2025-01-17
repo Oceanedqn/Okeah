@@ -1,6 +1,6 @@
 import pool from '../../config/database';
 import { Request, Response } from 'express';
-import { IEnigmatoBoxEnigmaUser, IEnigmatoParticipants } from '../../interfaces/IEnigmato';
+import { IEnigmatoBoxEnigmaUser, IEnigmatoParticipants, IEnigmatoParticipantsScores } from '../../interfaces/IEnigmato';
 import { bufferToBase64, fetch_participants_completed_async, get_profile_by_id_from_db, get_today_box_in_game_with_response_async } from '../../utils/whois.utils';
 import { IUser } from '../../interfaces/IUser';
 
@@ -58,6 +58,150 @@ export const get_participants_async = async (req: Request, res: Response) => {
         }
     }
 }
+
+
+interface Participant {
+    id_user: number;
+    firstname: string;
+    name: string;
+    time: Date;
+}
+
+interface BoxParticipants {
+    [boxId: string]: {
+        participants: Participant[];
+    };
+}
+
+export const get_participants_with_scores_async = async (req: Request, res: Response) => {
+    const { id_party } = req.params;
+    const { user } = req;
+
+    if (!user) {
+        res.status(401).json({ message: 'Unauthorized' });
+        return;
+    }
+
+    try {
+        const partyQuery = await pool.query(
+            'SELECT * FROM enigmato_parties WHERE id_party = $1',
+            [id_party]
+        );
+
+        if (partyQuery.rows.length === 0) {
+            res.status(404).json({ message: 'No such party found' });
+            return;
+        }
+
+        const participantsQuery = await pool.query(
+            `SELECT u.id_user, u.gender, u.name, u.firstname, p.id_profil, p.picture1, p.picture2
+            FROM users u
+            JOIN enigmato_profiles p ON p.id_user = u.id_user
+            WHERE p.id_party = $1`,
+            [id_party]
+        );
+
+        const participants = participantsQuery.rows;
+
+        if (participants.length === 0) {
+            res.status(404).json({ message: 'No participants found for this party' });
+            return;
+        }
+
+        const scoresQuery = await pool.query(
+            `SELECT r.id_user, b.id_enigma_user, r.cluse_used, r.id_user_response, r.date, b.date AS box_date, b.id_box
+            FROM enigmato_boxes b
+            JOIN enigmato_box_responses r ON b.id_box = r.id_box
+            WHERE b.id_party = $1`,
+            [id_party]
+        );
+
+        const scores = scoresQuery.rows;
+
+        // Création d'un objet pour stocker les participants par id_box
+        const boxParticipants: BoxParticipants = {};
+
+        scores.forEach(score => {
+            if (score.id_user_response === score.id_enigma_user) { // Ne considérer que les réponses correctes
+                if (!boxParticipants[score.id_box]) {
+                    boxParticipants[score.id_box] = { participants: [] };
+                }
+
+                const participant = participants.find(p => p.id_user === score.id_user);
+                if (participant) {
+                    boxParticipants[score.id_box].participants.push({
+                        id_user: score.id_user,
+                        firstname: participant.firstname,
+                        name: participant.name,
+                        time: new Date(score.date),
+                    });
+                }
+            }
+        });
+
+        // Calcul des scores et tri par rapidité pour chaque boîte
+        const participantsWithScores: IEnigmatoParticipantsScores[] = participants.map((participant) => {
+            let totalScore = 0;
+
+            // Vérifier les réponses pour chaque boîte
+            Object.keys(boxParticipants).forEach((boxId: string) => {
+                const participantsInBox = boxParticipants[boxId].participants;
+
+                // Trier les participants de chaque boîte par ordre croissant de temps
+                participantsInBox.sort((a, b) => a.time.getTime() - b.time.getTime());
+
+                // Trouver la réponse de ce participant pour cette boîte
+                const participantInBox = participantsInBox.find(p => p.id_user === participant.id_user);
+
+                if (participantInBox) {
+                    // Attribution des points en fonction du rang pour les réponses correctes
+                    const rank = participantsInBox.indexOf(participantInBox);
+                    if (rank === 0) {
+                        totalScore += 3; // 1er à répondre
+                    } else if (rank === 1) {
+                        totalScore += 2; // 2e à répondre
+                    } else if (rank === 2) {
+                        totalScore += 1; // 3e à répondre
+                    }
+                }
+            });
+
+            // Filtrer les réponses pour l'utilisateur pour calculer le score des énigmes
+            const participantScores = scores.filter(score => score.id_user === participant.id_user);
+            participantScores.forEach((score, index) => {
+                if (score.id_user_response === score.id_enigma_user) {
+                    if (score.cluse_used) {
+                        totalScore += 0.5;
+                    } else {
+                        totalScore += 1;
+                    }
+                }
+            });
+
+            return {
+                id_user: participant.id_user,
+                id_party: Number(id_party),
+                id_profil: participant.id_profil,
+                name: participant.name,
+                firstname: participant.firstname,
+                gender: participant.gender,
+                picture2: participant.picture2 ? bufferToBase64(participant.picture2) : null,
+                is_complete: !!(participant.picture1 && participant.picture2),
+                scores: totalScore
+            };
+        });
+
+        // Trier les participants par score décroissant
+        participantsWithScores.sort((a, b) => b.scores - a.scores);
+
+        res.json(participantsWithScores);
+        return;
+
+    } catch (err) {
+        res.status(500).json({ message: 'Internal Server Error' });
+        return;
+    }
+};
 
 export const get_participant_by_id_async = async (req: Request, res: Response) => {
     const { id_user } = req.params;
