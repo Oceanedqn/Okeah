@@ -59,6 +59,10 @@ export interface IEnigmatoParticipants {
   picture2: string | null
 }
 
+export interface IEnigmatoParticipantsScores extends IEnigmatoParticipants {
+  scores: number
+}
+
 export interface IEnigmatoPartyCreateRequest {
   name: string;
   password: string;

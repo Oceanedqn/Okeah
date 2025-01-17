@@ -4,7 +4,7 @@ import { ButtonStyle, ContainerUnderTitleStyle, TextDarkStyle, TextStyle, Title2
 import { EnigmatoContainerStyle, ContainerBackgroundStyle } from '../../styles/EnigmatoStyles';
 import HeaderTitleComponent from '../../components/base/HeaderTitleComponent';
 import { IEnigmatoBox, IEnigmatoBoxResponse, IEnigmatoBoxRightResponse, IEnigmatoParticipantPercentage, IEnigmatoParty, IEnigmatoProfil } from '../../interfaces/IEnigmato';
-import { fetchParticipantByIdAsync, fetchParticipantsPourcentagesAsync, getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
+import { fetchParticipantsPourcentagesAsync, getPartyAsync } from '../../services/enigmato/enigmatoPartiesService';
 import { fetchProfile } from '../../services/enigmato/enigmatoProfileService';
 import { getBeforeBoxAsync, getTodayBoxAsync } from '../../services/enigmato/enigmatoBoxesService';
 import { getBoxResponseByIdBoxAsync } from '../../services/enigmato/enigmatoBoxResponsesService';

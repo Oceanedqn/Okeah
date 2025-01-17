@@ -88,5 +88,7 @@
     "reset": "Reset",
     "thoughtOf": "You thought of",
     "like": "like",
-    "ofPeople": "of people"
+    "ofPeople": "of people",
+    "ranking": "Ranking",
+    "explication_ranking": "1 point for each correct answer, 0.5 points if a clue is used, along with bonus points for speed."
 }

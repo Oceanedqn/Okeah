@@ -2,12 +2,11 @@ import React from 'react';
 import { EnigmatoItemStyle } from '../../styles/EnigmatoStyles';
 import { VscUnverified } from "react-icons/vsc";
 import { GrValidate } from "react-icons/gr";
-import { IEnigmatoParticipants } from '../../interfaces/IEnigmato';
-import { FaUser } from 'react-icons/fa';
+import { IEnigmatoParticipantsScores } from '../../interfaces/IEnigmato';
 import { TextDarkStyle, Title2Style } from 'src/styles/GlobalStyles';
 
 interface ParticipantsListProps {
-    participants: IEnigmatoParticipants[];
+    participants: IEnigmatoParticipantsScores[];
     isBase64: (str: string) => boolean;
     title: string;
 }
@@ -55,6 +54,7 @@ const ParticipantsList: React.FC<ParticipantsListProps> = ({ participants, isBas
                                     <GrValidate />
                                 </span>
                             )}
+
                         </div>
                     </EnigmatoItemStyle>
                 ))}

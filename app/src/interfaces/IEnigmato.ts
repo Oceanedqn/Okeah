@@ -61,6 +61,10 @@ export interface IEnigmatoParticipants {
   picture2: string
 }
 
+export interface IEnigmatoParticipantsScores extends IEnigmatoParticipants {
+  scores: number
+}
+
 export interface IEnigmatoParticipantPercentage {
   id_user: number
   id_party: number
