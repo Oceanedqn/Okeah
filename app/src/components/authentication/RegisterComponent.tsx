@@ -32,7 +32,7 @@ const RegisterComponent: React.FC<{ onRegister: () => void; handleToggle: () => 
     };
 
     return (
-        <CenteredElement>
+        <CenteredElement className="w-[90vw] sm:w-[80vw] md:w-1/2 lg:w-1/3">
             <Title1Style>{t('register')}</Title1Style>
             {!isLogin && (
                 <form onSubmit={handleRegister}>

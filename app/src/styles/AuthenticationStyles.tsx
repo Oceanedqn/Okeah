@@ -3,10 +3,9 @@ import styled from "styled-components";
 
 /* Styles pour l'élément centré */
 export const CenteredElement = styled.div`
-  width: 50vw; /* Ajuste la largeur selon tes besoins */
-  max-width: 600px!important;
   padding: 16px;
   border-radius: 24px;
+  max-width: 600px!important;
   border: none;
   box-sizing: border-box;
   background-color: ${({ theme }) => theme.colors.background_alternatif};
