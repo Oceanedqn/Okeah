@@ -90,5 +90,5 @@
     "like": "like",
     "ofPeople": "of people",
     "ranking": "Ranking",
-    "explication_ranking": "1 point for each correct answer, 0.5 points if a clue is used, along with bonus points for speed."
+    "explication_ranking": "1 point per correct answer. 3, 2, and 1 points are awarded for speed to the first, second, and third participants respectively. Note: If a hint is used, the points are halved."
 }

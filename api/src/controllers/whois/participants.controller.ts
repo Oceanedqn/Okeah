@@ -65,6 +65,7 @@ interface Participant {
     firstname: string;
     name: string;
     time: Date;
+    clue_used: boolean;
 }
 
 interface BoxParticipants {
@@ -93,6 +94,7 @@ export const get_participants_with_scores_async = async (req: Request, res: Resp
             return;
         }
 
+        // Récupération des participants
         const participantsQuery = await pool.query(
             `SELECT u.id_user, u.gender, u.name, u.firstname, p.id_profil, p.picture1, p.picture2
             FROM users u
@@ -108,6 +110,7 @@ export const get_participants_with_scores_async = async (req: Request, res: Resp
             return;
         }
 
+        // Récupération des scores et des réponses
         const scoresQuery = await pool.query(
             `SELECT r.id_user, b.id_enigma_user, r.cluse_used, r.id_user_response, r.date, b.date AS box_date, b.id_box
             FROM enigmato_boxes b
@@ -134,6 +137,7 @@ export const get_participants_with_scores_async = async (req: Request, res: Resp
                         firstname: participant.firstname,
                         name: participant.name,
                         time: new Date(score.date),
+                        clue_used: score.cluse_used
                     });
                 }
             }
@@ -154,14 +158,16 @@ export const get_participants_with_scores_async = async (req: Request, res: Resp
                 const participantInBox = participantsInBox.find(p => p.id_user === participant.id_user);
 
                 if (participantInBox) {
+                    const clueUsed = participantInBox.clue_used;
+
                     // Attribution des points en fonction du rang pour les réponses correctes
                     const rank = participantsInBox.indexOf(participantInBox);
                     if (rank === 0) {
-                        totalScore += 3; // 1er à répondre
+                        totalScore += clueUsed ? 1.5 : 3; // 1er à répondre
                     } else if (rank === 1) {
-                        totalScore += 2; // 2e à répondre
+                        totalScore += clueUsed ? 1 : 2; // 2e à répondre
                     } else if (rank === 2) {
-                        totalScore += 1; // 3e à répondre
+                        totalScore += clueUsed ? 0.5 : 1; // 3e à répondre
                     }
                 }
             });

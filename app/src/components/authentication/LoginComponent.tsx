@@ -41,7 +41,7 @@ const LoginComponent: React.FC<{ handleToggle: () => void; isLogin: boolean }> =
     };
 
     return (
-        <CenteredElement>
+        <CenteredElement className="w-[90vw] sm:w-[80vw] md:w-1/2 lg:w-1/3">
             <Title1Style>{t('login')}</Title1Style>
             {isLogin && (
                 <form onSubmit={handleLogin}>
