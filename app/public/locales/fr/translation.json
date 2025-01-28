@@ -91,5 +91,5 @@
     "like": "comme",
     "ofPeople": "des gens",
     "ranking": "Classement",
-    "explication_ranking": "1 point pour chaque réponse correcte, 0.5 point si un indice est utilisé, ainsi que des points bonus pour la rapidité."
+    "explication_ranking": "1 point par bonne réponse. 3, 2 et 1 point pour la rapidité attribués respectivement aux premiers, deuxièmes et troisièmes. Attention Si un indice est utilisé, les points sont divisés par deux."
 }
